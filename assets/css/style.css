@@ -1458,3 +1458,9 @@ body.dark-mode .notification {
 .famina-hero-action{padding:1.5rem 20px 2.5rem}
 .header .logo .famina-brand-image{display:block;width:clamp(145px,18vw,210px);height:auto;max-height:64px;object-fit:contain}
 @media(max-width:700px){.famina-hero-action{padding:1.25rem 20px 2rem}.header .logo .famina-brand-image{width:150px}}
+
+/* Remove old hero artwork, ghost text and pseudo-elements on homepage. */
+body .famina-home-hero,body .famina-home-hero::before,body .famina-home-hero::after{background-image:none!important;content:none!important}
+body .famina-home-hero .famina-hero-media{position:relative;z-index:1}
+body .famina-home-hero .famina-hero-action{position:relative;z-index:2}
+body .famina-home-hero .famina-hero-media img{max-width:100%;height:auto;display:block}
