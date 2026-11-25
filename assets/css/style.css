@@ -80,6 +80,31 @@ button {
     z-index: 1000;
 }
 
+/* Keep the homepage header in document flow so it cannot cover the banner. */
+.home-page #header {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.home-page #header .header {
+    position: relative;
+}
+
+.home-page .hero.famina-home-hero {
+    padding: 0;
+    margin: 0;
+    background: none;
+    min-height: 0;
+}
+
+.home-page .famina-hero-media img {
+    display: block;
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+}
+
 .header .container {
     display: flex;
     justify-content: space-between;
@@ -1464,3 +1489,56 @@ body .famina-home-hero,body .famina-home-hero::before,body .famina-home-hero::af
 body .famina-home-hero .famina-hero-media{position:relative;z-index:1}
 body .famina-home-hero .famina-hero-action{position:relative;z-index:2}
 body .famina-home-hero .famina-hero-media img{max-width:100%;height:auto;display:block}
+
+/* Compact, responsive food category discovery. */
+.category-discovery { padding:clamp(32px,5vw,64px) 0; background:#fff; }
+.category-discovery .category-heading { display:flex; align-items:center; justify-content:space-between; gap:24px; margin-bottom:28px; }
+.category-discovery .category-eyebrow { margin:0 0 8px; color:#bd400d; font-size:.7rem; font-weight:800; letter-spacing:2px; }
+.category-discovery h2 { margin:0; text-align:start; font-size:clamp(1.65rem,3vw,2.35rem); font-weight:800; line-height:1.2; letter-spacing:-1px; color:#24211e; }
+.category-discovery .category-intro { margin:10px 0 0; color:#786c64; font-size:.95rem; }
+.category-discovery .category-view-all { flex-shrink:0; color:#bd400d; font-size:.85rem; font-weight:700; padding:10px 16px; background:#fff1e8; border-radius:100px; }
+.category-discovery .category-grid { display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); gap:16px; }
+.category-discovery .category-card { display:flex; flex-direction:column; align-items:center; padding:18px 12px 16px; border:1px solid #f0ebe5; border-radius:24px; background:#fcfaf7; box-shadow:none; overflow:visible; transition:transform .2s ease,border-color .2s ease,box-shadow .2s ease; }
+.category-discovery .category-card:nth-child(2n) { background:#fff6ef; }
+.category-discovery .category-image-wrap { display:block; width:100%; max-width:136px; aspect-ratio:1; border-radius:50%; overflow:hidden; background:#eee6df; box-shadow:0 6px 14px #39221114; }
+.category-discovery .category-card img { display:block; width:100%; height:100%; min-height:0; object-fit:cover; border-radius:inherit; transition:transform .25s ease; }
+.category-discovery .category-card h3 { margin:16px 0 0; padding:0; font-size:1rem; line-height:1.4; font-weight:700; color:#32261f; }
+.category-discovery .category-card:hover { transform:translateY(-4px); border-color:#ff9c6b; box-shadow:0 12px 28px #8a3d1712; }
+.category-discovery .category-card:hover img { transform:scale(1.06); }
+.category-discovery a:focus-visible { outline:3px solid #d64b0e; outline-offset:4px; }
+@media(max-width:900px) { .category-discovery .category-grid { grid-template-columns:repeat(3,minmax(0,1fr)); } }
+@media(max-width:480px) {
+ .category-discovery .category-heading { align-items:flex-start; gap:12px; margin-bottom:22px; }
+ .category-discovery .category-view-all { font-size:.75rem; padding:8px 12px; }
+ .category-discovery .category-eyebrow { font-size:.6rem; letter-spacing:1.2px; }
+ .category-discovery .category-grid { gap:10px; }
+ .category-discovery .category-card { border-radius:20px; padding:12px 10px; }
+ .category-discovery .category-card h3 { font-size:.9rem; margin-top:12px; }
+}
+@media(prefers-reduced-motion:reduce) {
+ .category-discovery .category-card,.category-discovery .category-card img { transition:none; }
+ .category-discovery .category-card:hover,.category-discovery .category-card:hover img { transform:none; }
+}
+
+/* Delivery address finder above categories. */
+.delivery-finder { background:#f5ede2; padding:30px 0 24px; text-align:center; }
+.delivery-finder .container { max-width:900px; }
+.delivery-finder h2 { color:#f65b00; font-size:clamp(1.05rem,2.4vw,1.35rem); line-height:1.4; margin:0 0 14px; font-weight:700; }
+.delivery-search-field { display:flex; gap:12px; align-items:center; border:1px solid #ccd0d5; background:#fff; border-radius:50px; padding:4px 8px 4px 12px; color:#555; }
+.delivery-search-field:focus-within { border-color:#f65b00; box-shadow:0 0 0 3px #ff62001a; }
+.delivery-search-field > svg { flex-shrink:0; }
+.delivery-search-field input { flex:1; min-width:0; width:100%; border:0; background:transparent; outline:none; font:inherit; font-size:.85rem; padding:9px 0; color:#333; }
+.delivery-search-field button { display:grid; place-items:center; flex-shrink:0; width:36px; height:36px; color:#555; background:transparent; border-radius:50%; }
+.delivery-search-field button:hover { background:#fff0e5; color:#ed5900; }
+.delivery-finder .delivery-go { display:inline-block; border:0; border-radius:50px; background:#fa5b00; color:#fff; padding:13px 25px; min-height:46px; font-size:.95rem; font-weight:700; cursor:pointer; margin-top:0; }
+.delivery-finder .delivery-go:hover { background:#d94e00; }
+.delivery-finder button:focus-visible { outline:3px solid #8d3600; outline-offset:3px; }
+.delivery-finder button:disabled { opacity:.55; cursor:wait; }
+#delivery-search-error { position:relative; margin:6px 0 0; padding:9px 12px; background:#fa5b00; color:#fff; font-size:.8rem; line-height:1.4; border-radius:3px; }
+#delivery-search-error::before { content:''; position:absolute; top:-7px; inset-inline-start:12px; border-inline:7px solid transparent; border-bottom:7px solid #fa5b00; }
+#delivery-search-error[hidden], #delivery-map-panel[hidden] { display:none; }
+#delivery-map-panel { margin-top:20px; }
+#delivery-map-status { color:#5e4d3e; margin:0 0 12px; font-size:.9rem; }
+#delivery-picker-map { height:280px; border-radius:16px; border:1px solid #ded4c9; z-index:0; }
+#delivery-map-panel .delivery-go { margin-top:14px; }
+@media(max-width:480px) { .delivery-finder .container { padding:0 10px; } .delivery-search-field { gap:8px; } .delivery-search-field input { font-size:.75rem; } }

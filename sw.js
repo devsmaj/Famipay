@@ -1,4 +1,5 @@
-const CACHE_NAME = 'fa-minna-express-platform-v6';
+const CACHE_NAME = 'fa-minna-express-platform-v7';
+const IS_LOCAL_PREVIEW = ['localhost', '127.0.0.1', '[::1]'].includes(self.location.hostname);
 const urlsToCache = [
   '/assets/js/loading.js',
   '/assets/css/loading.css',
@@ -88,6 +89,10 @@ const urlsToCache = [
 
 // Install event
 self.addEventListener('install', event => {
+  if (IS_LOCAL_PREVIEW) {
+    event.waitUntil(self.skipWaiting());
+    return;
+  }
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => {
@@ -99,6 +104,13 @@ self.addEventListener('install', event => {
 
 // Fetch event
 self.addEventListener('fetch', event => {
+  // Local edits must reach the browser instead of an older offline copy.
+  if (IS_LOCAL_PREVIEW) {
+    if (event.request.method === 'GET' && new URL(event.request.url).origin === self.location.origin) {
+      event.respondWith(fetch(event.request, { cache: 'no-store' }));
+    }
+    return;
+  }
   if (event.request.method !== 'GET' || new URL(event.request.url).origin !== self.location.origin || new URL(event.request.url).pathname.startsWith('/api/')) return;
   event.respondWith(
     caches.match(event.request)
@@ -115,7 +127,7 @@ self.addEventListener('activate', event => {
     caches.keys().then(cacheNames => {
       return Promise.all(
         cacheNames.map(cacheName => {
-          if (cacheName.startsWith('fa-minna-express-') && cacheName !== CACHE_NAME) {
+          if (cacheName.startsWith('fa-minna-express-') && (IS_LOCAL_PREVIEW || cacheName !== CACHE_NAME)) {
             return caches.delete(cacheName);
           }
         })

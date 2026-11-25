@@ -9,23 +9,42 @@
     <link rel="stylesheet" href="assets/css/auth.css">
     <link rel="stylesheet" href="assets/css/notifications.css">
     <link rel="stylesheet" href="assets/css/platform.css">
+    <link rel="stylesheet" href="assets/css/restaurant-directory.css">
     <script>document.documentElement.classList.add('page-loading', 'header-loading');</script>
     <link rel="stylesheet" href="assets/css/loading.css">
 </head>
-<body class="customer-fullscreen">
+<body class="customer-fullscreen home-page restaurant-directory-page">
     <div id="header"></div>
 
     <main>
-        <section class="restaurants">
-            <div class="container">
-                <h2>Choose Your Restaurant</h2>
-                <div class="restaurant-grid" id="restaurants-list">
-                    <!-- Restaurants will be populated by JavaScript -->
+        <section class="directory-section">
+            <div class="container directory-container">
+                <nav class="directory-breadcrumb" aria-label="Breadcrumb"><a href="index.html">Home</a><span aria-hidden="true">›</span><span>Abéché restaurants</span></nav>
+                <div class="directory-title"><p>GOOD FOOD, CLOSE TO HOME</p><h1>Discover restaurants in Abéché</h1></div>
+                <div class="directory-address"><span aria-hidden="true">⌖</span><div><small>Delivery point</small><p id="directory-address">Choose your delivery point to get started.</p></div><a href="index.html#delivery-finder-title">Change</a></div>
+                <div class="directory-layout">
+                    <aside class="directory-sidebar" aria-label="Restaurant filters">
+                        <label class="directory-search-label" for="restaurant-search">Find a restaurant</label>
+                        <input id="restaurant-search" type="search" placeholder="Search restaurants..." autocomplete="off" data-no-translate>
+                        <form id="directory-filters">
+                            <fieldset><legend>Filter by</legend><label class="directory-check"><input type="checkbox" name="orderable"> Ordering available</label></fieldset>
+                            <fieldset><legend>Cuisines</legend><div id="directory-cuisines"></div></fieldset>
+                            <button class="directory-apply" type="submit">Apply filters</button>
+                            <button class="directory-reset" type="reset">Clear filters</button>
+                        </form>
+                        <p class="directory-listing-note">Know a restaurant we missed? <a href="contact.html">Tell us about it</a></p>
+                    </aside>
+                    <div class="directory-content">
+                        <div class="directory-toolbar"><p id="directory-count" role="status" aria-live="polite">Loading restaurants...</p><label for="restaurant-sort">Sort by <select id="restaurant-sort"><option value="featured">Featured</option><option value="name">Name: A–Z</option><option value="distance">Nearest delivery point</option></select></label></div>
+                        <p class="directory-notice" id="directory-notice">Local directory listings. Ordering becomes available when a restaurant joins FA-MINNA Express.</p>
+                        <div id="restaurant-results"></div>
+                        <nav id="directory-pagination" class="directory-pagination" aria-label="Restaurant pages"></nav>
+                    </div>
                 </div>
             </div>
         </section>
     </main>
-
+    <div id="footer"></div>
 
 
     <script src="assets/js/loading.js" onerror="document.documentElement.classList.remove('page-loading', 'header-loading')"></script>
@@ -44,6 +63,8 @@
     <script src="assets/js/navigation.js"></script>
     <script src="assets/js/cart.js"></script>
 
-    <script src="assets/js/menu.js"></script>
+    <script src="assets/js/abeche-restaurants.js"></script>
+    <script src="assets/js/restaurant-directory-model.js"></script>
+    <script src="assets/js/restaurant-directory.js"></script>
 </body>
 </html>

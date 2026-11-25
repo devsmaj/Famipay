@@ -1,0 +1,42 @@
+.popular-cuisines { background:#fff; padding:24px 0 56px; }
+.discovery-heading { max-width:690px; margin:0 auto 36px; text-align:center; }
+.discovery-eyebrow { color:#b84c21; font-size:.65rem; font-weight:800; letter-spacing:1.6px; margin:0 0 12px; }
+.discovery-heading h2 { font-size:clamp(1.9rem,4vw,2.7rem); line-height:1.12; letter-spacing:-1px; margin:0 0 14px; color:#29251f; }
+.discovery-heading > p:last-child { color:#87786c; font-size:.9rem; line-height:1.7; margin:0; }
+.popular-cuisine-grid { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:30px 24px; }
+.popular-cuisine { display:flex; flex-direction:column; align-items:center; text-align:center; padding:8px 0; }
+.popular-cuisine h3 { color:#352c24; font-size:1rem; font-weight:750; min-height:2.6em; line-height:1.3; margin:0 0 12px; }
+.popular-cuisine-image { position:relative; display:block; width:140px; max-width:90%; aspect-ratio:1; isolation:isolate; }
+.popular-cuisine-image::before { content:''; position:absolute; inset:9px -14px 4px; border-radius:50% 20% 45% 30%; background:#ffe4c3; transform:rotate(-12deg); z-index:-1; }
+.popular-cuisine:nth-child(3n+2) .popular-cuisine-image::before { background:#e1ebd5; transform:rotate(10deg); }
+.popular-cuisine:nth-child(3n) .popular-cuisine-image::before { background:#f6ded8; }
+.popular-cuisine img { display:block; width:100%; height:100%; object-fit:cover; border-radius:50%; box-shadow:0 6px 16px #5a38251a; transition:transform .2s ease; }
+.popular-cuisine:hover img { transform:translateY(-5px) rotate(3deg); }
+.discovery-photo-credit { display:block; width:fit-content; margin:28px auto 0; color:#8d7b6a; font-size:.65rem; text-decoration:underline; text-underline-offset:3px; }
+.partner-section { padding:48px 0; background:white; }
+.partner-banner { display:grid; grid-template-columns:1fr 1fr; gap:32px; align-items:center; background:linear-gradient(110deg,#ffe5cf,#faf6ef 70%); padding:18px; padding-inline-start:40px; border-radius:26px; }
+.partner-banner h2 { color:#30271f; font-size:clamp(1.6rem,3vw,2.4rem); line-height:1.13; letter-spacing:-.7px; margin:0 0 16px; }
+.partner-banner-copy > p:not(.discovery-eyebrow) { color:#7d6a5c; font-size:.9rem; line-height:1.7; margin:0 0 22px; max-width:420px; }
+.discovery-primary-button { display:inline-flex; align-items:center; gap:18px; padding:12px 22px; border-radius:100px; background:#ee6328; color:white; font-size:.8rem; font-weight:750; }
+.partner-banner-photo { margin:0; position:relative; overflow:hidden; border-radius:20px; }
+.partner-banner-photo img { display:block; width:100%; height:270px; object-fit:cover; }
+.partner-banner-photo figcaption { padding:7px 10px; background:#fffaf4; color:#806d5e; font-size:.6rem; }
+.partner-banner-photo figcaption a { text-decoration:underline; }
+.discovery-faq { padding:52px 0; background:#f5f4f2; }
+.discovery-heading-left { max-width:none; text-align:start; margin-bottom:30px; }
+.discovery-faq-list { display:grid; gap:8px; }
+.discovery-faq-list details { background:white; border:1px solid #efede9; border-radius:18px; overflow:hidden; }
+.discovery-faq-list summary { display:flex; align-items:center; justify-content:space-between; gap:22px; list-style:none; padding:22px 24px; cursor:pointer; color:#2e2924; font-size:.95rem; font-weight:650; }
+.discovery-faq-list summary::-webkit-details-marker { display:none; }
+.discovery-faq-list summary::after { content:''; flex-shrink:0; width:10px; height:10px; border-right:2px solid currentColor; border-bottom:2px solid currentColor; transform:rotate(45deg); margin-inline-end:5px; transition:transform .2s ease; }
+.discovery-faq-list details[open] summary::after { transform:rotate(225deg); }
+.discovery-faq-list details[open] summary { color:#bc491d; }
+.discovery-faq-list details > p { color:#817164; line-height:1.8; font-size:.9rem; margin:0; padding:0 24px 24px; max-width:940px; }
+.discovery-text-link { display:inline-flex; align-items:center; gap:12px; color:#a74620; font-size:.8rem; font-weight:750; margin-top:24px; }
+:is(.popular-cuisines,.partner-section,.discovery-faq) :is(a,summary):focus-visible { outline:3px solid #ad461e; outline-offset:4px; }
+.faq-page { background:#f5f4f2; }
+.faq-page .discovery-faq { padding-top:34px; }
+.faq-page .discovery-heading h1 { font-size:clamp(2.2rem,5vw,3.3rem); line-height:1.08; letter-spacing:-1.5px; margin:0 0 18px; color:#28231e; }
+@media(max-width:850px) { .popular-cuisine-grid { grid-template-columns:repeat(3,minmax(0,1fr)); } .partner-banner { gap:24px; padding:22px; } }
+@media(max-width:600px) { .popular-cuisines { padding-bottom:36px; } .popular-cuisine-grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:22px 18px; } .popular-cuisine-image { width:120px; } .popular-cuisine h3 { font-size:.9rem; } .partner-banner { grid-template-columns:1fr; padding:24px; gap:24px; } .partner-banner-photo img { height:220px; } .partner-section { padding:32px 0; } .discovery-faq { padding:36px 0; } .discovery-faq-list summary { padding:20px 18px; font-size:.85rem; } .discovery-faq-list details > p { padding:0 18px 20px; font-size:.85rem; } }
+@media(prefers-reduced-motion:reduce) { .popular-cuisine img,.discovery-faq-list summary::after { transition:none; } .popular-cuisine:hover img { transform:none; } }

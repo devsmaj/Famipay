@@ -1,0 +1,13 @@
+// Public directory references checked 2026-11-25. These are not partner endorsements.
+// No unverified prices, ratings, opening hours, coordinates or delivery claims.
+window.FAMINA_ABECHE_RESTAURANTS = [
+  { id:'directory-ombre', name:"Ombre d’Afrique", cuisine:'Local cuisine, International', address:'Near the souk, Abéché', phone:'+23599249839', source:'https://www.petitfute.com/v45685-abeche/c1165-restaurants/c1031-cuisines-du-monde/158550-restaurant-ombre-d-afrique.html', sourceName:'Petit Futé' },
+  { id:'directory-rose', name:'La Rose du Sable', aliases:['Rose des Sables','وردة الرمال'], cuisine:'French, International', address:'Route de Goz Beïda, Abéché', phone:'+23566352862', source:'https://www.petitfute.co.uk/v45685-abeche/c1165-restaurants/c4-cuisine-francaise/409343-restaurant-la-rose-du-sable.html', sourceName:'Petit Futé' },
+  { id:'directory-abeche', name:"Restaurant d’Abéché", cuisine:'Local cuisine', address:'Quartier Kamine 2, Abéché', phone:'+23563770234', source:'https://www.petitfute.com/v45685-abeche/c1165-restaurants/c1031-cuisines-du-monde/409382-restaurant-d-abeche.html', sourceName:'Petit Futé' },
+  { id:'directory-galape', name:'Restaurant Galapé', cuisine:'Local cuisine', address:'Grand marché, Abéché', phone:'+23566276587', source:'https://www.petitfute.com/v45685-abeche/c1165-restaurants/c4-cuisine-francaise/411583-restaurant-galape.html', sourceName:'Petit Futé' },
+  { id:'directory-assoukarya', name:'Assoukarya', cuisine:'Local cuisine', address:'Parc de Biltine, Abéché', source:'https://www.petitfute.com/v45685-abeche/c1165-restaurants/c1031-cuisines-du-monde/434441-assoukarya.html', sourceName:'Petit Futé' },
+  { id:'directory-santana', name:'Santana Roow', aliases:['Restaurant Santana'], cuisine:'Local cuisine', address:'Quartier Kamina III, Abéché', phone:'+23563389214', source:'https://www.petitfute.com/v45685-abeche/c1165-restaurants/c1029-cuisine-regionale/1594279-santana-roow.html', sourceName:'Petit Futé' },
+  { id:'directory-dar', name:'Dar El Salam', cuisine:'Not specified', address:'Abéché', source:'https://corners.africa/listing/4241', sourceName:'Corners / OpenStreetMap', needsReview:true },
+  { id:'directory-bon', name:'Bon Jus', cuisine:'Fast food', address:'Abéché', source:'https://rues-chad.openalfa.com/abeche/restauration', sourceName:'OpenAlfa / OpenStreetMap', needsReview:true },
+  { id:'directory-farhan', name:'Restaurant Al Farhan', cuisine:'Local cuisine', address:"Rue N’Djaména, Abéché", source:'https://evendo.com/locations/chad/wadi-fira/bar/restaurant-al-farhan', sourceName:'Evendo', needsReview:true }
+];

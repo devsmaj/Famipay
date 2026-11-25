@@ -1,0 +1,40 @@
+.famina-benefits { padding:64px 0; background:#f1f3fa; }
+.benefits-layout { display:grid; grid-template-columns:1fr 1.1fr; gap:64px; align-items:center; }
+.benefits-photo { position:relative; height:340px; overflow:hidden; border-radius:24px; background:#ffe9d3; }
+.benefits-photo img { width:100%; height:100%; object-fit:cover; object-position:center; display:block; }
+.benefits-photo-label { position:absolute; bottom:18px; inset-inline-start:18px; padding:8px 14px; color:#3d2a1e; background:#fffffff2; border-radius:100px; font-size:.75rem; font-weight:700; }
+.services-eyebrow { color:#c54b17; font-size:.65rem; font-weight:800; letter-spacing:1.7px; margin:0 0 10px; }
+.benefits-copy h2,.services-heading h2 { margin:0 0 22px; color:#24211e; font-size:clamp(1.65rem,3vw,2.25rem); letter-spacing:-.8px; line-height:1.2; }
+.benefits-list { display:grid; gap:23px; }
+.benefits-list li { display:flex; align-items:flex-start; gap:17px; }
+.benefit-symbol { display:grid; place-items:center; flex-shrink:0; width:48px; height:48px; border-radius:14px; background:white; color:#ed6128; font-size:26px; font-weight:600; }
+.benefits-list h3 { font-size:1rem; line-height:1.4; margin:0 0 4px; color:#302b27; }
+.benefits-list p { margin:0; color:#6c7486; font-size:.9rem; line-height:1.7; }
+.famina-services { padding:72px 0 80px; background:#fff; }
+.services-heading { max-width:620px; text-align:center; margin:0 auto 36px; }
+.services-heading h2 { margin-bottom:14px; }
+.services-heading > p:last-child { color:#75716d; font-size:.95rem; line-height:1.8; margin:0; }
+.services-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:24px; }
+.service-tile { position:relative; isolation:isolate; display:block; min-height:310px; padding:28px; border:0; border-radius:24px; text-align:start; font-family:inherit; color:white; cursor:pointer; overflow:hidden; transition:transform .2s ease,box-shadow .2s ease; }
+.service-food { background:#f15c23; }
+.service-agriculture { background:#376c46; }
+.service-shop { background:#b8653c; }
+.service-tile::after { content:''; position:absolute; width:240px; height:240px; border-radius:50%; background:#ffffff0c; bottom:-80px; right:-40px; z-index:-1; }
+.service-number { display:block; font-size:.62rem; font-weight:700; letter-spacing:1.5px; opacity:.9; margin-bottom:13px; }
+.service-tile h3 { font-size:clamp(1.4rem,2.4vw,1.9rem); line-height:1.12; letter-spacing:-.6px; margin:0 0 10px; max-width:260px; }
+.service-tile p { font-size:.85rem; line-height:1.5; margin:0; opacity:.93; }
+.service-tile-link { position:absolute; bottom:25px; inset-inline-start:28px; z-index:1; display:flex; gap:8px; align-items:center; max-width:44%; font-size:.75rem; font-weight:700; }
+.service-tile-link span { font-size:20px; }
+.service-art { position:absolute; right:-6px; bottom:2px; width:64%; height:160px; pointer-events:none; }
+.service-tile:hover { transform:translateY(-5px); box-shadow:0 15px 28px #42261720; }
+.service-tile:focus-visible,.service-contact-link:focus-visible { outline:3px solid #28221c; outline-offset:5px; }
+.service-tile[aria-expanded=true] { outline:3px solid #e5bb8a; outline-offset:4px; }
+.service-details { padding:28px; margin-top:26px; background:#fcf8f3; border:1px solid #ece1d3; border-radius:20px; }
+.service-details[hidden] { display:none; }
+.service-status { display:inline-block; color:#776044; background:#eee4d6; border-radius:100px; padding:4px 10px; font-size:.7rem; margin-bottom:12px; }
+.service-details h3 { color:#302b27; font-size:1.3rem; margin:0 0 9px; }
+.service-details p { color:#746b62; max-width:750px; margin:0 0 14px; font-size:.9rem; }
+.service-contact-link { color:#a03f16; font-size:.85rem; font-weight:700; }
+@media(max-width:1000px) { .benefits-layout { gap:32px; } .service-tile { padding:22px; min-height:320px; } .service-tile-link { inset-inline-start:22px; } }
+@media(max-width:700px) { .benefits-layout { grid-template-columns:1fr; gap:28px; } .benefits-photo { height:260px; } .famina-benefits { padding:36px 0; } .famina-services { padding:40px 0; } .services-grid { grid-template-columns:1fr; gap:18px; } .service-tile { min-height:260px; padding:26px; } .service-art { width:220px; height:170px; } .service-tile h3 { max-width:65%; font-size:1.9rem; } .service-tile-link { inset-inline-start:26px; } }
+@media(prefers-reduced-motion:reduce) { .service-tile { transition:none; } .service-tile:hover { transform:none; } }

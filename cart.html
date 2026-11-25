@@ -9,26 +9,36 @@
     <link rel="stylesheet" href="assets/css/auth.css">
     <link rel="stylesheet" href="assets/css/notifications.css">
     <link rel="stylesheet" href="assets/css/platform.css">
+    <link rel="stylesheet" href="assets/css/cart-page.css">
     <script>document.documentElement.classList.add('page-loading', 'header-loading');</script>
     <link rel="stylesheet" href="assets/css/loading.css">
 </head>
-<body class="customer-fullscreen">
+<body class="customer-fullscreen home-page cart-page">
     <div id="header"></div>
 
     <main>
         <section class="cart-section">
             <div class="container">
-                <h2 data-i18n="cart.title">Your Cart</h2>
+                <a class="cart-back-link" href="restaurant.html">← Browse restaurants</a>
+                <h1 data-i18n="cart.title">Your Cart</h1>
+                <p class="cart-page-intro">A little closer to your next favorite meal.</p>
+                <div class="cart-page-layout">
                 <div id="cart-items" class="cart-items">
                     <!-- Cart items will be populated by JavaScript -->
                 </div>
+                <aside class="cart-summary" id="cart-summary" hidden aria-label="Order summary">
+                <h2>Order summary</h2>
                 <div id="cart-total" class="cart-total">
                     <!-- Total will be calculated by JavaScript -->
                 </div>
-                <a href="checkout.html" class="checkout-btn" data-i18n="cart.checkout">Proceed to Checkout</a>
+                <p class="cart-fee-note">Delivery charges are calculated at checkout.</p>
+                <a id="cart-checkout" href="checkout.html" class="checkout-btn" data-i18n="cart.checkout" hidden>Proceed to Checkout</a>
+                </aside>
+                </div>
             </div>
         </section>
     </main>
+    <div id="footer"></div>
 
 
 
