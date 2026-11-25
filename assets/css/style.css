@@ -1520,6 +1520,27 @@ body .famina-home-hero .famina-hero-media img{max-width:100%;height:auto;display
  .category-discovery .category-card:hover,.category-discovery .category-card:hover img { transform:none; }
 }
 
+@media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+        main > * {
+            animation: content-slide-in linear both;
+            animation-timeline: view();
+            animation-range: entry 0% entry 35%;
+        }
+
+        @keyframes content-slide-in {
+            from {
+                opacity: 0;
+                transform: translateY(28px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    }
+}
+
 /* Delivery address finder above categories. */
 .delivery-finder { background:#f5ede2; padding:30px 0 24px; text-align:center; }
 .delivery-finder .container { max-width:900px; }

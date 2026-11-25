@@ -1,4 +1,4 @@
-const CACHE_NAME = 'fa-minna-express-platform-v7';
+const CACHE_NAME = 'fa-minna-express-platform-v8';
 const IS_LOCAL_PREVIEW = ['localhost', '127.0.0.1', '[::1]'].includes(self.location.hostname);
 const urlsToCache = [
   '/assets/js/loading.js',
