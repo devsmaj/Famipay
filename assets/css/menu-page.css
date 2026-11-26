@@ -1,19 +1,19 @@
 .menu-page .menu-section { padding:28px 0 56px; }
 .menu-page .menu-section > .container { max-width:1120px; }
-.menu-back-link { display:inline-block; color:#b84818; font-size:.8rem; font-weight:700; margin-bottom:24px; }
+.menu-back-link { display:inline-block; color:#0d6c4d; font-size:.8rem; font-weight:700; margin-bottom:24px; }
 .menu-page .menu-section h1 { font-size:clamp(1.8rem,4vw,2.6rem); line-height:1.2; text-align:start; margin:0 0 12px; letter-spacing:-1px; }
 .menu-page .menu-lead { text-align:start; margin:0 0 24px; font-size:.95rem; color:#7c7168; }
 .menu-page .results-info { text-align:start; color:#7a6d61; margin:16px 0; font-size:.8rem; }
 .menu-page .menu-category-pills:empty { display:none; }
 .menu-page .menu-grid:has(.menu-state) { display:block; }
 .menu-state { grid-column:1/-1; display:flex; flex-direction:column; align-items:center; padding:48px 24px; border:1px solid #eee3d6; border-radius:24px; background:#fffaf4; text-align:center; }
-.menu-state-symbol { display:grid; place-items:center; width:64px; height:64px; border-radius:22px; background:#ffead8; color:#c65320; font-size:30px; margin-bottom:20px; }
+.menu-state-symbol { display:grid; place-items:center; width:64px; height:64px; border-radius:22px; background:#ffead8; color:#0d6c4d; font-size:30px; margin-bottom:20px; }
 .menu-state h2 { margin:0 0 10px; font-size:1.4rem; line-height:1.3; letter-spacing:-.4px; }
 .menu-state p { margin:0; max-width:420px; color:#7c7065; font-size:.9rem; }
 .menu-state-actions { display:flex; flex-wrap:wrap; justify-content:center; gap:12px; margin-top:24px; }
-.menu-state-actions :is(a,button) { display:inline-block; padding:11px 20px; border-radius:100px; font-size:.85rem; font-weight:700; background:#f46429; color:white; }
-.menu-state-actions .menu-state-secondary { color:#9b441e; background:#ffecd9; }
-.menu-page :is(a,button):focus-visible { outline:3px solid #9b441e; outline-offset:3px; }
-.menu-page .menu-pill[aria-pressed=true] { color:white; background:#ec6028; }
+.menu-state-actions :is(a,button) { display:inline-block; padding:11px 20px; border-radius:100px; font-size:.85rem; font-weight:700; background:#16845f; color:white; }
+.menu-state-actions .menu-state-secondary { color:#0d6c4d; background:#ffecd9; }
+.menu-page :is(a,button):focus-visible { outline:3px solid #0d6c4d; outline-offset:3px; }
+.menu-page .menu-pill[aria-pressed=true] { color:white; background:#16845f; }
 .menu-page .menu-item > img { aspect-ratio:4/3; width:100%; object-fit:cover; }
 @media(max-width:480px) { .menu-state { padding:36px 18px; } .menu-state h2 { font-size:1.2rem; } }

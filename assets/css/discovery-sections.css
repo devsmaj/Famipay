@@ -1,6 +1,6 @@
 .popular-cuisines { background:#fff; padding:24px 0 56px; }
 .discovery-heading { max-width:690px; margin:0 auto 36px; text-align:center; }
-.discovery-eyebrow { color:#b84c21; font-size:.65rem; font-weight:800; letter-spacing:1.6px; margin:0 0 12px; }
+.discovery-eyebrow { color:#0d6c4d; font-size:.65rem; font-weight:800; letter-spacing:1.6px; margin:0 0 12px; }
 .discovery-heading h2 { font-size:clamp(1.9rem,4vw,2.7rem); line-height:1.12; letter-spacing:-1px; margin:0 0 14px; color:#29251f; }
 .discovery-heading > p:last-child { color:#87786c; font-size:.9rem; line-height:1.7; margin:0; }
 .popular-cuisine-grid { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:30px 24px; }
@@ -17,7 +17,7 @@
 .partner-banner { display:grid; grid-template-columns:1fr 1fr; gap:32px; align-items:center; background:linear-gradient(110deg,#ffe5cf,#faf6ef 70%); padding:18px; padding-inline-start:40px; border-radius:26px; }
 .partner-banner h2 { color:#30271f; font-size:clamp(1.6rem,3vw,2.4rem); line-height:1.13; letter-spacing:-.7px; margin:0 0 16px; }
 .partner-banner-copy > p:not(.discovery-eyebrow) { color:#7d6a5c; font-size:.9rem; line-height:1.7; margin:0 0 22px; max-width:420px; }
-.discovery-primary-button { display:inline-flex; align-items:center; gap:18px; padding:12px 22px; border-radius:100px; background:#ee6328; color:white; font-size:.8rem; font-weight:750; }
+.discovery-primary-button { display:inline-flex; align-items:center; gap:18px; padding:12px 22px; border-radius:100px; background:#16845f; color:white; font-size:.8rem; font-weight:750; }
 .partner-banner-photo { margin:0; position:relative; overflow:hidden; border-radius:20px; }
 .partner-banner-photo img { display:block; width:100%; height:270px; object-fit:cover; }
 .partner-banner-photo figcaption { padding:7px 10px; background:#fffaf4; color:#806d5e; font-size:.6rem; }
@@ -30,10 +30,10 @@
 .discovery-faq-list summary::-webkit-details-marker { display:none; }
 .discovery-faq-list summary::after { content:''; flex-shrink:0; width:10px; height:10px; border-right:2px solid currentColor; border-bottom:2px solid currentColor; transform:rotate(45deg); margin-inline-end:5px; transition:transform .2s ease; }
 .discovery-faq-list details[open] summary::after { transform:rotate(225deg); }
-.discovery-faq-list details[open] summary { color:#bc491d; }
+.discovery-faq-list details[open] summary { color:#0d6c4d; }
 .discovery-faq-list details > p { color:#817164; line-height:1.8; font-size:.9rem; margin:0; padding:0 24px 24px; max-width:940px; }
-.discovery-text-link { display:inline-flex; align-items:center; gap:12px; color:#a74620; font-size:.8rem; font-weight:750; margin-top:24px; }
-:is(.popular-cuisines,.partner-section,.discovery-faq) :is(a,summary):focus-visible { outline:3px solid #ad461e; outline-offset:4px; }
+.discovery-text-link { display:inline-flex; align-items:center; gap:12px; color:#0d6c4d; font-size:.8rem; font-weight:750; margin-top:24px; }
+:is(.popular-cuisines,.partner-section,.discovery-faq) :is(a,summary):focus-visible { outline:3px solid #0d6c4d; outline-offset:4px; }
 .faq-page { background:#f5f4f2; }
 .faq-page .discovery-faq { padding-top:34px; }
 .faq-page .discovery-heading h1 { font-size:clamp(2.2rem,5vw,3.3rem); line-height:1.08; letter-spacing:-1.5px; margin:0 0 18px; color:#28231e; }

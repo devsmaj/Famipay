@@ -22,6 +22,9 @@ const server = http.createServer((req,res) => {
     const page = await browser.newPage({viewport:{width:1366,height:900}});
     await page.goto('http://127.0.0.1:'+server.address().port+'/index.html');
     await page.locator('.reference-device img').first().waitFor();
+    await page.locator('.footer .social-link').first().waitFor();
+    assert.equal(await page.locator('.footer').evaluate(el=>getComputedStyle(el).backgroundColor),'rgb(11, 20, 35)');
+    assert.equal(await page.locator('.footer .social-link').first().evaluate(el=>getComputedStyle(el).color),'rgb(212, 224, 234)');
     assert.equal(await page.locator('.reference-service').count(),5);
     assert.equal(await page.locator('.service-slide').count(),8);
     assert.equal(await page.locator('.service-slide .service-icon svg path, .service-slide .service-icon svg rect, .service-slide .service-icon svg circle').count() > 0,true);
@@ -62,6 +65,7 @@ const server = http.createServer((req,res) => {
     }
     await page.setViewportSize({width:390,height:844});
     assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
+    assert.equal(await page.locator('.footer').evaluate(el=>getComputedStyle(el).backgroundColor),'rgb(11, 20, 35)');
     assert.equal(await page.locator('.service-track').evaluate(el=>getComputedStyle(el).scrollbarWidth),'none');
     await page.locator('.service-next').click();
     await page.waitForTimeout(600);
