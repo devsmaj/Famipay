@@ -1,1 +1,20 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>FAMIPAY Private Prototype</title><link rel="stylesheet" href="assets/css/famipay-app.css"></head><body><div id="app"></div><script src="assets/js/famipay-app.js" defer></script><script src="assets/js/famipay-i18n.js" defer></script></body></html>
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>FAMIPAY Private Preview</title><link rel="stylesheet" href="assets/css/famipay-app.css"></head>
+<body><main id="auth-status" role="status" style="padding:2rem;font-family:system-ui">Checking your session…</main><div id="app" hidden></div>
+<script src="assets/js/config.js"></script><script src="assets/js/session.js"></script><script src="assets/vendor/supabase.js"></script><script src="assets/js/platform.js"></script>
+<script>
+(async function(){
+ const status=document.getElementById('auth-status'), app=document.getElementById('app');
+ try {
+   await window.Famina.ready;
+   if (!window.Famina.user) {
+     status.replaceChildren(document.createTextNode('Please sign in to access FAMIPAY. '));
+     const link=document.createElement('a');link.href='login.html';link.textContent='Login / Sign up';status.append(link);return;
+   }
+   const role=window.Famina.user.role;
+   window.FAMIPAY_AUTH_ROLE=({restaurant_owner:'merchant',rider:'rider',admin:'admin',agent:'agent'})[role]||'customer';
+   const script=document.createElement('script');script.src='assets/js/famipay-app.js';script.onload=()=>{status.hidden=true;app.hidden=false;};
+   script.onerror=()=>{status.textContent='Unable to load the preview.';};document.body.append(script);
+ }catch(e){status.textContent='Unable to verify your session. Please try again.';}
+})();
+</script><script src="assets/js/famipay-i18n.js" defer></script></body></html>
