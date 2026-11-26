@@ -43,16 +43,10 @@
       if (!F.user) throw Error("Please sign in again.");
       await F.Cart?.merge();
       try { sessionStorage.setItem("famina-login-success", JSON.stringify({userId:F.user.id,at:Date.now()})); } catch (_) { F.notify("Login successful.", "success"); }
-      const fallback =
-        {
-          restaurant_owner: "restaurant-owner-dashboard.html",
-          rider: "rider-dashboard.html",
-          admin: "admin-dashboard.html",
-        }[F.user?.role] || "customer-home.html";
-      const destination = window.FaminaSession.returnUrl(fallback);
-      const target = new URL(destination, location.href);
+      const role = ({restaurant_owner:"merchant",rider:"rider",admin:"admin",agent:"agent"})[F.user?.role] || "customer";
       leaving = true;
-      location.href = F.user?.role === "customer" && /\/(index\.html)?$/.test(target.pathname) ? "customer-home.html" : destination;
+      location.href = "famipay-app.html";
+
     }
   };
   document.getElementById("google-continue").addEventListener("click", () =>
