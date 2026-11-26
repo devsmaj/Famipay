@@ -1,7 +1,7 @@
 .home-page:not(.about-page):not(.services-page){background:#080e19}
 .home-page:not(.about-page):not(.services-page) .header{background:#080e19;box-shadow:none}
 .home-page:not(.about-page):not(.services-page) .header .container{max-width:1200px;min-height:82px}
-.home-page:not(.about-page):not(.services-page) .header .famina-brand-image{filter:brightness(0) invert(1);width:155px}
+.home-page:not(.about-page):not(.services-page) .header .famina-brand-image{content:url("../branding/famipay-logo-dark.svg?v=2");filter:none;width:155px}
 .home-page:not(.about-page):not(.services-page) .header .nav-list a{color:#9ba9bf;font-size:16px;font-weight:500}
 .home-page:not(.about-page):not(.services-page) .header .nav-list a:hover{color:#fff}
 .home-page:not(.about-page):not(.services-page) .header .language-toggle{color:#b7c6d7}
