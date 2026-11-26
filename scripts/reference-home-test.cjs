@@ -53,6 +53,7 @@ const server = http.createServer((req,res) => {
     }
     await page.setViewportSize({width:390,height:844});
     assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
+    assert(await page.locator('.hamburger .menu-ribbon').isVisible());
     await page.locator('.hamburger').click();
     await checkChevrons();
     const authLayout=await page.locator('#auth-links').evaluate(el=>[...el.querySelectorAll('a')].map(a=>({href:a.getAttribute('href'),...Object.fromEntries(['top','height','left','right'].map(k=>[k,a.getBoundingClientRect()[k]]))})));
@@ -62,6 +63,9 @@ const server = http.createServer((req,res) => {
     assert(await page.locator('.close-menu').isVisible());
     await page.locator('[data-home-menu="explore"]').click();
     assert(await page.locator('#home-menu-explore').isVisible());
+    assert(await page.locator('#home-menu-explore .home-menu-icon svg').first().isVisible());
+    const scrollStyle = await page.locator('.header .nav').evaluate(el=>getComputedStyle(el).scrollbarWidth);
+    assert.equal(scrollStyle,'none');
     await page.keyboard.press('Escape');
     assert(await page.locator('#home-menu-explore').isHidden());
     await page.locator('.close-menu').click();
@@ -94,6 +98,14 @@ const server = http.createServer((req,res) => {
     assert.equal(await page.locator('.service-detail a').first().getAttribute('href'),'restaurant.html');
     await page.goto('http://127.0.0.1:'+server.address().port+'/about.html');
     assert.equal(await page.locator('.fp-about').count(),1);
+    for(const file of ['index.html','services.html','about.html','contact.html','faq.html','privacy.html','terms.html','photo-credits.html']) {
+      const target='http://127.0.0.1:'+server.address().port+'/'+file+'?preview=1#stay';
+      await page.goto(target,{waitUntil:'domcontentloaded'});
+      await page.waitForFunction(()=>!document.documentElement.classList.contains('page-loading'));
+      await page.reload({waitUntil:'domcontentloaded'});
+      await page.waitForFunction(()=>!document.documentElement.classList.contains('page-loading'));
+      assert.equal(page.url(),target,'Refresh must preserve page, query and hash: '+file);
+    }
     console.log('Home page: hero and actual screens loaded, mobile layout and carousel work.');
   } finally {
     await browser?.close();

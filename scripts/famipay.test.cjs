@@ -12,12 +12,17 @@ function fixture(overrides={}) {
   const F={escape:s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])),user:{id:'customer',name:'Customer',role:'customer'},api:async(path,options)=>{calls.push({path,options});if(path in overrides){const result=overrides[path];if(result instanceof Error)throw result;return result;}return [];},retryAuth:async()=>{},client:{auth:{signOut:async()=>({})}}};
   let hash='';
   const location={get hash(){return hash;},set hash(v){hash=v.startsWith('#')?v:'#'+v;listeners.hashchange?.();},replace(){}};
-  const context={window:{Famina:F,addEventListener:(n,fn)=>listeners[n]=fn},document:{getElementById:()=>app,documentElement:{}},location,localStorage:{getItem:key=>key==='language'?'en':null,setItem(){}},navigator:{},FormData:class{constructor(form){return Object.entries(form.values);}},crypto:{randomUUID:()=> 'test-idempotency-key'},Intl,Number,Object,Date,encodeURIComponent,decodeURIComponent};
+  const context={window:{Famina:F,addEventListener:(n,fn)=>listeners[n]=fn},document:{getElementById:()=>app,documentElement:{}},location,localStorage:{getItem:key=>key==='language'?'en':null,setItem(){}},navigator:{},FormData:class{constructor(form){return Object.entries(form.values);}},crypto:{randomUUID:()=> 'test-idempotency-key'},Intl,Number,Object,Date,URLSearchParams,encodeURIComponent,decodeURIComponent};
   vm.createContext(context);vm.runInContext(translations,context);vm.runInContext(source,context);
   const click=async dataset=>{events.click({target:{closest:()=>({dataset,disabled:false})}});await flush();await flush();};
   const submit=async(type,values)=>{events.submit({preventDefault(){},target:{dataset:{form:type},values,reportValidity:()=>true,querySelector:()=>({disabled:false})}});await flush();await flush();};
-  return {app,F,calls,context,nodes,click,submit,go:async route=>{location.hash='#'+encodeURIComponent(route);await flush();await flush();}};
+  return {app,F,calls,context,nodes,click,submit,go:async route=>{location.hash='#'+encodeURIComponent(route);await flush();await flush();},goRaw:async hash=>{location.hash=hash;await flush();await flush();}};
 }
+test('restaurant and order links restore their selected item',async()=>{
+  const f=fixture({'/menu':[{id:'item',restaurant_id:'restaurant',name:'Food',price:1000,available:true}],'/orders/order':{id:'order',status:'pending',total:2500,order_events:[]}});
+  await flush();await f.goRaw('#Restaurant%20Menu?id=restaurant');assert.match(f.app.innerHTML,/Food/);
+  await f.goRaw('#Track%20Order?id=order');assert.match(f.app.innerHTML,/Track Order/);assert.ok(f.calls.some(c=>c.path==='/orders/order'));
+});
 test('reference navigation, financial review, and no invented payment requests',async()=>{
   const f=fixture();await flush();
   assert.match(f.app.innerHTML,/Quick Services/);assert.match(f.app.innerHTML,/Wallet not connected/);assert.doesNotMatch(f.app.innerHTML,/125,000/);

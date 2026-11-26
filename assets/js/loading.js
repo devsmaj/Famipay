@@ -85,7 +85,8 @@
             document.documentElement.classList.remove('header-loading');
         }
     }
-    const staticPage = /\/(about|contact|faq|privacy|terms|404)\.html$/.test(location.pathname);
+    // Public informational pages render independently of API and authentication latency.
+    const staticPage = /\/$/.test(location.pathname) || /\/(index|services|about|contact|faq|privacy|terms|photo-credits|404)\.html$/.test(location.pathname);
     const needsAuth = /\/(customer-home|cart|checkout|orders|profile|delivery-tracking|restaurant-owner-dashboard|rider-dashboard|admin-dashboard|login|register)\.html$/.test(location.pathname);
     function settle() {
         revealHeader();
@@ -105,11 +106,15 @@
         let finished = false;
         return () => { if (!finished) { finished = true; requests--; settle(); } };
     }
-    beginPage();
+    if (staticPage) document.documentElement.classList.remove('page-loading');
+    else beginPage();
     // A stalled SDK/browser lock must not leave the site as an endless skeleton.
     const deadline = setTimeout(() => {
         if (!initial) return;
         initial = false;
+        // Public catalog pages already render their own empty/error states.
+        // Never leave the whole page hidden if a request stalls.
+        if (!needsAuth) { endPage(); return; }
         skeleton.replaceChildren();
         skeleton.classList.add('page-load-error');
         skeleton.setAttribute('role', 'alert');
@@ -119,7 +124,7 @@
         message.textContent = window.i18n?.translateText(text) || text;
         skeleton.append(message);
         main?.removeAttribute('aria-busy');
-    }, 30000);
+    }, needsAuth ? 30000 : 12000);
     document.addEventListener('DOMContentLoaded', () => { domReady = true; settle(); });
     document.addEventListener('componentloaded', revealHeader);
     window.FaminaLoading = {
@@ -157,27 +162,7 @@
             record.target.classList.toggle('image-loading', !record.target.complete);
         } else record.addedNodes.forEach(scan);
     })).observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['src', 'srcset'] });
-    let navigationButtonDone, navigationTimer;
-    document.addEventListener('click', event => {
-        const link = event.target.closest('a[href]');
-        if (!link || event.defaultPrevented || event.button || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey || link.hasAttribute('download') || (link.target && link.target !== '_self')) return;
-        const url = new URL(link.href, location.href);
-        if (!/^https?:$/.test(url.protocol) || (url.pathname === location.pathname && url.search === location.search)) return;
-        navigationButtonDone?.();
-        if (url.origin === location.origin) beginPage();
-        navigationButtonDone = button(link);
-        clearTimeout(navigationTimer);
-        queueMicrotask(() => {
-            if (event.defaultPrevented) { endPage(); navigationButtonDone?.(); clearTimeout(navigationTimer); }
-        });
-        navigationTimer = setTimeout(() => {
-            endPage(); navigationButtonDone?.();
-            window.FaminaNotifications?.show('Service unavailable. Please try again.', 'error');
-        }, 15000);
-    });
     window.addEventListener('pageshow', event => {
-        clearTimeout(navigationTimer);
-        navigationButtonDone?.(); navigationButtonDone = null;
-        if (event.persisted) endPage();
+        if (event.persisted && !initial) endPage();
     });
 })();

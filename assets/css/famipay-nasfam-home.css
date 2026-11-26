@@ -88,3 +88,11 @@
   .home-page:not(.about-page):not(.services-page) .header #auth-links .home-sign-up{background:#168a65;border:1px solid #168a65;color:#fff;border-radius:10px}
 }
 @media(max-width:360px){.home-page:not(.about-page):not(.services-page) .header #auth-links .home-sign-in,.home-page:not(.about-page):not(.services-page) .header #auth-links .home-sign-up{font-size:12px}}
+.home-page:not(.about-page):not(.services-page) .header .home-menu-icon svg{display:block;width:19px;height:19px;flex:none;color:inherit}
+.home-menu-entry:nth-child(4n+2) .home-menu-icon{color:#83bdf4;background:#142f47;border-color:#22435f}
+.home-menu-entry:nth-child(4n+3) .home-menu-icon{color:#b9a6ff;background:#272141;border-color:#3b315b}
+.home-menu-entry:nth-child(4n+4) .home-menu-icon{color:#f2c674;background:#382c1e;border-color:#544027}
+@media(max-width:1279px){
+  .home-page:not(.about-page):not(.services-page) .header .nav{scrollbar-width:none;-ms-overflow-style:none}
+  .home-page:not(.about-page):not(.services-page) .header .nav::-webkit-scrollbar{display:none;width:0;height:0}
+}

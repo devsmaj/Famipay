@@ -70,15 +70,23 @@
   }
   const aliases={'home':'Home','wallet':'Wallet','services':'Services','my-orders':'Orders','orders':'Orders','my-profile':'Me','me':'Me','express-home':'Food Delivery','restaurants':'Food Delivery','food-cart':'Cart','food-checkout':'Checkout','notifications':'Notifications','settings':'Language','help-center':'Help & Support','transaction-history':'Wallet'};
   function route() {
-    let value; try{value=decodeURIComponent(location.hash.slice(1));}catch(_){value='Home';}
+    const [rawRoute, rawParams=''] = location.hash.slice(1).split('?',2);
+    let value; try{value=decodeURIComponent(rawRoute);}catch(_){value='Home';}
     value=aliases[value]||value||'Home';
     const named=services.find(s=>s.toLowerCase().replaceAll(' ','-')===value);
     value=named||value;
+    const routeId=new URLSearchParams(rawParams).get('id');
+    if(value==='Track Order') orderId=routeId||null;
+    if(value==='Restaurant Menu') restaurant=routeId||null;
     if(tabs.includes(value)){tab=value;screen='';}else if([...services,'Restaurant Menu','Cart','Checkout','Add address','Review Order','Track Order','Notifications','Personal Information','Identity Verification','Security & PIN','Language','Help & Support','Review'].includes(value)){screen=value;}else{tab='Home';screen='';}
     if(screen==='Review'&&!review||screen==='Review Order'&&!quote||screen==='Track Order'&&!orderId||screen==='Restaurant Menu'&&!restaurant){screen='';tab='Home';}
     load();
   }
-  function open(value){ if(location.hash==='#'+encodeURIComponent(value))route();else location.hash=encodeURIComponent(value); }
+  function open(value){
+    const routeId=value==='Track Order'?orderId:value==='Restaurant Menu'?restaurant:null;
+    const target=encodeURIComponent(value)+(routeId?'?id='+encodeURIComponent(routeId):'');
+    if(location.hash==='#'+target)route();else location.hash=target;
+  }
   async function action(element, fn) {
     if (element.disabled) return; element.disabled=true;
     try { await fn(); } catch (_) { const error=app.querySelector('#err');if(error)error.textContent=lang==='en'?'Unable to complete. Please try again.':dict['Unable to complete. Please try again.'][lang]; }

@@ -102,9 +102,30 @@
     ]],
     download: ["Download", [["↓", "FAMIPAY app", "App coming soon", null]]],
   };
+  const menuIcons = {
+    "Send money": '<path d="M22 2 15 22l-4-9-9-4 20-7ZM22 2 11 13"/>',
+    "Receive money": '<path d="M12 3v12m-5-5 5 5 5-5M4 18v3h16v-3"/>',
+    "Mobile money": '<rect x="5" y="2" width="14" height="20" rx="2"/><path d="M10 18h4M8 6h8"/>',
+    "Airtime & data": '<path d="M3 8a14 14 0 0 1 18 0M6 11a9 9 0 0 1 12 0M9 14a4.5 4.5 0 0 1 6 0"/><circle cx="12" cy="18" r="1"/>',
+    "Bill payments": '<path d="M5 3h14v18l-3-2-4 2-4-2-3 2V3ZM8 8h8M8 12h8"/>',
+    "Merchant payments": '<path d="M3 9h18l-2-6H5L3 9ZM4 10v11h16V10M9 21v-7h6v7"/>',
+    "FAMIPAY account": '<rect x="3" y="5" width="18" height="15" rx="2"/><path d="M3 9h18m-5 5h2"/>',
+    "All products": '<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>',
+    "Food delivery": '<path d="M4 3v5a3 3 0 0 0 6 0V3M7 3v18M20 3c-3 2-4 5-4 9h4m0-9v18"/>',
+    "Agriculture": '<path d="M12 21V11M12 16C6 16 4 13 4 8c5 0 8 3 8 8ZM12 11c0-5 3-8 8-8 0 5-3 8-8 8Z"/>',
+    "Online shop": '<path d="M4 8h16l1 13H3L4 8ZM8 9V6a4 4 0 0 1 8 0v3"/>',
+    "All services": '<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>',
+    "About us": '<circle cx="12" cy="12" r="9"/><path d="M12 11v5m0-8h.01"/>',
+    "Business & merchants": '<path d="M3 21h18M5 21V7l7-4 7 4v14M9 10h1m4 0h1m-6 4h1m4 0h1m-4 7v-4h2v4"/>',
+    "Help & support": '<path d="M4 13v-1a8 8 0 0 1 16 0v1M4 13h3v5H5a1 1 0 0 1-1-1v-4Zm16 0h-3v5h2a1 1 0 0 0 1-1v-4ZM17 19c-1 1-2 2-5 2"/>',
+    "FAQ": '<circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 4.2 1.8c-1 .8-1.7 1.2-1.7 2.7m0 3h.01"/>',
+    "Privacy policy": '<path d="M12 22s8-4 8-11V5l-8-3-8 3v6c0 7 8 11 8 11Z"/><path d="m9 12 2 2 4-4"/>',
+    "Terms & conditions": '<path d="M12 3v18M5 7h14M6 7 3 13h6L6 7Zm12 0-3 6h6l-3-6ZM8 21h8"/>',
+    "FAMIPAY app": '<rect x="5" y="2" width="14" height="20" rx="2"/><path d="M10 18h4m2-10-4 4-4-4m4 4V5"/>',
+  };
   function homeNavigation() {
     return Object.entries(homeMenus).map(([id, [title, items]]) =>
-      `<li class="home-menu-item"><button type="button" class="home-menu-toggle" data-navigation-link="${id}" data-home-menu="${id}" aria-expanded="false" aria-controls="home-menu-${id}"><span>${title}</span>${id === 'download' ? '' : '<span aria-hidden="true" class="home-chevron">⌄</span>'}</button><div id="home-menu-${id}" class="home-mega-menu" hidden>${items.map(([icon, label, description, href]) => `<${href ? 'a' : 'div'} class="home-menu-entry" ${href ? 'href="' + href + '"' : ''}><span class="home-menu-icon" aria-hidden="true">${icon}</span><span><strong>${label}</strong><small>${description}</small></span></${href ? 'a' : 'div'}>`).join('')}</div></li>`
+      `<li class="home-menu-item"><button type="button" class="home-menu-toggle" data-navigation-link="${id}" data-home-menu="${id}" aria-expanded="false" aria-controls="home-menu-${id}"><span>${title}</span>${id === 'download' ? '' : '<span aria-hidden="true" class="home-chevron">⌄</span>'}</button><div id="home-menu-${id}" class="home-mega-menu" hidden>${items.map(([_icon, label, description, href]) => `<${href ? 'a' : 'div'} class="home-menu-entry" ${href ? 'href="' + href + '"' : ''}><span class="home-menu-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">${menuIcons[label]}</svg></span><span><strong>${label}</strong><small>${description}</small></span></${href ? 'a' : 'div'}>`).join('')}</div></li>`
     ).join('');
   }
   function closeHomeMenus(focus = false) {
