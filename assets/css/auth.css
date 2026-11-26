@@ -153,3 +153,5 @@ body.mobile-nav-open { overflow: hidden; }
     html[dir='rtl'] .header .mobile-menu-brand { right: 24px; left: auto; }
 }
 @media (prefers-reduced-motion: reduce) { .header .nav { transition: none; } }
+/* Phone sign-in steps */
+.auth-card .social-auth form[hidden]{display:none!important}.auth-card #phone-form,.auth-card #phone-code-form{margin-top:20px}.auth-card .phone-destination{color:#526e60;line-height:1.6;margin:0 0 20px}.auth-card .phone-actions{display:flex;justify-content:space-between;gap:16px;margin-top:16px}.auth-card .phone-actions button{border:0;background:transparent;color:#116d51;font:inherit;font-weight:700;cursor:pointer;padding:10px 0}.auth-card .sms-notice{font-size:.8rem;color:#66766e;line-height:1.6;margin:0 0 20px}.auth-card input{min-height:52px;border:1px solid #cbded4;border-radius:10px}.auth-card input:focus{outline:2px solid #16895b;outline-offset:2px}.auth-card .submit-btn{min-height:52px;background:#08774e}.auth-card .auth-switch a{color:#08774e}

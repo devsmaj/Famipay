@@ -1,108 +1,83 @@
 (function () {
-  const F = window.Famina,
-    panel = document.getElementById("firebase-auth");
+  const F = window.Famina, panel = document.getElementById('firebase-auth');
   if (!panel || panel.dataset.authInitialized) return;
-  panel.dataset.authInitialized = "true";
-  let sentPhone = "",
-    resendAt = 0,
-    busy = false;
-  let leaving = false, releaseAction = () => {};
+  panel.dataset.authInitialized = 'true';
+  const phoneForm = document.getElementById('phone-form');
+  const codeForm = document.getElementById('phone-code-form');
+  const phoneInput = document.getElementById('auth-phone');
+  const codeInput = document.getElementById('auth-code');
+  const resend = document.getElementById('resend-code');
+  const changePhone = document.getElementById('change-phone');
+  let sentPhone = '', resendAt = 0, busy = false, leaving = false, releaseAction = () => {};
+  const message = (key, fallback) => window.i18n?.t('auth.errors.' + key, fallback) || fallback;
+  const setStep = code => {
+    phoneForm.hidden = code;
+    codeForm.hidden = !code;
+    (code ? codeInput : phoneInput).focus();
+  };
   const action = async (fn, button) => {
     if (busy || button?.disabled) return;
     busy = true;
-    const original = [...panel.querySelectorAll("button")].map(b => [b, b.disabled]);
-    const buttonDone = window.FaminaLoading.button(button);
-    panel.setAttribute("aria-busy", "true");
-    original.forEach(([b]) => b.disabled = true);
+    const buttons = [...panel.querySelectorAll('button')].map(b => [b, b.disabled]);
+    const done = window.FaminaLoading.button(button);
+    panel.setAttribute('aria-busy', 'true');
+    buttons.forEach(([b]) => b.disabled = true);
     releaseAction = () => {
-      original.forEach(([b, disabled]) => b.disabled = disabled);
-      buttonDone();
-      panel.removeAttribute("aria-busy");
-      busy = false;
-      leaving = false;
+      buttons.forEach(([b, disabled]) => b.disabled = disabled);
+      done(); panel.removeAttribute('aria-busy'); busy = false; leaving = false;
     };
     try {
       await F.ready;
-      if (!F.client) throw Error("Authentication setup is incomplete.");
+      if (!F.client) throw Error(message('disabled', 'Phone sign-in is temporarily unavailable.'));
       await fn();
     } catch (error) {
       leaving = false;
-      F.notify(error.message, "error");
-    } finally {
-      if (!leaving) releaseAction();
-    }
+      F.notify(error.message || message('failed', 'Sign-in failed. Please try again.'), 'error');
+    } finally { if (!leaving) releaseAction(); }
   };
-  window.addEventListener("pageshow", event => {
-    if (event.persisted) releaseAction();
-  });
-  const finish = async () => {
-    const { data } = await F.client.auth.getSession();
-    if (!data.session) throw Error("Please sign in again.");
-    if (data.session) {
-      await F.refreshUser(data.session);
-      if (!F.user) throw Error("Please sign in again.");
-      await F.Cart?.merge();
-      try { sessionStorage.setItem("famina-login-success", JSON.stringify({userId:F.user.id,at:Date.now()})); } catch (_) { F.notify("Login successful.", "success"); }
-      const role = ({restaurant_owner:"merchant",rider:"rider",admin:"admin",agent:"agent"})[F.user?.role] || "customer";
-      leaving = true;
-      location.href = "famipay-app.html";
-
-    }
-  };
-  document.getElementById("google-continue").addEventListener("click", () =>
-    action(async () => {
-      const { data, error } = await F.client.auth.signInWithOAuth({
-        provider: "google",
-        options: { redirectTo: new URL("login.html", location.href).href, skipBrowserRedirect: true },
-      });
-      if (error) throw error;
-      if (!data?.url) throw Error("Google sign-in is unavailable. Please try again.");
-      const destination = new URL(data.url);
-      if (!["https:", "http:"].includes(destination.protocol)) throw Error("Invalid sign-in address.");
-      leaving = true;
-      // Let the button paint, then retain its spinner through the browser handoff.
-      await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-      location.assign(destination.href);
-    }, document.getElementById("google-continue")),
-  );
-  document.getElementById("phone-continue").addEventListener("click", () => {
-    document.getElementById("phone-form").hidden = false;
-    document.getElementById("auth-phone").focus();
-  });
-  async function send() {
-    if (Date.now() < resendAt)
-      throw Error("Please wait before requesting another code.");
-    const phone = document.getElementById("auth-phone").value.trim();
-    if (!/^\+235\d{8}$/.test(phone))
-      throw Error("Use a Chad phone number starting with +235.");
-    const { error } = await F.client.auth.signInWithOtp({ phone });
+  window.addEventListener('pageshow', e => { if (e.persisted) releaseAction(); });
+  function normalisePhone(value) {
+    const compact = value.trim().replace(/[\s().-]/g, '');
+    if (/^\d{8}$/.test(compact)) return '+235' + compact;
+    if (/^\+235\d{8}$/.test(compact)) return compact;
+    throw Error(message('phone', 'Enter a valid Chad phone number.'));
+  }
+  async function send(phone) {
+    if (Date.now() < resendAt) throw Error(message('wait', 'Please wait before requesting another code.'));
+    const register = document.body.dataset.authPage === 'register';
+    const { error } = await F.client.auth.signInWithOtp({ phone, options: { shouldCreateUser: register } });
     if (error) throw error;
     sentPhone = phone;
     resendAt = Date.now() + 60000;
-    document.getElementById("phone-code-form").hidden = false;
-    F.notify("Verification code sent.");
+    document.getElementById('sent-phone').textContent = phone;
+    codeInput.value = '';
+    setStep(true);
+    F.notify(message('sent', 'Verification code sent.'));
   }
-  document.getElementById("phone-form").addEventListener("submit", (e) => {
+  phoneForm.addEventListener('submit', e => {
     e.preventDefault();
-    action(send, e.submitter || e.target.querySelector("[type=submit]"));
+    action(() => send(normalisePhone(phoneInput.value)), e.submitter || phoneForm.querySelector('[type=submit]'));
   });
-  document
-    .getElementById("resend-code")
-    .addEventListener("click", e => action(send, e.currentTarget));
-  document.getElementById("phone-code-form").addEventListener("submit", (e) => {
+  changePhone.addEventListener('click', () => { sentPhone = ''; resendAt = 0; setStep(false); });
+  resend.addEventListener('click', e => action(() => {
+    if (!sentPhone) throw Error(message('first', 'Request an SMS code first.'));
+    return send(sentPhone);
+  }, e.currentTarget));
+  codeForm.addEventListener('submit', e => {
     e.preventDefault();
     action(async () => {
-      const { error } = await F.client.auth.verifyOtp({
-        phone: sentPhone,
-        token: document.getElementById("auth-code").value.trim(),
-        type: "sms",
-      });
+      if (!sentPhone) throw Error(message('first', 'Request an SMS code first.'));
+      const token = codeInput.value.trim();
+      if (!/^\d{6}$/.test(token)) throw Error(message('code', 'Enter the six-digit SMS code.'));
+      const { data, error } = await F.client.auth.verifyOtp({ phone: sentPhone, token, type: 'sms' });
       if (error) throw error;
-      await finish();
-    }, e.submitter || e.target.querySelector("[type=submit]"));
+      const session = data?.session || (await F.client.auth.getSession()).data?.session;
+      if (!session) throw Error(message('failed', 'Sign-in failed. Please try again.'));
+      await F.refreshUser(session);
+      if (!F.user) throw Error(message('server', 'Could not verify your account. Please try again.'));
+      await F.Cart?.merge();
+      leaving = true;
+      location.href = 'famipay-app.html';
+    }, e.submitter || codeForm.querySelector('[type=submit]'));
   });
-  if (new URLSearchParams(location.search).has("code"))
-    F.ready.then(() => {
-      if (F.client) action(finish, document.getElementById("google-continue"));
-    });
 })();

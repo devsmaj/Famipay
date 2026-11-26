@@ -31,30 +31,29 @@
             <div class="container">
                 <h2 class="smaj" data-i18n="auth.login_title">Login to Your Account</h2>
 
-                <section id="firebase-auth" class="social-auth" aria-label="Sign in with Google or phone">
+                <section id="firebase-auth" class="social-auth" aria-label="Phone authentication">
                     <p class="auth-intro" data-i18n="auth.subtitle">Your next delicious moment starts here.</p>
-                    <button type="button" id="google-continue" class="submit-btn provider-button google-button"><img src="assets/icons/google.svg" alt="" aria-hidden="true"><span data-i18n="auth.google">Continue with Google</span></button>
-                    <button type="button" id="phone-continue" class="submit-btn provider-button"><img src="assets/icons/phone.svg" alt="" aria-hidden="true"><span data-i18n="auth.phone">Continue with phone number</span></button>
                     <p id="firebase-status" role="status" aria-live="polite"></p>
-                    <form id="phone-form" hidden>
+                    <form id="phone-form">
                         <div class="form-group">
-                            <label for="auth-phone" data-i18n="auth.phone_label">Phone number with country code</label>
-                            <input id="auth-phone" type="tel" autocomplete="tel" placeholder="+23566123456" dir="ltr" required>
+                            <label for="auth-phone" data-i18n="auth.phone_label">Chad phone number (+235)</label>
+                            <input id="auth-phone" type="tel" autocomplete="tel" placeholder="66 12 34 56" dir="ltr" inputmode="tel" maxlength="20" required>
                         </div>
-                        <p class="sms-notice" data-i18n="auth.sms_notice">By continuing, you agree to receive a verification SMS. Standard message rates may apply. Your configured SMS provider delivers the verification code.</p>
+                        <p class="sms-notice" data-i18n="auth.sms_notice">By continuing, you agree to receive a verification SMS. Standard message rates may apply. </p>
                         <div id="recaptcha-container"></div>
                         <button type="submit" class="submit-btn" data-i18n="auth.send_code">Send verification code</button>
                     </form>
                     <form id="phone-code-form" hidden>
+                        <p class="phone-destination"><span data-i18n="auth.code_sent_to">Enter the code sent to</span> <strong id="sent-phone" dir="ltr"></strong></p>
                         <div class="form-group">
                             <label for="auth-code" data-i18n="auth.code_label">SMS verification code</label>
                             <input id="auth-code" type="text" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" required>
                         </div>
                         <button type="submit" class="submit-btn" data-i18n="auth.verify">Verify and continue</button>
-                        <button type="button" id="resend-code" data-i18n="auth.resend">Resend code</button>
+                        <div class="phone-actions"><button type="button" id="change-phone" data-i18n="auth.change_phone">Change number</button><button type="button" id="resend-code" data-i18n="auth.resend">Resend code</button></div>
                     </form>
                 </section>
-                <p class="auth-trust"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="m12 3 8 4v5c0 5-8 9-8 9s-8-4-8-9V7z"/><path d="m8 12 3 3 5-6"/></svg><span data-i18n="auth.trust">A simple, secure start with Google or your phone.</span></p>
+                <p class="auth-trust"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="m12 3 8 4v5c0 5-8 9-8 9s-8-4-8-9V7z"/><path d="m8 12 3 3 5-6"/></svg><span data-i18n="auth.trust">Sign in securely with your phone number.</span></p>
                 <p class="auth-switch"><span data-i18n="auth.no_account">Don't have an account?</span> <a href="register.html" data-i18n="auth.register_here">Register here</a></p>
             </div>
         </section>
