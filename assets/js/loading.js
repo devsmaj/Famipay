@@ -1,168 +1,54 @@
+/* FAMIPAY loading utilities: no page, header, or image skeletons. */
 (function () {
-    if (window.FaminaLoading) return;
-    let pending = 0, indicator;
-    function start() {
-        if (!indicator) {
-            indicator = document.createElement('div');
-            indicator.className = 'loading-indicator';
-            indicator.setAttribute('role', 'status');
-            indicator.setAttribute('aria-label', 'Loading');
-            indicator.innerHTML = '<span class="loading-ring" aria-hidden="true"></span>';
-            document.body.append(indicator);
-        }
-        pending++;
-        indicator.hidden = false;
-        let finished = false;
-        return () => {
-            if (finished) return;
-            finished = true;
-            pending = Math.max(0, pending - 1);
-            indicator.hidden = !pending;
-        };
-    }
-    const buttons = new WeakMap();
-    function button(element) {
-        if (!element) return () => {};
-        if (buttons.has(element)) return buttons.get(element);
-        const disabled = element.disabled, busy = element.getAttribute('aria-busy');
-        const ring = document.createElement('span');
-        ring.className = 'button-loading-ring';
-        ring.setAttribute('aria-hidden', 'true');
-        element.append(ring);
-        element.classList.add('button-loading');
-        element.setAttribute('aria-busy', 'true');
-        if ('disabled' in element) element.disabled = true;
-        let finished = false;
-        const done = () => {
-            if (finished) return;
-            finished = true;
-            ring.remove();
-            element.classList.remove('button-loading');
-            if (busy === null) element.removeAttribute('aria-busy');
-            else element.setAttribute('aria-busy', busy);
-            if ('disabled' in element) element.disabled = disabled;
-            buttons.delete(element);
-        };
-        buttons.set(element, done);
-        return done;
-    }
-    let requests = 0, authReady = false, domReady = false, initial = true;
-    const main = document.querySelector('main');
-    const busyChildren = [];
-    const bars = '<span class="skeleton-bar skeleton-title"></span><span class="skeleton-bar"></span><span class="skeleton-bar skeleton-short"></span>';
-    const skeleton = document.createElement('div');
-    skeleton.className = 'page-skeleton';
-    skeleton.setAttribute('role', 'status');
-    skeleton.setAttribute('aria-label', 'Loading');
-    skeleton.innerHTML = '<div class="skeleton-heading" aria-hidden="true">'+bars+'</div><div class="skeleton-grid" aria-hidden="true">'+Array.from({length:3},()=>'<div class="skeleton-card"><div class="skeleton-image"></div>'+bars+'</div>').join('')+'</div>';
-    const headerSkeleton = document.createElement('div');
-    headerSkeleton.className = 'header-skeleton';
-    headerSkeleton.setAttribute('aria-hidden', 'true');
-    headerSkeleton.innerHTML = '<span class="skeleton-bar"></span><span class="skeleton-bar"></span><span class="skeleton-bar"></span>';
-    const header = document.getElementById('header');
-    if (header) {
-        document.documentElement.classList.add('header-loading');
-        header.before(headerSkeleton);
-    }
-    function beginPage() {
-        if (!main || main.contains(skeleton)) return;
-        document.documentElement.classList.add('page-loading');
-        main.setAttribute('aria-busy', 'true');
-        for (const child of main.children) {
-            if (!child.inert) { child.inert = true; busyChildren.push(child); }
-        }
-        main.prepend(skeleton);
-    }
-    function endPage() {
-        document.documentElement.classList.remove('page-loading');
-        main?.removeAttribute('aria-busy');
-        skeleton.remove();
-        busyChildren.splice(0).forEach(child => child.inert = false);
-    }
-    function revealHeader() {
-        if (header?.querySelector('.header')) {
-            headerSkeleton.remove();
-            document.documentElement.classList.remove('header-loading');
-        }
-    }
-    // Public informational pages render independently of API and authentication latency.
-    const staticPage = /\/$/.test(location.pathname) || /\/(index|services|about|contact|faq|privacy|terms|photo-credits|404)\.html$/.test(location.pathname);
-    const needsAuth = /\/(customer-home|cart|checkout|orders|profile|delivery-tracking|restaurant-owner-dashboard|rider-dashboard|admin-dashboard|login|register)\.html$/.test(location.pathname);
-    function settle() {
-        revealHeader();
-        // One event-loop turn lets existing page handlers render their results.
-        // There is no artificial minimum display time or wait for images/video.
-        setTimeout(() => {
-            if (initial && domReady && (staticPage || ((!needsAuth || authReady) && !requests))) {
-                initial = false;
-                clearTimeout(deadline);
-                endPage();
-            }
-        }, 0);
-    }
-    function request() {
-        if (!initial) return () => {};
-        requests++;
-        let finished = false;
-        return () => { if (!finished) { finished = true; requests--; settle(); } };
-    }
-    if (staticPage) document.documentElement.classList.remove('page-loading');
-    else beginPage();
-    // A stalled SDK/browser lock must not leave the site as an endless skeleton.
-    const deadline = setTimeout(() => {
-        if (!initial) return;
-        initial = false;
-        // Public catalog pages already render their own empty/error states.
-        // Never leave the whole page hidden if a request stalls.
-        if (!needsAuth) { endPage(); return; }
-        skeleton.replaceChildren();
-        skeleton.classList.add('page-load-error');
-        skeleton.setAttribute('role', 'alert');
-        skeleton.removeAttribute('aria-label');
-        const message = document.createElement('p');
-        const text = 'Service unavailable. Please try again.';
-        message.textContent = window.i18n?.translateText(text) || text;
-        skeleton.append(message);
-        main?.removeAttribute('aria-busy');
-    }, needsAuth ? 30000 : 12000);
-    document.addEventListener('DOMContentLoaded', () => { domReady = true; settle(); });
-    document.addEventListener('componentloaded', revealHeader);
-    window.FaminaLoading = {
-        start, button, request,
-        resolveGuard() { initial = false; clearTimeout(deadline); endPage(); },
-        ready() { authReady = true; settle(); },
-        componentFailed(id) {
-            if (id !== 'header' || !header) return;
-            headerSkeleton.remove();
-            document.documentElement.classList.remove('header-loading');
-            const error = document.createElement('div');
-            error.className = 'header-component-error';
-            error.setAttribute('role', 'alert');
-            const message = 'Could not load this page section. Please refresh and try again.';
-            error.textContent = window.i18n?.translateText(message) || message;
-            header.replaceChildren(error);
-        }
+  if (window.FaminaLoading) return;
+  document.documentElement.classList.remove('page-loading', 'header-loading');
+  const buttons = new WeakMap();
+  function start() { return () => {}; }
+  function request() { return () => {}; }
+  function button(element) {
+    if (!element) return () => {};
+    if (buttons.has(element)) return buttons.get(element);
+    const disabled = element.disabled;
+    const busy = element.getAttribute('aria-busy');
+    const ring = document.createElement('span');
+    ring.className = 'button-loading-ring';
+    ring.setAttribute('aria-hidden', 'true');
+    element.append(ring);
+    element.classList.add('button-loading');
+    element.setAttribute('aria-busy', 'true');
+    if ('disabled' in element) element.disabled = true;
+    let finished = false;
+    const done = () => {
+      if (finished) return;
+      finished = true;
+      ring.remove();
+      element.classList.remove('button-loading');
+      if (busy === null) element.removeAttribute('aria-busy');
+      else element.setAttribute('aria-busy', busy);
+      if ('disabled' in element) element.disabled = disabled;
+      buttons.delete(element);
     };
-    function watch(image) {
-        if (image.dataset.loadingWatched) return;
-        image.dataset.loadingWatched = 'true';
-        const update = () => image.classList.toggle('image-loading', !image.complete);
-        image.addEventListener('load', update);
-        image.addEventListener('error', update);
-        update();
+    buttons.set(element, done);
+    return done;
+  }
+  function reveal() { document.documentElement.classList.remove('page-loading', 'header-loading'); }
+  window.FaminaLoading = {
+    start, button, request,
+    resolveGuard: reveal,
+    ready: reveal,
+    componentFailed(id) {
+      if (id !== 'header') return;
+      reveal();
+      const header = document.getElementById('header');
+      if (!header) return;
+      const error = document.createElement('div');
+      error.className = 'header-component-error';
+      error.setAttribute('role', 'alert');
+      const message = 'Could not load this page section. Please refresh and try again.';
+      error.textContent = window.i18n?.translateText(message) || message;
+      header.replaceChildren(error);
     }
-    function scan(node) {
-        if (node.nodeType !== 1) return;
-        if (node.matches('img')) watch(node);
-        node.querySelectorAll('img').forEach(watch);
-    }
-    scan(document.body);
-    new MutationObserver(records => records.forEach(record => {
-        if (record.type === 'attributes') {
-            record.target.classList.toggle('image-loading', !record.target.complete);
-        } else record.addedNodes.forEach(scan);
-    })).observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['src', 'srcset'] });
-    window.addEventListener('pageshow', event => {
-        if (event.persisted && !initial) endPage();
-    });
+  };
+  document.addEventListener('DOMContentLoaded', reveal);
+  window.addEventListener('pageshow', reveal);
 })();
