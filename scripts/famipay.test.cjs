@@ -26,7 +26,7 @@ test('restaurant and order links restore their selected item',async()=>{
 test('reference navigation, financial review, and no invented payment requests',async()=>{
   const f=fixture();await flush();
   assert.match(f.app.innerHTML,/Quick Services/);assert.match(f.app.innerHTML,/Wallet not connected/);assert.doesNotMatch(f.app.innerHTML,/125,000/);
-  for(const screen of ['Services','Wallet','Me','Send Money','Add Money','Withdraw','Bank Transfer','Airtime','Mobile Data','Pay Bills','QR Payment','Agriculture','Online Shop','Agent Services','Identity Verification','Security & PIN','Language','Help & Support']){await f.go(screen);assert.match(f.app.innerHTML,/<header>/);assert.doesNotMatch(f.app.innerHTML,/undefined/);}
+  for(const screen of ['Services','Wallet','Me','Send Money','Add Money','Withdraw','Bank Transfer','Airtime','Mobile Data','Pay Bills','QR Payment','Agriculture','Online Shop','Agent Services','Identity Verification','Security & PIN','Language','Help & Support']){await f.go(screen);assert.match(f.app.innerHTML,/<header\b/);assert.doesNotMatch(f.app.innerHTML,/undefined/);}
   await f.go('Send Money');await f.submit('payment',{recipient:'<img src=x onerror=alert(1)>',amount:'5000'});
   assert.match(f.app.innerHTML,/Review transaction/);assert.match(f.app.innerHTML,/&lt;img/);assert.match(f.app.innerHTML,/disabled>Confirm transaction/);
   assert.equal(f.calls.length,0);

@@ -1,4 +1,9 @@
 window.FamipayTranslations = Object.fromEntries([
+['More Services','Plus de services','خدمات أخرى'],
+['Good morning','Bonjour','صباح الخير'],
+['Receive Money','Recevoir de l’argent','استلام الأموال'],
+['Mobile Money','Mobile Money','الأموال عبر الهاتف'],
+['Merchant Payments','Paiements marchands','مدفوعات التجار'],
 ['Checking your session…','Vérification de votre session…','جارٍ التحقق من جلستك…'],['Please sign in to access FAMIPAY.','Connectez-vous pour accéder à FAMIPAY.','سجّل الدخول للوصول إلى FAMIPAY.'],['Login / Sign up','Connexion / Inscription','تسجيل الدخول / إنشاء حساب'],['Unable to load the preview.','Impossible de charger l’aperçu.','تعذر تحميل المعاينة.'],['Unable to verify your session. Please try again.','Impossible de vérifier votre session. Veuillez réessayer.','تعذر التحقق من جلستك. حاول مرة أخرى.'],
 ['Home','Accueil','الرئيسية'],['Wallet','Portefeuille','المحفظة'],['Services','Services','الخدمات'],['Orders','Commandes','الطلبات'],['Me','Moi','حسابي'],
 ['Send Money',"Envoyer de l’argent",'إرسال الأموال'],['Add Money',"Ajouter de l’argent",'إضافة أموال'],['Withdraw','Retirer','سحب الأموال'],['Bank Transfer','Virement bancaire','تحويل بنكي'],['Airtime','Crédit mobile','رصيد الهاتف'],['Mobile Data','Internet mobile','بيانات الهاتف'],['Pay Bills','Payer les factures','دفع الفواتير'],['QR Payment','Paiement QR','الدفع برمز QR'],['Food Delivery','Livraison de repas','توصيل الطعام'],['Agriculture','Agriculture','الزراعة'],['Online Shop','Boutique en ligne','المتجر الإلكتروني'],['Agent Services',"Services d’agent",'خدمات الوكيل'],
