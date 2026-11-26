@@ -119,3 +119,12 @@
 @keyframes service-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
 @keyframes service-icon{50%{transform:scale(1.18) rotate(-8deg)}}
 @media(prefers-reduced-motion:reduce){.reference-service .reference-device,.reference-service:hover .reference-icon{animation:none}.reference-service .reference-card,.reference-service .reference-device{transition:none}.reference-service:hover .reference-card,.reference-service:focus-within .reference-card{transform:none}}
+
+/* Match the language picker to the dark public homepage header. */
+.home-page:not(.about-page):not(.services-page) .header .language-menu{background:#101b2b;border-color:#2b3b50;color:#eef5fc;box-shadow:0 18px 40px #0008}
+.home-page:not(.about-page):not(.services-page) .header .language-menu-title{color:#a8bacd}
+.home-page:not(.about-page):not(.services-page) .header .language-menu button{color:#e9f2fa}
+.home-page:not(.about-page):not(.services-page) .header .language-menu button small{color:#a8bacd}
+.home-page:not(.about-page):not(.services-page) .header .language-menu button:hover{background:#1c3042}
+.home-page:not(.about-page):not(.services-page) .header .language-menu button[aria-checked=true]{background:#163f35;color:#77e7b6}
+.home-page:not(.about-page):not(.services-page) .header .language-toggle:hover,.home-page:not(.about-page):not(.services-page) .header .language-toggle[aria-expanded=true]{color:#77e7b6}
