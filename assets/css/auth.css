@@ -170,3 +170,9 @@ html[dir="rtl"] .header .language-picker .language-menu [lang="ar-TD"] {
   direction: rtl;
   text-align: right;
 }
+
+/* Consistent public header: Login, Create account, then language selector. */
+@media (min-width: 1280px) {
+  .header .header-actions > #auth-links { order: 1; }
+  .header .header-actions > .language-picker { order: 2; }
+}
