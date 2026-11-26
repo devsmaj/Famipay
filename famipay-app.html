@@ -5,16 +5,21 @@
 <script>
 (async function(){
  const status=document.getElementById('auth-status'), app=document.getElementById('app');
+ let language='en';try { language=(window.FaminaSession?.getPreference('language') || localStorage.getItem('language') || localStorage.getItem('famipay-private-language') || 'fr').split('-')[0]; } catch (_) {}
+ if (!['en','fr','ar'].includes(language)) language='fr';
+ document.documentElement.lang=language;document.documentElement.dir=language==='ar'?'rtl':'ltr';
+ const translate=text=>language==='en'?text:(window.FamipayTranslations[text]?.[language]||text);
+ status.textContent=translate('Checking your session…');
  try {
    await window.Famina.ready;
    if (!window.Famina.user) {
-     status.replaceChildren(document.createTextNode('Please sign in to access FAMIPAY. '));
-     const link=document.createElement('a');link.href='login.html';link.textContent='Login / Sign up';status.append(link);return;
+     status.replaceChildren(document.createTextNode(translate('Please sign in to access FAMIPAY.')+' '));
+     const link=document.createElement('a');link.href='login.html';link.textContent=translate('Login / Sign up');status.append(link);return;
    }
    const role=window.Famina.user.role;
    window.FAMIPAY_AUTH_ROLE=({restaurant_owner:'merchant',rider:'rider',admin:'admin',agent:'agent'})[role]||'customer';
    const script=document.createElement('script');script.src='assets/js/famipay-app.js';script.onload=()=>{status.hidden=true;app.hidden=false;};
-   script.onerror=()=>{status.textContent='Unable to load the preview.';};document.body.append(script);
- }catch(e){status.textContent='Unable to verify your session. Please try again.';}
+   script.onerror=()=>{status.textContent=translate('Unable to load the preview.');};document.body.append(script);
+ }catch(e){status.textContent=translate('Unable to verify your session. Please try again.');}
 })();
 </script></body></html>

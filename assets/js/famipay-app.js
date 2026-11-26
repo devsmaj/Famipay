@@ -8,7 +8,7 @@
   const icon = i => `<svg aria-hidden="true" viewBox="0 0 24 24"><path d="${paths[i] || paths[13]}"/></svg>`;
   const esc = F.escape;
   let lang = 'en';
-  try { lang = localStorage.getItem('famipay-private-language') || 'en'; } catch (_) {}
+  try { lang = (window.FaminaSession?.getPreference('language') || localStorage.getItem('language') || localStorage.getItem('famipay-private-language') || 'fr').split('-')[0]; } catch (_) {}
   if (!['en','fr','ar'].includes(lang)) lang = 'en';
   const dict = window.FamipayTranslations;
   const t = s => esc(lang === 'en' ? s : dict[s]?.[lang] || s);
@@ -50,7 +50,7 @@
     const balance = !screen && ['Home','Wallet'].includes(tab);
     app.innerHTML=`<header><div class="row"><div class="row">${screen?'<button class="back" data-action="back" aria-label="'+t('Back')+'">←</button>':'<div class="logo">'+icon(12)+'</div>'}<div><b>${t(screen||'FAMIPAY')}</b><br><small>${t('Simple payments. Everyday life.')}</small></div></div><select id="language" aria-label="Language / Langue / اللغة">${['fr','ar','en'].map(l=>`<option value="${l}" ${l===lang?'selected':''}>${l.toUpperCase()}</option>`).join('')}</select><button class="back" data-open="Notifications" aria-label="${t('Notifications')}">♧</button></div>${balance?`<div class="balance-label row"><button class="back balance-toggle" data-action="hide" aria-label="${t('Hide balance')}">${t('Available Balance')} ◉</button><small>${t('Wallet not connected')}</small></div><div class="balance">${hidden?'••••••':'—'} <small class="currency">FCFA</small></div><div class="row">${button('Add Money','Add Money','white')}${button('↗ Transfer','Send Money','outline')}</div>`:''}</header><main id="fp-content" aria-busy="${busy}">${busy?panel(t('Loading…')):body()}<p class="error" role="alert" id="err"></p><p role="status" id="notice"></p></main>${!screen?`<nav aria-label="${t('Main navigation')}">${tabs.map((s,i)=>`<button class="${tab===s?'active':''}" data-tab="${s}" ${tab===s?'aria-current="page"':''}>${icon(i+11)}${t(s)}</button>`).join('')}</nav>`:''}<div class="foot">${t('Financial services are not connected.')}</div>`;
     document.title=(screen||tab)+' · FAMIPAY';
-    app.querySelector('#language').onchange=e=>{ lang=e.target.value;try{localStorage.setItem('famipay-private-language',lang);}catch(_){}render(); };
+    app.querySelector('#language').onchange=e=>{ lang=e.target.value;try{localStorage.setItem('famipay-private-language',lang);localStorage.setItem('language',lang==='en'?'en':lang+'-TD');window.FaminaSession?.setPreference('language',lang==='en'?'en':lang+'-TD');}catch(_){}render(); };
   }
   async function load() {
     const current=++revision; busy=true; failed=false; render();
