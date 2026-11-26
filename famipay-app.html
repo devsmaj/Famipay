@@ -1,7 +1,7 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>FAMIPAY Private Preview</title><link rel="stylesheet" href="assets/css/famipay-app.css"></head>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>FAMIPAY</title><link rel="stylesheet" href="assets/css/famipay-app.css"></head>
 <body><main id="auth-status" role="status" style="padding:2rem;font-family:system-ui">Checking your session…</main><div id="app" hidden></div>
-<script src="assets/js/config.js"></script><script src="assets/js/session.js"></script><script src="assets/vendor/supabase.js"></script><script src="assets/js/platform.js"></script>
+<script src="assets/js/config.js"></script><script src="assets/js/session.js"></script><script src="assets/vendor/supabase.js"></script><script src="assets/js/notifications.js"></script><script src="assets/js/platform.js"></script><script src="assets/js/famipay-translations.js"></script>
 <script>
 (async function(){
  const status=document.getElementById('auth-status'), app=document.getElementById('app');
@@ -17,4 +17,4 @@
    script.onerror=()=>{status.textContent='Unable to load the preview.';};document.body.append(script);
  }catch(e){status.textContent='Unable to verify your session. Please try again.';}
 })();
-</script><script src="assets/js/famipay-i18n.js" defer></script></body></html>
+</script></body></html>

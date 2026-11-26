@@ -1,1 +1,133 @@
-(()=>{'use strict';const screens=[{"group":"Money","title":"Wallet","id":"wallet"},{"group":"Money","title":"Add Money","id":"add-money"},{"group":"Money","title":"Withdraw","id":"withdraw"},{"group":"Money","title":"Send Money","id":"send-money"},{"group":"Money","title":"Bank Transfer","id":"bank-transfer"},{"group":"Money","title":"Mobile Money","id":"mobile-money"},{"group":"Money","title":"Review Payment","id":"review-payment"},{"group":"Money","title":"Transaction Receipt","id":"transaction-receipt"},{"group":"Money","title":"Transaction History","id":"transaction-history"},{"group":"Payments","title":"Airtime","id":"airtime"},{"group":"Payments","title":"Mobile Data","id":"mobile-data"},{"group":"Payments","title":"Pay Bills","id":"pay-bills"},{"group":"Payments","title":"Bill Details","id":"bill-details"},{"group":"Payments","title":"QR Payment","id":"qr-payment"},{"group":"Payments","title":"Receive Money","id":"receive-money"},{"group":"FA-MINNA Express","title":"Express Home","id":"express-home"},{"group":"FA-MINNA Express","title":"Restaurants","id":"restaurants"},{"group":"FA-MINNA Express","title":"Restaurant Menu","id":"restaurant-menu"},{"group":"FA-MINNA Express","title":"Food Cart","id":"food-cart"},{"group":"FA-MINNA Express","title":"Food Checkout","id":"food-checkout"},{"group":"FA-MINNA Express","title":"Track Food Order","id":"track-food-order"},{"group":"FA-MINNA Express","title":"Agriculture","id":"agriculture"},{"group":"FA-MINNA Express","title":"Farm Product","id":"farm-product"},{"group":"FA-MINNA Express","title":"Online Shop","id":"online-shop"},{"group":"FA-MINNA Express","title":"Product Details","id":"product-details"},{"group":"FA-MINNA Express","title":"Shop Checkout","id":"shop-checkout"},{"group":"FA-MINNA Express","title":"My Orders","id":"my-orders"},{"group":"Account","title":"Notifications","id":"notifications"},{"group":"Account","title":"My Profile","id":"my-profile"},{"group":"Account","title":"Settings","id":"settings"},{"group":"Account","title":"Help Center","id":"help-center"},{"group":"Merchant","title":"Merchant Registration","id":"merchant-registration"},{"group":"Merchant","title":"Merchant Dashboard","id":"merchant-dashboard"},{"group":"Merchant","title":"Merchant QR","id":"merchant-qr"},{"group":"Merchant","title":"Merchant Orders","id":"merchant-orders"},{"group":"Merchant","title":"Catalog Management","id":"catalog-management"},{"group":"Merchant","title":"Refunds","id":"refunds"},{"group":"Agent","title":"Find Agent","id":"find-agent"},{"group":"Agent","title":"Agent Dashboard","id":"agent-dashboard"},{"group":"Agent","title":"Agent Float","id":"agent-float"},{"group":"Rider","title":"Rider Dashboard","id":"rider-dashboard"},{"group":"Rider","title":"Delivery Details","id":"delivery-details"},{"group":"Rider","title":"Delivery Proof","id":"delivery-proof"},{"group":"Admin","title":"Admin Dashboard","id":"admin-dashboard"},{"group":"Admin","title":"User Management","id":"user-management"},{"group":"Admin","title":"KYC Review","id":"kyc-review"},{"group":"Admin","title":"Payment Exceptions","id":"payment-exceptions"},{"group":"Admin","title":"Disputes and Fraud","id":"disputes-and-fraud"},{"group":"Admin","title":"Service Configuration","id":"service-configuration"},{"group":"Admin","title":"Audit Log","id":"audit-log"},{"group":"Getting started","title":"Language Selection","id":"language-selection"},{"group":"Getting started","title":"Onboarding","id":"onboarding"},{"group":"Getting started","title":"Create Account","id":"create-account"},{"group":"Getting started","title":"Verify Phone","id":"verify-phone"},{"group":"Getting started","title":"Identity Verification","id":"identity-verification"},{"group":"Getting started","title":"Login and PIN","id":"login-and-pin"}],fields={"default":["Reference or name","Amount / quantity"],"Send Money":["Recipient phone (+235)","Amount (FCFA)"],"Bank Transfer":["Bank","Account number","Amount (FCFA)"],"Mobile Money":["Operator","Phone number","Amount (FCFA)"],"Food Checkout":["Delivery address","Contact phone","Payment method"],"Shop Checkout":["Delivery address","Contact phone","Payment method"],"Farm Product":["Product unit (kg / bag)","Quantity"],"Catalog Management":["Product name","Price (FCFA)","Quantity"],"Identity Verification":["Full legal name","Document type","Document reference"]};const role=window.FAMIPAY_AUTH_ROLE||'customer';const groups=role==='customer'?['Getting started','Money','Payments','FA-MINNA Express','Account']:[role[0].toUpperCase()+role.slice(1),'Account'];const visible=screens.filter(s=>groups.includes(s.group));const byId=Object.fromEntries(visible.map(s=>[s.id,s]));const app=document.getElementById('app');function E(tag,text,cls){const e=document.createElement(tag);if(text!==null)e.textContent=text;if(cls)e.className=cls;return e}function L(id,title){const a=E('a',title);a.href='#'+id;return a}function nav(id){location.hash=id}const shell=E('div',null,'app'),side=E('aside',null,'side'),main=E('main',null,'main'),bottom=E('nav',null,'bottom');side.append(E('div','FAMIPAY','brand'),E('small','PRIVATE FRONTEND · DESIGN PROTOTYPE'));for(const g of groups){side.append(E('h3',g));for(const s of visible.filter(s=>s.group===g))side.append(L(s.id,s.title))}for(const [id,title] of (role==='customer'?[['home','Home'],['wallet','Wallet'],['express-home','Express'],['my-orders','Orders'],['my-profile','Me']]:[[visible[0].id,'Dashboard'],['my-profile','Me']]))bottom.append(L(id,title));shell.append(side,main,bottom);app.append(shell);function card(s){const b=E('button',null,'card');b.type='button';b.append(E('span','◈'),E('strong',s.title),E('small',s.group));b.onclick=()=>nav(s.id);return b}function cards(arr){const grid=E('div',null,'cards');arr.forEach(s=>grid.append(card(s)));return grid}function render(){main.replaceChildren();let id=decodeURIComponent(location.hash.slice(1)||'home');if(!byId[id]&&id!=='home')id='home';if(id==='home'){main.append(E('h1','FAMIPAY','brand'));const hero=E('div',null,'hero');hero.append(E('small','Available balance · DEMO ONLY'),E('h2','125,000 FCFA'),E('p','No real wallet or financial provider is connected.'));main.append(hero);for(const g of groups.filter(g=>g!=='Getting started'&&g!=='Account')){main.append(E('h2',g));main.append(cards(visible.filter(s=>s.group===g)))}main.append(E('div','Financial actions and commerce orders are not connected to live services.','warning'))}else{const s=byId[id];main.append(E('small',s.group.toUpperCase()),E('h1',s.title));const back=E('button','← Dashboard','btn alt');back.onclick=()=>nav('home');main.append(back);const panel=E('section',null,'panel');panel.append(E('h2','Step-by-step process'));const steps=E('div',null,'steps');['Open '+s.title,'Enter or choose details','Validate input','Review full amount and fees','Authorize via approved backend','Show verified status or error'].forEach((t,i)=>steps.append(E('span',(i+1)+'. '+t)));panel.append(steps);main.append(panel);const f=E('form',null,'panel');f.append(E('h2',s.title+' details'));const names=fields[s.title]||fields.default;names.forEach((n,i)=>{const label=E('label',n,'field'),input=E('input');input.required=true;input.name='f'+i;input.placeholder=n;label.append(input);f.append(label)});const submit=E('button','Review (demo)','btn');submit.type='submit';f.append(submit);const result=E('p',null,'warning');result.hidden=true;result.setAttribute('role','status');f.append(result);f.addEventListener('submit',e=>{e.preventDefault();if(!f.reportValidity())return;result.textContent='DEMO REVIEW ONLY. No payment, order, account change or database request has been submitted.';result.hidden=false});main.append(f);const related=E('section',null,'panel');related.append(E('h2','Related pages'),cards(visible.filter(x=>x.group===s.group&&x.id!==id).slice(0,8)));main.append(related);main.append(E('div','Prototype only: no backend writes, authorization or financial processing are implemented here.','warning'))}side.querySelectorAll('a').forEach(a=>a.classList.toggle('active',a.hash==='#'+id));document.title=(byId[id]?.title||'Home')+' · FAMIPAY';window.scrollTo(0,0)}window.addEventListener('hashchange',render);render()})();
+/* FAMIPAY's supplied reference layout; live data uses the existing authenticated API. */
+(() => {
+  'use strict';
+  const F = window.Famina, app = document.getElementById('app');
+  const services = ['Send Money','Add Money','Withdraw','Bank Transfer','Airtime','Mobile Data','Pay Bills','QR Payment','Food Delivery','Agriculture','Online Shop','Agent Services'];
+  const tabs = ['Home','Wallet','Services','Orders','Me'];
+  const paths = ['M22 2 15 22 11 13 2 9 22 2M22 2 11 13','M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18M12 7v10M7 12h10','M2 5h20v14H2zM12 9a3 3 0 1 0 0 6 3 3 0 0 0 0-6','M2 8 12 3 22 8H2M5 10v8m5-8v8m4-8v8m5-8v8M2 21h20','M6 2h12v20H6zM11 18h2','M2 8q10-8 20 0M5 12q7-6 14 0M9 16q3-3 6 0M12 20h.01','M5 3h14v19l-3-2-4 2-4-2-3 2zM8 8h8m-8 4h8','M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h3v3h4v4h-7z','M4 3v6q4 8 8 0V3M8 3v19M20 3q-5 5-5 10h5v9','M12 22V10M12 15Q2 15 3 7q9-1 9 8M12 10q0-8 9-8 1 8-9 8','M4 7h16l1 15H3zM8 9V6a4 4 0 0 1 8 0v3','M3 10 12 3 21 10v11H3zM9 21v-8h6v8','M3 5h18v15H3zM3 9h18M16 14h2','M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z','M3 7 12 2 21 7v10l-9 5-9-5zM3 7l9 5 9-5M12 12v10','M12 3a4 4 0 1 0 0 8 4 4 0 0 0 0-8M4 22v-3a8 8 0 0 1 16 0v3'];
+  const icon = i => `<svg aria-hidden="true" viewBox="0 0 24 24"><path d="${paths[i] || paths[13]}"/></svg>`;
+  const esc = F.escape;
+  let lang = 'en';
+  try { lang = localStorage.getItem('famipay-private-language') || 'en'; } catch (_) {}
+  if (!['en','fr','ar'].includes(lang)) lang = 'en';
+  const dict = window.FamipayTranslations;
+  const t = s => esc(lang === 'en' ? s : dict[s]?.[lang] || s);
+  const money = n => Number.isFinite(Number(n)) ? new Intl.NumberFormat(lang, {maximumFractionDigits:0}).format(Number(n)) + ' FCFA' : '—';
+  let tab = 'Home', screen = '', hidden = false, data = [], addresses = [], quote = null, key = null, orderId = null, restaurant = null, revision = 0, busy = false, failed = false, review = null;
+  const button = (label, action = label, cls = 'full') => `<button type="button" class="${cls}" data-open="${esc(action)}">${t(label)}</button>`;
+  const tile = (s,i) => `<button type="button" class="tile" data-open="${s}"><span>${icon(i)}</span>${t(s)}</button>`;
+  const panel = s => `<div class="panel">${s}</div>`;
+  const unavailable = () => panel(t('This service is not connected yet. No funds will be moved.'));
+  const field = (label,id,type='text',value='') => `<label for="${id}">${t(label)}</label><input id="${id}" name="${id}" type="${type}" value="${esc(value)}" required maxlength="${id==='name'?100:200}" ${type==='number'?'min="1" step="1" max="2147483647"':''}>`;
+  const amount = item => item.total ?? item.total_amount ?? 0;
+  function body() {
+    if (failed) return panel(t('Unable to load. Please try again.')) + '<button class="full" data-action="retry">'+t('Try again')+'</button>';
+    if (!screen) {
+      if (tab === 'Home') return `<div class="row"><h3>${t('Quick Services')}</h3><button class="link" data-tab="Services">${t('View all →')}</button></div><div class="grid">${services.slice(0,8).map(tile).join('')}</div><hr class="divider"><h3 class="express-title">FA-MINNA Express</h3><div class="express">${services.slice(8,11).map((s,i)=>`<button data-open="${s}">${icon(i+8)}${t(s)}</button>`).join('')}</div>${panel('<b class="green">✓ '+t('Clear and secure by design')+'</b><br><small>'+t('Review recipient, amount and fees before every payment.')+'</small>')}`;
+      if (tab === 'Services') return `<h3>${t('All Services')}</h3><div class="grid all-services">${services.map(tile).join('')}</div>`;
+      if (tab === 'Wallet') return `<h3>${t('Wallet Activity')}</h3>${unavailable()}${button('Withdraw')}`;
+      if (tab === 'Orders') return `<h3>${t('My Orders')}</h3>` + (data.length ? data.map(o=>panel(`<b>${esc(o.id)}</b><br>${t(o.status)} · ${money(amount(o))}<button class="full" data-order="${esc(o.id)}">${t('Track Order')}</button>`)).join('') : panel(t('No orders yet.')) + button('Food Delivery'));
+      if (tab === 'Me') return `<h3>${esc(F.user.name || F.user.email || 'FAMIPAY')}</h3><p>${esc(F.user.phone || '')}</p>` + ['Personal Information','Identity Verification','Security & PIN','Language','Help & Support'].map(s=>`<button class="line account-link" data-open="${s}">${t(s)} <span aria-hidden="true">›</span></button>`).join('') + '<button class="full" data-action="logout">'+t('Sign out')+'</button>';
+    }
+    if (screen === 'Food Delivery') return `<h3>${t('Explore Food Delivery')}</h3>` + (data.length ? data.map(r=>panel(`<b>${esc(r.name)}</b><p>${esc(r.description || '')}</p><button class="full" data-restaurant="${esc(r.id)}">${t('View menu')}</button>`)).join('') : panel(t('No restaurants available.')));
+    if (screen === 'Restaurant Menu') return `<h3>${t('Restaurant Menu')}</h3>` + (data.length ? data.map(g=>panel(`<div class="row"><div><b>${esc(g.name)}</b><br>${money(g.price)}</div><button data-add="${esc(g.id)}" ${!g.available?'disabled':''}>${t('+ Add')}</button></div>`)).join('') : panel(t('No products available.'))) + button('View cart','Cart');
+    if (screen === 'Cart') return `<h3>${t('Cart')}</h3>` + (data.length ? data.map(g=>`<div class="line row"><div>${esc(g.name)} × ${esc(g.quantity)}<br>${money(g.price * g.quantity)}</div><button data-remove="${esc(g.id)}">${t('Remove')}</button></div>`).join('') + panel(t('Subtotal')+': '+money(data.reduce((s,g)=>s+g.price*g.quantity,0))) + button('Continue →','Checkout') : panel(t('Your cart is empty.')));
+    if (screen === 'Checkout') return `<h3>${t('Delivery address')}</h3>` + (addresses.length ? `<form data-form="quote"><label for="address">${t('Delivery address')}</label><select id="address" name="address" class="address-select" required>${addresses.map(a=>`<option value="${esc(a.id)}">${esc(a.label)} · ${esc(a.address)}</option>`).join('')}</select>${panel(t('Payment method')+': '+t('Cash on delivery'))}<button class="full" type="submit">${t('Review order')}</button></form>` : panel(t('No saved addresses. Add a delivery address.'))) + button('Add address','Add address');
+    if (screen === 'Add address') return `<form data-form="address">${field('Label','label')}${field('Delivery address','address')}${field('Phone (+235XXXXXXXX)','phone','tel')}${field('Latitude','latitude','text')}${field('Longitude','longitude','text')}<button type="button" class="full" data-action="location">${t('Use my location')}</button><button class="full" type="submit">${t('Save')}</button></form>`;
+    if (screen === 'Review Order') return `<h3>${t('Review order')}</h3>${panel(t('Subtotal')+': '+money(quote.subtotal)+'<br>'+t('Delivery fee')+': '+money(quote.delivery_fee)+'<br>'+t('Total')+': '+money(quote.total)+'<br>'+t('Cash on delivery'))}<button class="full" data-action="checkout">${t('Confirm order')}</button>`;
+    if (screen === 'Track Order') { const o=data; return `<h3>${t('Track Order')}</h3>${panel(esc(o.id)+'<br><b>'+t(o.status)+'</b><br>'+money(amount(o)))}${(o.order_events||[]).map(e=>`<div class="line">${t(e.status || e.to_status || e.event_type || '')}<br><small>${esc(new Date(e.created_at).toLocaleString(lang))}</small></div>`).join('')}${o.delivery_code?panel(t('Delivery code')+': '+esc(typeof o.delivery_code==='string'?o.delivery_code:JSON.stringify(o.delivery_code))):''}<button class="full" data-action="retry">${t('Refresh')}</button>`; }
+    if (screen === 'Notifications') return `<h3>${t('Notifications')}</h3>` + (data.length ? data.map(n=>panel(`<b>${esc(n.title || '')}</b><p>${esc(n.message || n.body || '')}</p>`)).join('') : panel(t('No notifications.')));
+    if (screen === 'Personal Information') return `<form data-form="profile">${field('Name','name','text',F.user.name||'')}<button class="full" type="submit">${t('Save')}</button></form>`;
+    if (screen === 'Language') return panel(t('Choose your language using the selector above.'));
+    if (screen === 'Help & Support') return panel('<a href="contact.html">'+t('Contact support')+'</a>');
+    if (screen === 'Security & PIN') return panel(t('Your account is secured by Supabase authentication.')) + '<button class="full" data-action="logout">'+t('Sign out')+'</button>';
+    if (screen === 'Review') return `<h3>${t('Review transaction')}</h3>${panel(t(review.name)+'<br>'+t('Recipient')+': '+esc(review.recipient)+'<br>'+t('Amount (FCFA)')+': '+money(review.amount))}${unavailable()}<button class="full" disabled>${t('Confirm transaction')}</button>`;
+    if (services.slice(0,7).includes(screen)) return `<h3>${t(screen)}</h3><form data-form="payment">${field('Recipient or provider','recipient')}${field('Amount (FCFA)','amount','number','5000')}${panel(t('Service fee: Not configured'))}<button class="full" type="submit">${t('Continue →')}</button></form>`;
+    return `<h3>${t(screen)}</h3>${unavailable()}`;
+  }
+  function render() {
+    document.documentElement.lang=lang; document.documentElement.dir=lang==='ar'?'rtl':'ltr';
+    const balance = !screen && ['Home','Wallet'].includes(tab);
+    app.innerHTML=`<header><div class="row"><div class="row">${screen?'<button class="back" data-action="back" aria-label="'+t('Back')+'">←</button>':'<div class="logo">'+icon(12)+'</div>'}<div><b>${t(screen||'FAMIPAY')}</b><br><small>${t('Simple payments. Everyday life.')}</small></div></div><select id="language" aria-label="Language / Langue / اللغة">${['fr','ar','en'].map(l=>`<option value="${l}" ${l===lang?'selected':''}>${l.toUpperCase()}</option>`).join('')}</select><button class="back" data-open="Notifications" aria-label="${t('Notifications')}">♧</button></div>${balance?`<div class="balance-label row"><button class="back balance-toggle" data-action="hide" aria-label="${t('Hide balance')}">${t('Available Balance')} ◉</button><small>${t('Wallet not connected')}</small></div><div class="balance">${hidden?'••••••':'—'} <small class="currency">FCFA</small></div><div class="row">${button('Add Money','Add Money','white')}${button('↗ Transfer','Send Money','outline')}</div>`:''}</header><main id="fp-content" aria-busy="${busy}">${busy?panel(t('Loading…')):body()}<p class="error" role="alert" id="err"></p><p role="status" id="notice"></p></main>${!screen?`<nav aria-label="${t('Main navigation')}">${tabs.map((s,i)=>`<button class="${tab===s?'active':''}" data-tab="${s}" ${tab===s?'aria-current="page"':''}>${icon(i+11)}${t(s)}</button>`).join('')}</nav>`:''}<div class="foot">${t('Financial services are not connected.')}</div>`;
+    document.title=(screen||tab)+' · FAMIPAY';
+    app.querySelector('#language').onchange=e=>{ lang=e.target.value;try{localStorage.setItem('famipay-private-language',lang);}catch(_){}render(); };
+  }
+  async function load() {
+    const current=++revision; busy=true; failed=false; render();
+    try {
+      let result=[];
+      if (!screen && tab==='Orders') result=await F.api('/orders');
+      if (screen==='Food Delivery') result=await F.api('/restaurants');
+      if (screen==='Restaurant Menu') result=(await F.api('/menu')).filter(item=>item.restaurant_id===restaurant);
+      if (screen==='Cart') result=await F.api('/cart');
+      if (screen==='Checkout') addresses=await F.api('/addresses');
+      if (screen==='Notifications') result=await F.api('/notifications');
+      if (screen==='Track Order') result=await F.api('/orders/'+encodeURIComponent(orderId));
+      if (current!==revision) return;
+      data=result;
+    } catch (_) { if(current===revision)failed=true; }
+    finally { if(current===revision){busy=false;render();} }
+  }
+  const aliases={'home':'Home','wallet':'Wallet','services':'Services','my-orders':'Orders','orders':'Orders','my-profile':'Me','me':'Me','express-home':'Food Delivery','restaurants':'Food Delivery','food-cart':'Cart','food-checkout':'Checkout','notifications':'Notifications','settings':'Language','help-center':'Help & Support','transaction-history':'Wallet'};
+  function route() {
+    let value; try{value=decodeURIComponent(location.hash.slice(1));}catch(_){value='Home';}
+    value=aliases[value]||value||'Home';
+    const named=services.find(s=>s.toLowerCase().replaceAll(' ','-')===value);
+    value=named||value;
+    if(tabs.includes(value)){tab=value;screen='';}else if([...services,'Restaurant Menu','Cart','Checkout','Add address','Review Order','Track Order','Notifications','Personal Information','Identity Verification','Security & PIN','Language','Help & Support','Review'].includes(value)){screen=value;}else{tab='Home';screen='';}
+    if(screen==='Review'&&!review||screen==='Review Order'&&!quote||screen==='Track Order'&&!orderId||screen==='Restaurant Menu'&&!restaurant){screen='';tab='Home';}
+    load();
+  }
+  function open(value){ if(location.hash==='#'+encodeURIComponent(value))route();else location.hash=encodeURIComponent(value); }
+  async function action(element, fn) {
+    if (element.disabled) return; element.disabled=true;
+    try { await fn(); } catch (_) { const error=app.querySelector('#err');if(error)error.textContent=lang==='en'?'Unable to complete. Please try again.':dict['Unable to complete. Please try again.'][lang]; }
+    finally{element.disabled=false;}
+  }
+  app.addEventListener('click',e=>{
+    const el=e.target.closest('button');if(!el)return;
+    const d=el.dataset;
+    if(d.open){open(d.open);return;} if(d.tab){open(d.tab);return;}
+    if(d.restaurant){restaurant=d.restaurant;open('Restaurant Menu');return;}
+    if(d.order){orderId=d.order;open('Track Order');return;}
+    action(el,async()=>{
+      if(d.add){await F.api('/cart',{method:'POST',body:{itemId:d.add,quantity:1}});app.querySelector('#notice').textContent=lang==='en'?'Item added to cart.':dict['Item added to cart.'][lang];}
+      if(d.remove){await F.api('/cart/'+encodeURIComponent(d.remove),{method:'DELETE'});await load();}
+      if(d.action==='hide'){hidden=!hidden;render();}
+      if(d.action==='retry')await load();
+      if(d.action==='back')open(screen==='Review'?review.name:screen==='Restaurant Menu'?'Food Delivery':screen==='Review Order'?'Checkout':screen==='Add address'?'Checkout':'Home');
+      if(d.action==='logout'){const result=await F.client.auth.signOut();if(result.error)throw result.error;location.replace('login.html');}
+      if(d.action==='location')await new Promise((resolve,reject)=>navigator.geolocation.getCurrentPosition(p=>{app.querySelector('#latitude').value=p.coords.latitude;app.querySelector('#longitude').value=p.coords.longitude;resolve();},reject,{timeout:15000}));
+      if(d.action==='checkout'){
+        const order=await F.api('/orders',{method:'POST',headers:{'Idempotency-Key':key},body:{quoteId:quote.id,paymentMethod:'cash_on_delivery'}});
+        orderId=order.id; quote=null; key=null; open('Track Order');
+      }
+    });
+  });
+  app.addEventListener('submit',e=>{
+    e.preventDefault();const form=e.target;if(!form.reportValidity())return;
+    const values=Object.fromEntries(new FormData(form));
+    action(form.querySelector('[type="submit"]'),async()=>{
+      if(form.dataset.form==='payment'){
+        const n=Number(values.amount);if(!values.recipient.trim()||!Number.isSafeInteger(n)||n<1)throw Error('Invalid');
+        review={name:screen,recipient:values.recipient.trim(),amount:n};open('Review');
+      }
+      if(form.dataset.form==='profile'){
+        if(!values.name.trim())throw Error('Invalid');
+        await F.api('/profile',{method:'PUT',body:{name:values.name.trim()}});await F.retryAuth();open('Me');
+      }
+      if(form.dataset.form==='address'){
+        if(!/^\+235\d{8}$/.test(values.phone)||!values.latitude.trim()||!values.longitude.trim())throw Error('Invalid');
+        const latitude=Number(values.latitude),longitude=Number(values.longitude);
+        if(!Number.isFinite(latitude)||Math.abs(latitude)>90||!Number.isFinite(longitude)||Math.abs(longitude)>180)throw Error('Invalid');
+        await F.api('/addresses',{method:'POST',body:{...values,latitude,longitude}});open('Checkout');
+      }
+      if(form.dataset.form==='quote'){
+        quote=await F.api('/quotes',{method:'POST',body:{addressId:values.address}});key=crypto.randomUUID();open('Review Order');
+      }
+    });
+  });
+  window.addEventListener('hashchange',route);
+  window.addEventListener('famina-signed-out',()=>{revision++;app.replaceChildren();location.replace('login.html');});
+  route();
+})();
