@@ -134,3 +134,22 @@
 @media(max-width:700px){.service-section-header{align-items:flex-start;flex-direction:column;gap:20px}.service-controls{align-self:flex-end}.service-slide{flex-basis:min(80vw,300px);min-height:320px}.service-illustration{height:185px}.service-copy h3{font-size:18px}}
 @media(prefers-reduced-motion:reduce){.service-track{scroll-behavior:auto}.service-slide{animation:none;transition:none}.service-slide:hover{transform:none}.service-icon,.service-controls button{transition:none}.service-slide:hover .service-icon{transform:rotate(-6deg)}}
 .home-menu-entry:nth-child(4n+4) .home-menu-icon{color:#8be2bb;background:#163e35;border-color:#285a49}
+
+/* Borderless app walkthrough, alternating on small screens. */
+.home-steps article{border:0;background:transparent;border-radius:0;padding:20px 12px;overflow:visible}
+.home-steps article>span{box-shadow:0 0 28px #44dca322}
+.step-screen{height:auto;margin:24px 0 0;overflow:visible;justify-content:flex-start}
+.step-screen img{display:block;width:150px;max-width:100%;height:auto;object-fit:contain;border:0;border-radius:18px;box-shadow:0 16px 35px #0006;animation:walkthrough-float 4s ease-in-out infinite}
+.home-steps article:nth-child(2) .step-screen img{animation-delay:-1.3s}
+.home-steps article:nth-child(3) .step-screen img{animation-delay:-2.6s}
+.home-steps article h3{margin-top:18px}
+@keyframes walkthrough-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
+@media(max-width:600px){
+  .home-steps{display:flex;flex-direction:column;gap:28px}
+  .home-steps article{width:min(84%,300px);align-self:flex-start;padding:0}
+  .home-steps article:nth-child(2){align-self:flex-end;text-align:right}
+  .home-steps article:nth-child(2)>span{margin-left:auto}
+  .home-steps article:nth-child(2) .step-screen{justify-content:flex-end}
+  .step-screen img{width:160px}
+}
+@media(prefers-reduced-motion:reduce){.step-screen img{animation:none}}

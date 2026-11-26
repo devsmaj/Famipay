@@ -65,6 +65,10 @@ const server = http.createServer((req,res) => {
     }
     await page.setViewportSize({width:390,height:844});
     assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
+    const steps=await page.locator('.home-steps article').evaluateAll(nodes=>nodes.map(el=>({left:el.getBoundingClientRect().left,right:el.getBoundingClientRect().right,border:getComputedStyle(el).borderTopWidth})));
+    assert.equal(steps.length,3);
+    assert(steps.every(step=>step.border==='0px'),'Walkthrough cards must be borderless');
+    assert(Math.abs(steps[0].left-steps[2].left)<2 && steps[1].left>steps[0].left,'Mobile walkthrough must alternate left, right, left');
     assert.equal(await page.locator('.footer').evaluate(el=>getComputedStyle(el).backgroundColor),'rgb(11, 20, 35)');
     assert.equal(await page.locator('.service-track').evaluate(el=>getComputedStyle(el).scrollbarWidth),'none');
     await page.locator('.service-next').click();
