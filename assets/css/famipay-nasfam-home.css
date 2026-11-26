@@ -1,0 +1,63 @@
+.home-page:not(.about-page):not(.services-page){background:#080e19}
+.home-page:not(.about-page):not(.services-page) .header{background:#080e19;box-shadow:none}
+.home-page:not(.about-page):not(.services-page) .header .container{max-width:1200px;min-height:82px}
+.home-page:not(.about-page):not(.services-page) .header .famina-brand-image{filter:brightness(0) invert(1);width:155px}
+.home-page:not(.about-page):not(.services-page) .header .nav-list a{color:#9ba9bf;font-size:16px;font-weight:500}
+.home-page:not(.about-page):not(.services-page) .header .nav-list a:hover{color:#fff}
+.home-page:not(.about-page):not(.services-page) .header .language-toggle{color:#b7c6d7}
+.home-page:not(.about-page):not(.services-page) #auth-links{display:flex;align-items:center;gap:18px}
+.home-page:not(.about-page):not(.services-page) .header #auth-links .home-sign-in{background:transparent;border:0;color:#aebed1;padding:10px}
+.home-page:not(.about-page):not(.services-page) .header #auth-links .home-sign-up{background:#168a65;border:0;color:white;border-radius:9px;padding:11px 16px;box-shadow:0 8px 24px #14876545;font-weight:700}
+.home-page:not(.about-page):not(.services-page) .hamburger span{background:#fff}
+.reference-home{background:#080e19;color:#f5f8ff}
+.reference-hero{height:auto;min-height:620px;background:radial-gradient(ellipse at 76% 20%,#102b42 0%,#0b1828 42%,#080e19 75%);overflow:hidden}
+.reference-hero-layout{max-width:1165px;margin:auto;display:grid;grid-template-columns:1.12fr .88fr;gap:50px;align-items:center;padding:75px 24px 90px}
+.reference-hero-copy{padding:0;margin:0;max-width:650px}
+.hero-eyebrow{font-size:12px!important;color:#70d9ac!important;letter-spacing:.16em;font-weight:800;margin:0 0 22px!important}
+.reference-hero-copy h1{font-size:clamp(52px,5.6vw,78px);letter-spacing:-.055em;line-height:1.03;margin:0 0 25px;color:#fff;max-width:none}
+.reference-hero-copy h1 span{color:#37c995}
+.reference-hero-copy p:not(.hero-eyebrow){font-size:18px;line-height:1.65;color:#a4b4ca;max-width:570px}
+.hero-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:30px}
+.reference-hero-link,.hero-secondary{margin:0;display:inline-flex;align-items:center;gap:15px;padding:16px 24px;border-radius:10px;font-weight:700;font-size:15px}
+.reference-hero-link{background:#168a65;color:white}.reference-hero-link:hover{background:#117555;color:white}
+.hero-secondary{background:#121925;color:#d4dfec;border:1px solid #2e3b4e}.hero-secondary:hover{color:#fff}
+.hero-footnote{margin-top:30px;color:#9eafc3;font-size:13px;display:flex;flex-wrap:wrap;align-items:center;gap:10px}.hero-footnote span{color:#53df9b}
+.hero-app-preview{position:relative;display:grid;place-items:center;min-height:490px}
+.hero-orbit{position:absolute;border:1px solid #32869b30;border-radius:50%;width:540px;height:330px;transform:rotate(-22deg)}
+.hero-orbit-two{transform:rotate(24deg);width:500px;height:290px}
+.hero-preview-card{position:relative;z-index:1;width:min(100%,400px);border:1px solid #344154;border-radius:22px;background:linear-gradient(145deg,#18253b,#0d1525);padding:24px;box-shadow:0 30px 70px #0007}
+.hero-preview-label{font-size:11px;letter-spacing:.15em;font-weight:800;color:#a7bad1;display:flex;align-items:center;gap:10px;border-bottom:1px solid #344154;padding-bottom:16px}
+.hero-preview-label span{color:#40d895}.hero-preview-label small{margin-inline-start:auto;letter-spacing:.08em;color:#7b8da4}
+.hero-real-screen{width:196px;height:418px;margin:20px auto 15px;border:6px solid #263547;border-radius:24px;overflow:hidden;background:#fff}
+.hero-real-screen img{width:100%;height:100%;object-fit:fill;display:block}
+.hero-preview-caption{display:flex;justify-content:space-between;gap:10px;color:#dce9f5;font-size:13px}.hero-preview-caption small{color:#77d9ab}
+.reference-services,.home-offerings,.home-how,.home-benefits,.home-business,.home-faq,.fp-story,.fp-support{background:#0b1220;color:#eaf1fa}
+.reference-services:nth-of-type(2),.home-how,.home-business,.home-faq,.fp-story{background:#0f1a2b}
+.reference-services-heading h2,.home-offerings h2,.home-how h2,.home-benefits h2,.home-business h2,.home-faq h2,.fp-story h2,.fp-support h2{color:#f4f8ff}
+.reference-services-heading>span,.home-lead,.home-offering-grid p,.home-steps p,.home-benefit-grid p,.home-business p:not(.home-kicker),.home-faq details p,.fp-story p:not(.fp-eyebrow),.fp-support p:not(.fp-eyebrow),.home-availability{color:#a3b4c8}
+.home-kicker,.reference-services-heading>p,.fp-eyebrow{color:#54d7a3}
+.home-offering-grid article,.fp-support-box{background:#142235;border:1px solid #26374c}
+.home-offering-grid h3,.home-steps h3,.home-benefit-grid h3{color:#eaf1fa}.home-offering-grid small,.home-offering-grid a,.home-faq-link{color:#71e0ae}
+.home-steps article{background:#142235;border:1px solid #2a3b4f;border-radius:18px;padding:24px;overflow:hidden}
+.home-steps article>span{background:#214b42;color:#90efc2}
+.step-screen{height:225px;overflow:hidden;display:flex;justify-content:center;margin:22px auto -24px}
+.step-screen img{width:120px;object-fit:cover;object-position:top;border:5px solid #26384b;border-bottom:0;border-radius:15px 15px 0 0}
+.home-business-mark{background:#1b7359}.home-faq details{border-color:#304155}.home-faq summary::after{color:#65dca8}
+.reference-card{background:#17263a;color:#eaf1fa}.reference-card p{color:#a4c9bd}.reference-service:first-child .reference-card{background:#168a65}
+.reference-services-heading h2{color:#fff}.reference-scroll{color:#5bdba5}.reference-card a{color:inherit}
+.fp-story-graphic{background:#142d2a}.fp-story-pill{color:#fff}
+@media(max-width:1279px){.home-page:not(.about-page):not(.services-page) .header .nav{background:#101b2b}.home-page:not(.about-page):not(.services-page) .header .nav-list a{color:#e4edf6}.home-page:not(.about-page):not(.services-page) .header .mobile-menu-brand{color:#fff}}
+@media(max-width:800px){.reference-hero{padding:0}.reference-hero-layout{grid-template-columns:1fr;padding:55px 20px 60px;gap:35px}.reference-hero-copy{padding:0}.reference-hero-copy h1{font-size:clamp(45px,11vw,65px);color:#fff}.reference-hero-copy p:not(.hero-eyebrow){font-size:16px}.hero-app-preview{min-height:400px}.hero-orbit{max-width:100%;height:240px}.hero-preview-card{max-width:330px}.hero-real-screen{height:330px;width:156px}.step-screen{height:190px}}
+.home-page:not(.about-page):not(.services-page) #header .header{transition:width .2s,margin .2s,border-radius .2s,background .2s}
+.home-page:not(.about-page):not(.services-page) #header .header.home-scrolled{width:calc(100% - 72px);margin:10px auto 0;border:1px solid #273448;border-radius:17px;background:#090f1b;box-shadow:0 10px 25px #0005}
+.home-page:not(.about-page):not(.services-page) .header .nav-list{gap:4px}
+.home-page:not(.about-page):not(.services-page) .home-menu-item{position:relative}
+.home-menu-toggle{border:1px solid transparent;background:transparent;color:#a4b3c8;font-size:14px;font-weight:700;padding:10px 12px;border-radius:11px;white-space:nowrap}
+.home-menu-toggle:hover,.home-menu-toggle[aria-expanded=true]{background:#1b2534;border-color:#303d4e;color:#fff}
+.home-chevron{margin-inline-start:6px;display:inline-block}.home-menu-toggle[aria-expanded=true] .home-chevron{transform:rotate(180deg)}
+.home-mega-menu{position:absolute;top:calc(100% + 10px);inset-inline-start:0;z-index:1100;width:540px;padding:24px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px;background:#0e1827;border:1px solid #29384c;border-radius:19px;box-shadow:0 20px 45px #0009}
+.home-mega-menu[hidden]{display:none}.home-menu-item:last-child .home-mega-menu{width:280px;grid-template-columns:1fr;inset-inline-start:auto;inset-inline-end:0}
+.home-page:not(.about-page):not(.services-page) .header .nav-list .home-menu-entry{display:flex;gap:12px;align-items:flex-start;color:#f4f7fb;text-decoration:none;padding:0;border:0;font-size:13px;white-space:normal}
+.home-menu-entry:hover strong{text-decoration:underline}.home-menu-entry>span:last-child{min-width:0}.home-menu-entry strong{display:block;font-size:13px;line-height:1.3;color:#f8fbff}.home-menu-entry small{display:block;margin-top:5px;color:#a7b7ca;font-size:12px;line-height:1.45;font-weight:400}
+.home-menu-icon{width:36px;height:36px;flex:none;display:grid;place-items:center;color:#60daa8;background:#153c35;border:1px solid #225747;border-radius:12px;font-size:18px}
+@media(max-width:1279px){.home-page:not(.about-page):not(.services-page) #header .header.home-scrolled{width:calc(100% - 24px);margin:6px auto 0}.home-page:not(.about-page):not(.services-page) .header .nav-list{gap:4px}.home-page:not(.about-page):not(.services-page) .home-menu-item{display:block;width:100%}.home-menu-toggle{display:flex;width:100%;justify-content:space-between;align-items:center;text-align:start;font-size:16px;padding:13px 12px}.home-mega-menu,.home-menu-item:last-child .home-mega-menu{position:static;width:100%;grid-template-columns:1fr;padding:14px;gap:15px;margin:2px 0 10px;box-shadow:none}.home-page:not(.about-page):not(.services-page) .header .nav{overflow-y:auto}.home-page:not(.about-page):not(.services-page) .header .nav-list .home-menu-entry{padding:4px}.home-page:not(.about-page):not(.services-page) #auth-links{align-items:stretch}}

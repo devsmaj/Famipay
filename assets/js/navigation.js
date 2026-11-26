@@ -75,6 +75,47 @@
     renderingRole = null,
     routeIdentity = null;
   const page = () => location.pathname.split("/").pop() || "index.html";
+  const homeMenus = {
+    products: ["Products", [
+      ["↗", "Send money", "Transfers · In development", "services.html"],
+      ["↓", "Receive money", "Receive funds · In development", "services.html"],
+      ["◉", "Mobile money", "Mobile payments · In development", "services.html"],
+      ["⌁", "Airtime & data", "Stay connected · In development", "services.html"],
+      ["▤", "Bill payments", "Pay bills · In development", "services.html"],
+      ["▣", "Merchant payments", "For businesses · In development", "services.html"],
+      ["◫", "FAMIPAY account", "Explore your dashboard", "famipay-app.html"],
+      ["◌", "All products", "Explore all services", "services.html"],
+    ]],
+    explore: ["Explore", [
+      ["♧", "Food delivery", "Discover local restaurants", "restaurant.html"],
+      ["✿", "Agriculture", "Local produce · Coming soon", "services.html"],
+      ["▣", "Online shop", "Everyday products · Coming soon", "services.html"],
+      ["◌", "All services", "Explore everything in one place", "services.html"],
+    ]],
+    company: ["Company", [
+      ["▦", "About us", "Our mission and vision", "about.html"],
+      ["◇", "Business & merchants", "Opportunities for businesses", "contact.html"],
+      ["♧", "Help & support", "Contact our team", "contact.html"],
+      ["?", "FAQ", "Answers to common questions", "faq.html"],
+      ["♢", "Privacy policy", "How information is handled", "privacy.html"],
+      ["⚖", "Terms & conditions", "Conditions of use", "terms.html"],
+    ]],
+    download: ["Download", [["↓", "FAMIPAY app", "App coming soon", null]]],
+  };
+  function homeNavigation() {
+    return Object.entries(homeMenus).map(([id, [title, items]]) =>
+      `<li class="home-menu-item"><button type="button" class="home-menu-toggle" data-navigation-link="${id}" data-home-menu="${id}" aria-expanded="false" aria-controls="home-menu-${id}"><span>${title}</span>${id === 'download' ? '' : '<span aria-hidden="true" class="home-chevron">⌄</span>'}</button><div id="home-menu-${id}" class="home-mega-menu" hidden>${items.map(([icon, label, description, href]) => `<${href ? 'a' : 'div'} class="home-menu-entry" ${href ? 'href="' + href + '"' : ''}><span class="home-menu-icon" aria-hidden="true">${icon}</span><span><strong>${label}</strong><small>${description}</small></span></${href ? 'a' : 'div'}>`).join('')}</div></li>`
+    ).join('');
+  }
+  function closeHomeMenus(focus = false) {
+    document.querySelectorAll('[data-home-menu]').forEach(button => {
+      const expanded = button.getAttribute('aria-expanded') === 'true';
+      button.setAttribute('aria-expanded', 'false');
+      const panel = document.getElementById(button.getAttribute('aria-controls'));
+      if (panel) panel.hidden = true;
+      if (expanded && focus) button.focus();
+    });
+  }
   function visibleControls() {
     return [
       ...document.querySelectorAll(
@@ -144,7 +185,7 @@
       !nav.querySelector("[data-navigation-link]")
     ) {
       const list = nav.querySelector(".nav-list");
-      list.innerHTML = keys
+      list.innerHTML = page() === "index.html" ? homeNavigation() : keys
         .map((key) => {
           const [defaultUrl, label, i18n, path] = links[key];
           const url = key === "home" && role === "customer" ? "customer-home.html" : defaultUrl;
@@ -153,7 +194,9 @@
         .join("");
       document.getElementById("auth-links").innerHTML = user
         ? '<button type="button" class="nav-sign-out" data-sign-out data-i18n="nav.sign_out">Sign out</button>'
-        : '<a href="login.html" data-i18n="nav.access">Login / Sign up</a>';
+        : page() === "index.html"
+          ? '<a class="home-sign-in" href="login.html" data-i18n="nav.login">Sign in</a><a class="home-sign-up" href="register.html">Create free account</a>'
+          : '<a href="login.html" data-i18n="nav.access">Login / Sign up</a>';
       renderingRole = role;
       F.Cart?.refreshBadge();
       if (open) nav.querySelector(".close-menu")?.focus();
@@ -214,6 +257,17 @@
     protect();
   });
   document.addEventListener("click", (event) => {
+    const menuButton = event.target.closest('[data-home-menu]');
+    if (menuButton) {
+      const wasOpen = menuButton.getAttribute('aria-expanded') === 'true';
+      closeHomeMenus();
+      if (!wasOpen) {
+        menuButton.setAttribute('aria-expanded', 'true');
+        document.getElementById(menuButton.getAttribute('aria-controls')).hidden = false;
+      }
+      return;
+    }
+    if (!event.target.closest('.home-menu-item')) closeHomeMenus();
     const retry = event.target.closest("[data-retry-auth]");
     if (retry) { F.busy(retry, async () => { await F.retryAuth(); await protect(); }); return; }
     if (event.target.closest(".hamburger")) {
@@ -231,6 +285,11 @@
     if (event.target.closest(".header .nav a")) toggle(false, false);
   });
   document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && document.querySelector('[data-home-menu][aria-expanded="true"]')) {
+      event.preventDefault();
+      closeHomeMenus(true);
+      return;
+    }
     if (!open) return;
     if (event.key === "Escape") {
       if (event.defaultPrevented) return;
@@ -261,6 +320,12 @@
     toggle(false);
     render();
   });
+  if (page() === "index.html") {
+    const updateHeader = () => document.querySelector('.header')?.classList.toggle('home-scrolled', window.scrollY > 40);
+    window.addEventListener('scroll', updateHeader, {passive:true});
+    document.addEventListener('componentloaded', updateHeader);
+    updateHeader();
+  }
   async function init() {
     await F.ready;
     render();

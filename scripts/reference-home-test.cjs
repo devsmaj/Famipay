@@ -23,16 +23,40 @@ const server = http.createServer((req,res) => {
     await page.goto('http://127.0.0.1:'+server.address().port+'/index.html');
     await page.locator('.reference-device img').first().waitFor();
     assert.equal(await page.locator('.reference-service').count(),5);
-    assert(await page.locator('.reference-hero-phone').evaluate(el=>el.complete && el.naturalWidth>0));
+    assert(await page.locator('.hero-real-screen img').evaluate(el=>el.complete && el.naturalWidth>0));
     assert(await page.locator('.famina-brand-image').evaluate(el=>el.complete && el.naturalWidth>0));
+    await page.locator('[data-home-menu="products"]').waitFor();
+    for(const menu of ['products','explore','company','download']) {
+      const trigger=page.locator('[data-home-menu="'+menu+'"]');
+      await trigger.click();
+      assert.equal(await trigger.getAttribute('aria-expanded'),'true');
+      assert(await page.locator('#home-menu-'+menu).isVisible());
+      await page.keyboard.press('Escape');
+      assert.equal(await trigger.getAttribute('aria-expanded'),'false');
+      assert(await page.locator('#home-menu-'+menu).isHidden());
+    }
+    await page.evaluate(()=>window.scrollTo(0,500));
+    await page.waitForFunction(()=>document.querySelector('.header')?.classList.contains('home-scrolled'));
+    await page.evaluate(()=>window.scrollTo(0,0));
+    const localLinks=await page.locator('a[href]').evaluateAll(nodes=>nodes.map(a=>a.getAttribute('href')).filter(h=>h&&!h.startsWith('#')&&!/^(https?:|mailto:|tel:)/.test(h)));
+    for(const href of new Set(localLinks)) {
+      const response=await page.request.get(new URL(href,'http://127.0.0.1:'+server.address().port+'/index.html').href);
+      assert(response.ok(), 'Broken homepage link: '+href+' ('+response.status()+')');
+    }
     await page.setViewportSize({width:390,height:844});
     assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
+    await page.locator('.hamburger').click();
+    await page.locator('[data-home-menu="explore"]').click();
+    assert(await page.locator('#home-menu-explore').isVisible());
+    await page.keyboard.press('Escape');
+    assert(await page.locator('#home-menu-explore').isHidden());
+    await page.locator('.close-menu').click();
     await page.locator('.reference-next').click();
     await page.waitForTimeout(500);
     assert(await page.locator('.reference-track').evaluate(el=>el.scrollLeft>0));
     await page.setViewportSize({width:1366,height:900});
     let referenceHeader;
-    for(const file of ['index.html','services.html','about.html','contact.html','faq.html','privacy.html','terms.html','login.html','register.html']) {
+    for(const file of ['services.html','about.html','contact.html','faq.html','privacy.html','terms.html','login.html','register.html']) {
       await page.goto('http://127.0.0.1:'+server.address().port+'/'+file);
       await page.locator('.header .nav-list [data-navigation-link]').first().waitFor();
       const values=await page.evaluate(() => ({
