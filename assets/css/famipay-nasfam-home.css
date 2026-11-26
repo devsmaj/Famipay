@@ -96,3 +96,13 @@
   .home-page:not(.about-page):not(.services-page) .header .nav{scrollbar-width:none;-ms-overflow-style:none}
   .home-page:not(.about-page):not(.services-page) .header .nav::-webkit-scrollbar{display:none;width:0;height:0}
 }
+
+/* Give the app screen room to stand on its own in the hero. */
+.hero-preview-card{width:auto;max-width:100%;padding:0;border:0;border-radius:0;background:none;box-shadow:none}
+.hero-preview-label,.hero-preview-caption{display:none}
+.hero-real-screen{width:clamp(220px,20vw,270px);height:auto;aspect-ratio:390/844;margin:0;border:6px solid #263547;border-radius:28px;box-shadow:0 24px 55px #0008}
+.home-page:not(.about-page):not(.services-page) .header .language-picker{order:2;margin-inline-start:0}
+.home-page:not(.about-page):not(.services-page) .header #auth-links{order:1}
+.home-page:not(.about-page):not(.services-page) .header .language-menu{inset-inline-start:auto;inset-inline-end:0}
+@media(max-width:1279px){.home-page:not(.about-page):not(.services-page) .header .language-picker{align-self:flex-end}}
+@media(max-width:800px){.hero-real-screen{width:min(245px,70vw);height:auto}.hero-app-preview{min-height:0}}
