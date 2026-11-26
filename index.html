@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FA-MINNA Express - Delicious Food Delivery</title>
+    <title>FAMIPAY</title>
     <link rel="stylesheet" href="assets/css/style.css?v=20261125-categories">
     <link rel="stylesheet" href="assets/css/responsive.css?v=20261124-fix2">
     <link rel="stylesheet" href="assets/css/auth.css">
@@ -15,139 +15,17 @@
     <link rel="stylesheet" href="assets/vendor/leaflet/leaflet.css">
     <script>document.documentElement.classList.add('page-loading', 'header-loading');</script>
     <link rel="stylesheet" href="assets/css/loading.css">
+    <link rel="stylesheet" href="assets/css/famipay-home.css?v=2">
+    <link rel="stylesheet" href="assets/css/famipay-public.css?v=2">
 </head>
 <body class="home-page">
     <div id="header"></div>
 
-    <main>
-        <section class="fp-landing-hero" aria-labelledby="fp-hero-title">
-            <div class="fp-landing-wrap fp-hero-layout">
-                <div class="fp-hero-copy">
-                    <p class="fp-eyebrow">FAMIPAY &amp; FA-MINNA EXPRESS</p>
-                    <h1 id="fp-hero-title">More for your <span>everyday.</span></h1>
-                    <p class="fp-intro">Discover local food today and explore the services we’re building to make everyday life simpler in Chad.</p>
-                    <div class="fp-hero-actions"><a class="fp-primary" href="#delivery-finder-title">Order food</a><a class="fp-secondary" href="famipay-app.html">Explore FAMIPAY</a></div>
-                    <p class="fp-hero-note">Made for our communities in Chad.</p>
-                </div>
-                <div class="fp-hero-art" aria-hidden="true">
-                    <div class="fp-orbit fp-orbit-one"></div><div class="fp-orbit fp-orbit-two"></div>
-                    <div class="fp-phone"><div class="fp-phone-top"><span>FAMIPAY</span><span>●</span></div><div class="fp-phone-balance"><small>Everyday services</small><strong>All in one place.</strong></div><div class="fp-phone-grid"><span>↗<small>Transfer</small></span><span>＋<small>Top up</small></span><span>♧<small>Food</small></span><span>▦<small>Services</small></span></div><div class="fp-phone-card"><b>FA-MINNA Express</b><small>Local favorites, delivered.</small></div></div>
-                    <div class="fp-float fp-float-top"><span>✦</span><div><b>Local favorites</b><small>Close to home</small></div></div>
-                    <div class="fp-float fp-float-bottom"><span>✓</span><div><b>Made for you</b><small>Everyday convenience</small></div></div>
-                </div>
-            </div>
-        </section>
-
-        <section class="fp-services-intro" aria-labelledby="fp-services-title">
-            <div class="fp-landing-wrap"><p class="fp-eyebrow">ONE PLACE. MORE POSSIBILITIES.</p><h2 id="fp-services-title">Everyday services, <span>closer to you.</span></h2><p>From local meals to the future of everyday payments, explore what’s available and what we’re building.</p>
-                <div class="fp-service-cards">
-                    <article class="fp-service-card"><div class="fp-service-icon">♧</div><span class="fp-status">EXPLORE</span><h3>Food delivery</h3><p>Discover restaurants, order your favorites and follow your delivery.</p><a href="restaurant.html">Explore restaurants</a></article>
-                    <article class="fp-service-card"><div class="fp-service-icon">↗</div><span class="fp-status fp-status-soon">IN DEVELOPMENT</span><h3>FAMIPAY</h3><p>Explore our vision for transfers, bill payments and other everyday financial services.</p><a href="famipay-app.html">Explore FAMIPAY</a></article>
-                    <article class="fp-service-card"><div class="fp-service-icon">✿</div><span class="fp-status fp-status-soon">COMING SOON</span><h3>Local marketplace</h3><p>Fresh produce and everyday essentials from local growers and shops.</p><a href="#services-title">Discover more</a></article>
-                </div>
-            </div>
-        </section>
-
-        <section class="delivery-finder" aria-labelledby="delivery-finder-title">
-            <div class="container">
-                <h2 id="delivery-finder-title">Fast delivery of food, groceries and more</h2>
-                <form id="delivery-search-form" novalidate>
-                    <div class="delivery-search-field">
-                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="10" cy="10" r="7"/><path d="m15 15 6 6"/></svg>
-                        <input id="delivery-search" type="text" name="address" autocomplete="street-address" maxlength="300" aria-label="Delivery address" aria-describedby="delivery-search-error" placeholder="Search for area, street name, landmark...">
-                        <button id="delivery-use-location" type="button" aria-label="Use my current location" title="Use my current location"><svg width="27" height="27" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4"/><path d="M12 1v4m0 14v4M1 12h4m14 0h4"/></svg></button>
-                    </div>
-                    <p id="delivery-search-error" role="alert" hidden>Enter your full delivery address</p>
-                    <button class="delivery-go" type="submit">Let's go</button>
-                </form>
-                <div id="delivery-map-panel" hidden>
-                    <p id="delivery-map-status" role="status">Tap the map to choose your exact delivery point.</p>
-                    <div id="delivery-picker-map" aria-label="Choose your delivery point on the map"></div>
-                    <button id="delivery-confirm" class="delivery-go" type="button" disabled>Confirm delivery point</button>
-                </div>
-            </div>
-        </section>
-
-        <section class="categories category-discovery" aria-label="Food categories">
-            <div class="container">
-                <div class="category-grid" id="categories-grid">
-                    <!-- Categories will be populated by JavaScript -->
-                </div>
-            </div>
-        </section>
-
-        <section class="popular-cuisines" aria-labelledby="popular-cuisines-title">
-            <div class="container">
-                <div class="discovery-heading"><p class="discovery-eyebrow">A TASTE OF HOME. A WORLD OF CHOICE.</p><h2 id="popular-cuisines-title">Chadian flavors &amp; more</h2><p>Discover local favorites and familiar classics. Available dishes depend on each restaurant's menu.</p></div>
-                <div class="popular-cuisine-grid" id="popular-cuisine-grid"></div>
-                <a class="discovery-photo-credit" href="photo-credits.html">Photography &amp; credits</a>
-            </div>
-        </section>
-
-        <section class="famina-benefits" aria-labelledby="benefits-title">
-            <div class="container benefits-layout">
-                <div class="benefits-photo">
-                    <img src="assets/images/famina-delivery-team.png" alt="Illustration of three FA-MINNA Express delivery riders in orange uniforms" width="1536" height="1024" loading="lazy">
-                    <span class="benefits-photo-label" data-no-translate>FA-MINNA Express · Abéché</span>
-                </div>
-                <div class="benefits-copy">
-                    <p class="services-eyebrow">LOCAL ROOTS. EVERYDAY CONVENIENCE.</p>
-                    <h2 id="benefits-title">Why FA-MINNA Express?</h2>
-                    <ul class="benefits-list">
-                        <li><span class="benefit-symbol" aria-hidden="true">%</span><div><h3>More choice, less effort</h3><p>Discover local food and find something for every craving, all in one place.</p></div></li>
-                        <li><span class="benefit-symbol" aria-hidden="true">↗</span><div><h3>Delivery made simple</h3><p>Choose your address, place your order and follow its progress from your account.</p></div></li>
-                        <li><span class="benefit-symbol" aria-hidden="true">♡</span><div><h3>Built for local businesses</h3><p>Bring restaurants, growers and independent sellers closer to their community.</p></div></li>
-                    </ul>
-                </div>
-            </div>
-        </section>
-
-        <section class="famina-services" aria-labelledby="services-title">
-            <div class="container">
-                <div class="services-heading">
-                    <p class="services-eyebrow">ONE PLACE. MORE POSSIBILITIES.</p>
-                    <h2 id="services-title">Our services</h2>
-                    <p>From your next meal to your everyday essentials. Discover what FA-MINNA Express is building for Abéché.</p>
-                </div>
-                <div class="services-grid">
-                    <a class="service-tile service-food" href="menu.html">
-                        <span class="service-number" aria-hidden="true">01 / FOOD</span>
-                        <h3>Food delivery</h3><p>Your favorite meals, delivered.</p>
-                        <span class="service-tile-link">Explore food <span aria-hidden="true">↗</span></span>
-                        <svg class="service-art" viewBox="0 0 240 180" fill="none" aria-hidden="true"><ellipse cx="125" cy="164" rx="93" ry="10" fill="#632000" opacity=".16"/><path d="m162 38 46 5-10 111h-29z" fill="#fff1d5"/><path d="m158 36 55 4-1 10-55-4z" fill="#ffe1a6"/><path d="m189 3-9 39" stroke="#7c3300" stroke-width="6"/><path d="M32 94c0-62 116-62 116 0z" fill="#ffcf65"/><path d="M27 99h127l-15 14-20-6-18 10-21-8-21 7z" fill="#78a43d"/><rect x="28" y="116" width="121" height="19" rx="9" fill="#743e27"/><path d="m29 111 30 12 27-11 28 12 34-13" fill="#ffdb5e"/><path d="M31 138h116c0 33-116 33-116 0" fill="#ffcb62"/><path d="m62 65 7 3m25-9 7 3m17 13 7 3" stroke="#fff0bf" stroke-width="4" stroke-linecap="round"/></svg>
-                    </a>
-                    <button class="service-tile service-agriculture" type="button" data-service-details="agriculture-details" aria-controls="agriculture-details" aria-expanded="false">
-                        <span class="service-number">02 / COMING SOON</span>
-                        <h3>Agricultural products</h3><p>Fresh produce. Local growers.</p>
-                        <span class="service-tile-link">Discover more <span aria-hidden="true">↗</span></span>
-                        <svg class="service-art" viewBox="0 0 240 180" fill="none" aria-hidden="true"><ellipse cx="133" cy="165" rx="90" ry="9" fill="#163823" opacity=".2"/><path d="M89 102c-15-26-12-48 8-63 15 23 15 45-8 63" fill="#b7d887"/><path d="M104 102c0-38 22-57 47-51-6 31-22 46-47 51" fill="#75ae62"/><path d="m91 107 16-66" stroke="#f5e4bb" stroke-width="4"/><circle cx="154" cy="105" r="29" fill="#f2b955"/><circle cx="112" cy="115" r="25" fill="#ef7850"/><path d="m104 87 9 9 11-10-9-3z" fill="#3a7144"/><path d="m43 108 172-1-20 54H63z" fill="#e9bc83"/><path d="M43 108h172m-157 19h150m-143 18h137M85 111l5 47m35-47v47m36-47-5 47m35-47-10 47" stroke="#b17c46" stroke-width="5"/><path d="M67 107c0-51 122-51 122 0" stroke="#e9bc83" stroke-width="8"/></svg>
-                    </button>
-                    <button class="service-tile service-shop" type="button" data-service-details="shop-details" aria-controls="shop-details" aria-expanded="false">
-                        <span class="service-number">03 / COMING SOON</span>
-                        <h3>Online shop</h3><p>Everyday finds. Local favorites.</p>
-                        <span class="service-tile-link">Discover more <span aria-hidden="true">↗</span></span>
-                        <svg class="service-art" viewBox="0 0 240 180" fill="none" aria-hidden="true"><ellipse cx="132" cy="165" rx="86" ry="10" fill="#4f2517" opacity=".2"/><path d="m49 57 123-13 11 115-123 10z" fill="#fff0d4"/><path d="M81 65V43c-3-40 58-42 59-5l3 23" stroke="#8c4d36" stroke-width="7"/><path d="m123 104 76-17 29 17-75 18z" fill="#ffc77e"/><path d="m123 104 30 18v49l-30-19z" fill="#d28a44"/><path d="m153 122 75-18v49l-75 18z" fill="#efac60"/><path d="m155 97 28 18v24" stroke="#fff0cf" stroke-width="12"/><path d="m82 108 12 10 23-30" stroke="#d46d37" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                    </button>
-                </div>
-                <div class="service-details" id="agriculture-details" hidden tabindex="-1">
-                    <span class="service-status">Coming soon</span><h3>From local growers to your doorstep</h3>
-                    <p>A dedicated space for vegetables, fruit, grains and other agricultural products. We are preparing this service with local sellers.</p>
-                    <a href="contact.html" class="service-contact-link">Interested in selling agricultural products? Contact us <span aria-hidden="true">↗</span></a>
-                </div>
-                <div class="service-details" id="shop-details" hidden tabindex="-1">
-                    <span class="service-status">Coming soon</span><h3>Your neighborhood, online</h3>
-                    <p>Discover everyday essentials and products from independent shops. Product listings and ordering will open when participating sellers are ready.</p>
-                    <a href="contact.html" class="service-contact-link">Want to bring your shop online? Contact us <span aria-hidden="true">↗</span></a>
-                </div>
-            </div>
-        </section>
-        <section class="partner-section" aria-labelledby="partner-title">
-            <div class="container"><div class="partner-banner"><div class="partner-banner-copy"><p class="discovery-eyebrow">GROW WITH YOUR COMMUNITY</p><h2 id="partner-title">Your business.<br>More possibilities.</h2><p>Run a restaurant, grow fresh produce or own a local shop? Help us build a marketplace made for Abéché.</p><a class="discovery-primary-button" href="contact.html?subject=partner#contact-form">Become a partner <span aria-hidden="true">↗</span></a></div><figure class="partner-banner-photo"><img src="assets/images/partner-chef.jpg" alt="A chef preparing food in a professional kitchen" width="960" height="720" loading="lazy"><figcaption>A passion for good food · <a href="photo-credits.html#partner-chef">Photo credit</a></figcaption></figure></div></div>
-        </section>
-        <section class="discovery-faq" aria-labelledby="home-faq-title">
-            <div class="container"><div class="discovery-heading discovery-heading-left"><p class="discovery-eyebrow">A LITTLE HELP, RIGHT HERE</p><h2 id="home-faq-title">Got a question?<br>We've got you.</h2></div><div class="discovery-faq-list" data-famina-faq data-limit="4"></div><a class="discovery-text-link" href="faq.html">See all questions <span aria-hidden="true">↗</span></a></div>
-        </section>
-    </main>
+    <main class="fp-public-home">
+<section class="fp-landing-hero"><div class="fp-landing-wrap fp-hero-layout"><div class="fp-hero-copy"><p class="fp-eyebrow">WELCOME TO FAMIPAY</p><h1>More for your <span>everyday.</span></h1><p class="fp-intro">One place to discover everyday services, connect with local businesses and explore what comes next.</p><div class="fp-hero-actions"><a class="fp-primary" href="famipay-app.html">Open FAMIPAY</a><a class="fp-secondary" href="#services">Explore our services</a></div><p class="fp-hero-note">Made for our communities in Chad.</p></div><div class="fp-hero-art" aria-hidden="true"><div class="fp-orbit fp-orbit-one"></div><div class="fp-orbit fp-orbit-two"></div><div class="fp-phone"><div class="fp-phone-top"><span>FAMIPAY</span><span>●</span></div><div class="fp-phone-balance"><small>Everyday services</small><strong>All in one place.</strong></div><div class="fp-phone-grid"><span>↗<small>Transfer</small></span><span>＋<small>Top up</small></span><span>♧<small>Food</small></span><span>▦<small>Services</small></span></div><div class="fp-phone-card"><b>FA-MINNA Express</b><small>Local favorites, delivered.</small></div></div><div class="fp-float fp-float-top"><span>✦</span><div><b>Local favorites</b><small>Close to home</small></div></div><div class="fp-float fp-float-bottom"><span>✓</span><div><b>Made for you</b><small>Everyday convenience</small></div></div></div></div></section>
+<section class="fp-services-intro" id="services"><div class="fp-landing-wrap"><p class="fp-eyebrow">ONE PLACE. MORE POSSIBILITIES.</p><h2>Everyday services, <span>closer to you.</span></h2><p>Discover what is available today and the services we are building for tomorrow.</p><div class="fp-service-cards"><article class="fp-service-card"><div class="fp-service-icon">♧</div><span class="fp-status">AVAILABLE</span><h3>Food delivery</h3><p>Discover local restaurants and order your favorite meals with FA-MINNA Express.</p><a href="restaurant.html">Explore restaurants</a></article><article class="fp-service-card"><div class="fp-service-icon">↗</div><span class="fp-status fp-status-soon">IN DEVELOPMENT</span><h3>Payments and transfers</h3><p>Explore our vision for everyday payments, transfers, airtime and bills.</p><a href="famipay-app.html">Explore FAMIPAY</a></article><article class="fp-service-card"><div class="fp-service-icon">✿</div><span class="fp-status fp-status-soon">COMING SOON</span><h3>Local marketplace</h3><p>Fresh produce and everyday essentials from local growers and shops.</p><a href="contact.html">Become a partner</a></article></div></div></section>
+<section class="fp-story"><div class="fp-landing-wrap fp-story-layout"><div><p class="fp-eyebrow">BUILT FOR EVERYDAY LIFE</p><h2>More possibilities.<br><span>One community.</span></h2><p>FAMIPAY brings together a growing vision for convenient services and local commerce. Start with food delivery and follow our journey as we grow.</p><a class="fp-primary" href="about.html">About FAMIPAY</a></div><div class="fp-story-graphic" aria-hidden="true"><img src="assets/branding/famipay-logo.svg" alt=""><div class="fp-story-pill">Simple. Local. Connected.</div></div></div></section>
+<section class="fp-support"><div class="fp-landing-wrap fp-support-box"><div><p class="fp-eyebrow">HERE FOR YOU</p><h2>Need a hand?</h2><p>Find answers or get in touch with our team.</p></div><div class="fp-hero-actions"><a class="fp-primary" href="contact.html">Contact us</a><a class="fp-secondary" href="faq.html">Visit help center</a></div></div></section></main>
 
     <div id="footer"></div>
 

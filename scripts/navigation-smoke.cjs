@@ -147,7 +147,7 @@ const sdk = `window.supabase={createClient:()=>{let listener;const session=()=>{
       page.on("pageerror", (e) => errors.push(e.message));
       return { context, page };
     }
-    const publicKeys = ["home", "explore", "restaurants", "about", "cart"],
+    const publicKeys = ["home", "services", "about", "support"],
       customerKeys = [
         "home",
         "explore",
@@ -198,7 +198,7 @@ const sdk = `window.supabase={createClient:()=>{let listener;const session=()=>{
     menuFailure = true;
     await page.reload({waitUntil:"domcontentloaded"});
     await page.waitForFunction(() => !document.documentElement.classList.contains("page-loading"));
-    assert.match(await page.locator("#menu-items").innerText(), /temporarily unavailable/);
+    assert.match(await page.locator("#menu-items").innerText(), /couldn't load the menu/);
     assert.equal(await page.locator("main").getAttribute("aria-busy"),null);
     menuFailure = false;
     await page.reload({waitUntil:"domcontentloaded"});

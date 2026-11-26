@@ -23,6 +23,8 @@
     admin: "admin-dashboard.html",
   };
   const links = {
+    services: ["index.html#services", "Services", "nav.services", "M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z"],
+    support: ["contact.html", "Support", "footer.support", "M12 3a9 9 0 0 0-9 9v5h4v-5H3m18 0v5h-4v-5h4a9 9 0 0 0-9-9"],
     home: ["index.html", "Home", "nav.home", "M3 10 12 3l9 7v11h-6v-7H9v7H3Z"],
     explore: [
       "menu.html",
@@ -148,7 +150,7 @@
             "profile",
           ]
         : role === "public"
-          ? ["home", "explore", "restaurants", "about", "cart"]
+          ? ["home", "services", "about", "support"]
           : ["home", "explore", "restaurants"];
     if (
       renderingRole !== role ||

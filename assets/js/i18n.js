@@ -147,7 +147,7 @@ class I18n {
             document.querySelectorAll('[data-language-choice]').forEach(button => button.setAttribute('aria-checked', String(button.dataset.languageChoice === locale)));
             document.querySelectorAll('[data-language-code]').forEach(label => label.textContent = locale.split('-')[0].toUpperCase());
             const titleKey = document.body.dataset.authPage;
-            if (titleKey) document.title = `${this.t(`auth.${titleKey}_title`)} - FA-MINNA Express`;
+            if (titleKey) document.title = `${this.t(`auth.${titleKey}_title`)} - FAMIPAY`;
         } finally {
             this.observer.observe(document.documentElement, { childList: true, characterData: true, subtree: true, attributes: true, attributeFilter: ['placeholder','title','aria-label','alt'] });
         }
