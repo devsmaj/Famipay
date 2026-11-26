@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="assets/css/platform.css">
     <link rel="stylesheet" href="assets/css/home-services.css">
     <link rel="stylesheet" href="assets/css/discovery-sections.css">
+    <link rel="stylesheet" href="assets/css/famipay-home.css">
     <link rel="stylesheet" href="assets/vendor/leaflet/leaflet.css">
     <script>document.documentElement.classList.add('page-loading', 'header-loading');</script>
     <link rel="stylesheet" href="assets/css/loading.css">
@@ -19,7 +20,33 @@
     <div id="header"></div>
 
     <main>
-        <section class="hero famina-home-hero" aria-label="FA-MINNA Express delivery in Abéché"><div class="famina-hero-media"><img src="assets/branding/famina-banner.png" alt="FA-MINNA Express — Fresh food. Fast delivery. Abéché, Chad." width="1536" height="512" fetchpriority="high"></div></section>
+        <section class="fp-landing-hero" aria-labelledby="fp-hero-title">
+            <div class="fp-landing-wrap fp-hero-layout">
+                <div class="fp-hero-copy">
+                    <p class="fp-eyebrow">FAMIPAY &amp; FA-MINNA EXPRESS</p>
+                    <h1 id="fp-hero-title">More for your <span>everyday.</span></h1>
+                    <p class="fp-intro">Discover local food today and explore the services we’re building to make everyday life simpler in Chad.</p>
+                    <div class="fp-hero-actions"><a class="fp-primary" href="#delivery-finder-title">Order food</a><a class="fp-secondary" href="famipay-app.html">Explore FAMIPAY</a></div>
+                    <p class="fp-hero-note">Made for our communities in Chad.</p>
+                </div>
+                <div class="fp-hero-art" aria-hidden="true">
+                    <div class="fp-orbit fp-orbit-one"></div><div class="fp-orbit fp-orbit-two"></div>
+                    <div class="fp-phone"><div class="fp-phone-top"><span>FAMIPAY</span><span>●</span></div><div class="fp-phone-balance"><small>Everyday services</small><strong>All in one place.</strong></div><div class="fp-phone-grid"><span>↗<small>Transfer</small></span><span>＋<small>Top up</small></span><span>♧<small>Food</small></span><span>▦<small>Services</small></span></div><div class="fp-phone-card"><b>FA-MINNA Express</b><small>Local favorites, delivered.</small></div></div>
+                    <div class="fp-float fp-float-top"><span>✦</span><div><b>Local favorites</b><small>Close to home</small></div></div>
+                    <div class="fp-float fp-float-bottom"><span>✓</span><div><b>Made for you</b><small>Everyday convenience</small></div></div>
+                </div>
+            </div>
+        </section>
+
+        <section class="fp-services-intro" aria-labelledby="fp-services-title">
+            <div class="fp-landing-wrap"><p class="fp-eyebrow">ONE PLACE. MORE POSSIBILITIES.</p><h2 id="fp-services-title">Everyday services, <span>closer to you.</span></h2><p>From local meals to the future of everyday payments, explore what’s available and what we’re building.</p>
+                <div class="fp-service-cards">
+                    <article class="fp-service-card"><div class="fp-service-icon">♧</div><span class="fp-status">EXPLORE</span><h3>Food delivery</h3><p>Discover restaurants, order your favorites and follow your delivery.</p><a href="restaurant.html">Explore restaurants</a></article>
+                    <article class="fp-service-card"><div class="fp-service-icon">↗</div><span class="fp-status fp-status-soon">IN DEVELOPMENT</span><h3>FAMIPAY</h3><p>Explore our vision for transfers, bill payments and other everyday financial services.</p><a href="famipay-app.html">Explore FAMIPAY</a></article>
+                    <article class="fp-service-card"><div class="fp-service-icon">✿</div><span class="fp-status fp-status-soon">COMING SOON</span><h3>Local marketplace</h3><p>Fresh produce and everyday essentials from local growers and shops.</p><a href="#services-title">Discover more</a></article>
+                </div>
+            </div>
+        </section>
 
         <section class="delivery-finder" aria-labelledby="delivery-finder-title">
             <div class="container">
