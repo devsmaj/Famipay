@@ -1,0 +1,30 @@
+body .header .container{max-width:1200px;min-height:82px}
+body .header .logo img.famina-brand-image{width:155px;max-height:50px;height:auto;object-fit:contain}
+body .header .nav-list{gap:clamp(18px,3vw,55px)}
+body .header .nav-list a{color:#18265b;font-size:16px;font-weight:500}
+body .header .nav-list a:hover,body .header .nav-list a[aria-current=page]{color:#116d51}
+body .header .language-toggle,body .header #auth-links a,body .header .nav-sign-out{font-size:14px}
+@media(max-width:1279px){body .header .nav-list a{font-size:16px}}
+@media(max-width:800px){body .header .container{min-height:72px}body .header .logo img.famina-brand-image{width:150px}}
+.service-page-hero{background:#e7f6ef;color:#173b30;padding:75px 0}
+.service-page-hero-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:50px;align-items:center}
+.service-page-hero h1{font-size:clamp(43px,5.5vw,70px);line-height:1.08;letter-spacing:-.05em;margin:0 0 24px}
+.service-page-hero h1 span{color:#116d51}
+.service-page-hero p:not(.fp-eyebrow){max-width:570px;font-size:18px;line-height:1.7;color:#526e60;margin:0 0 28px}
+.service-page-device{width:210px;height:420px;margin:auto;border:8px solid #e9eeeb;border-radius:30px;overflow:hidden;background:#fff;box-shadow:0 24px 60px #134b3430}
+.service-page-device img,.service-detail-screen img{display:block;width:100%;height:100%;object-fit:fill}
+.service-page-section{padding:95px 0;color:#173b30}.service-page-heading{margin-bottom:36px}
+.service-page-heading h2{font-size:clamp(34px,4vw,52px);letter-spacing:-.04em;margin:0 0 12px}
+.service-page-heading>p:last-child{font-size:17px;color:#60786a}
+.service-page-list{display:grid;gap:20px}.service-detail{display:grid;grid-template-columns:1fr 1fr;align-items:center;gap:30px;min-height:360px;padding:42px 55px;background:#f3f8f5;border-radius:24px}
+.service-detail-copy h3{font-size:30px;letter-spacing:-.03em;margin:18px 0 12px}
+.service-detail-copy p{font-size:16px;line-height:1.7;color:#5b7266;max-width:480px;margin:0 0 24px}
+.service-tag{display:inline-block;border-radius:6px;background:#d8f2e4;color:#087454;font-size:11px;font-weight:800;letter-spacing:.08em;padding:7px 10px}
+.service-tag-planned{background:#e8eee9;color:#536a5b}
+.service-detail-screen{width:148px;height:300px;margin:auto;border:6px solid #fff;border-radius:23px;overflow:hidden;box-shadow:0 14px 35px #1b463a20}
+.service-detail-illustration{display:grid;place-content:center;text-align:center;gap:18px;background:#dff3e7;border-radius:22px;min-height:260px;color:#116d51;font-size:22px}
+.service-detail-illustration span{font-size:65px;line-height:1}
+.about-page .fp-about-hero{background:linear-gradient(120deg,#e7f6ef,#d2f0df);padding:100px 0}
+.about-page .fp-about-hero .fp-landing-wrap{max-width:1200px}
+.about-page .fp-service-card{background:#f1f8f4}
+@media(max-width:800px){.service-page-hero{padding:60px 0}.service-page-hero-grid{grid-template-columns:1fr;gap:35px}.service-page-device{width:160px;height:320px}.service-page-section{padding:65px 0}.service-detail{grid-template-columns:1fr;padding:30px 24px}.service-detail-screen{height:250px;width:125px}.service-detail-illustration{min-height:190px}}

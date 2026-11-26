@@ -23,7 +23,7 @@
     admin: "admin-dashboard.html",
   };
   const links = {
-    services: ["index.html#services", "Services", "nav.services", "M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z"],
+    services: ["services.html", "Services", "nav.services", "M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z"],
     support: ["contact.html", "Support", "footer.support", "M12 3a9 9 0 0 0-9 9v5h4v-5H3m18 0v5h-4v-5h4a9 9 0 0 0-9-9"],
     home: ["index.html", "Home", "nav.home", "M3 10 12 3l9 7v11h-6v-7H9v7H3Z"],
     explore: [
@@ -138,20 +138,7 @@
     if (!nav) return;
     const user = F.user,
       role = user?.role || "public";
-    const keys =
-      role === "customer"
-        ? [
-            "home",
-            "explore",
-            "restaurants",
-            "cart",
-            "orders",
-            "track",
-            "profile",
-          ]
-        : role === "public"
-          ? ["home", "services", "about", "support"]
-          : ["home", "explore", "restaurants"];
+    const keys = ["services", "about", "support"];
     if (
       renderingRole !== role ||
       !nav.querySelector("[data-navigation-link]")
@@ -164,11 +151,6 @@
           return `<li><a href="${url}" data-navigation-link="${key}" ${page() === url ? 'aria-current="page"' : ""}><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="${path}"/></svg><span data-i18n="${i18n}">${label}</span>${key === "cart" ? '<span id="cart-count" aria-live="polite" data-no-translate>0</span>' : ""}</a></li>`;
         })
         .join("");
-      if (dashboards[role])
-        list.insertAdjacentHTML(
-          "beforeend",
-          `<li><a href="${dashboards[role]}" data-navigation-link="dashboard"><span data-i18n="nav.dashboard">Dashboard</span></a></li>`,
-        );
       document.getElementById("auth-links").innerHTML = user
         ? '<button type="button" class="nav-sign-out" data-sign-out data-i18n="nav.sign_out">Sign out</button>'
         : '<a href="login.html" data-i18n="nav.access">Login / Sign up</a>';
@@ -177,7 +159,7 @@
       if (open) nav.querySelector(".close-menu")?.focus();
     }
     document.querySelectorAll('.header .logo a,.header .mobile-menu-brand').forEach((link) => {
-      link.href = role === "customer" ? "customer-home.html" : "index.html";
+      link.href = "index.html";
     });
     const name = nav.querySelector(".mobile-language-name");
     if (name)

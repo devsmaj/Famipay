@@ -30,6 +30,25 @@ const server = http.createServer((req,res) => {
     await page.locator('.reference-next').click();
     await page.waitForTimeout(500);
     assert(await page.locator('.reference-track').evaluate(el=>el.scrollLeft>0));
+    await page.setViewportSize({width:1366,height:900});
+    let referenceHeader;
+    for(const file of ['index.html','services.html','about.html','contact.html','faq.html','privacy.html','terms.html','login.html','register.html']) {
+      await page.goto('http://127.0.0.1:'+server.address().port+'/'+file);
+      await page.locator('.header .nav-list [data-navigation-link]').first().waitFor();
+      const values=await page.evaluate(() => ({
+        height:document.querySelector('.header .container').getBoundingClientRect().height,
+        size:getComputedStyle(document.querySelector('.header .nav-list a')).fontSize,
+        links:[...document.querySelectorAll('.header .nav-list a')].map(a=>a.getAttribute('href'))
+      }));
+      assert.deepEqual(values.links,['services.html','about.html','contact.html'],file);
+      if(!referenceHeader)referenceHeader=values;
+      else {assert.equal(values.height,referenceHeader.height,file+' header height');assert.equal(values.size,referenceHeader.size,file+' header text');}
+    }
+    await page.goto('http://127.0.0.1:'+server.address().port+'/services.html');
+    assert.equal(await page.locator('.service-detail').count(),3);
+    assert.equal(await page.locator('.service-detail a').first().getAttribute('href'),'restaurant.html');
+    await page.goto('http://127.0.0.1:'+server.address().port+'/about.html');
+    assert.equal(await page.locator('.fp-about').count(),1);
     console.log('Home page: hero and actual screens loaded, mobile layout and carousel work.');
   } finally {
     await browser?.close();

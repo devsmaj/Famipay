@@ -147,16 +147,8 @@ const sdk = `window.supabase={createClient:()=>{let listener;const session=()=>{
       page.on("pageerror", (e) => errors.push(e.message));
       return { context, page };
     }
-    const publicKeys = ["home", "services", "about", "support"],
-      customerKeys = [
-        "home",
-        "explore",
-        "restaurants",
-        "cart",
-        "orders",
-        "track",
-        "profile",
-      ];
+    const publicKeys = ["services", "about", "support"],
+      customerKeys = ["services", "about", "support"];
     async function ready(page) {
       await page.waitForFunction(async () => {
         if (!window.Famina?.Navigation || !document.querySelector("[data-navigation-link]")) return false;
