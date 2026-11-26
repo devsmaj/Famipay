@@ -26,6 +26,14 @@ const server = http.createServer((req,res) => {
     assert(await page.locator('.hero-real-screen img').evaluate(el=>el.complete && el.naturalWidth>0));
     assert(await page.locator('.famina-brand-image').evaluate(el=>el.complete && el.naturalWidth>0));
     await page.locator('[data-home-menu="products"]').waitFor();
+    const checkChevrons = async () => {
+      const alignment=await page.locator('[data-home-menu] .home-chevron').evaluateAll(nodes=>nodes.map(node=> {
+        const icon=node.getBoundingClientRect(), text=node.previousElementSibling.getBoundingClientRect();
+        return Math.abs((icon.top+icon.height/2)-(text.top+text.height/2));
+      }));
+      assert(alignment.every(delta=>delta<2),'Menu chevrons must align with their labels: '+alignment);
+    };
+    await checkChevrons();
     for(const menu of ['products','explore','company','download']) {
       const trigger=page.locator('[data-home-menu="'+menu+'"]');
       await trigger.click();
@@ -46,14 +54,27 @@ const server = http.createServer((req,res) => {
     await page.setViewportSize({width:390,height:844});
     assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
     await page.locator('.hamburger').click();
+    await checkChevrons();
+    const authLayout=await page.locator('#auth-links').evaluate(el=>[...el.querySelectorAll('a')].map(a=>({href:a.getAttribute('href'),...Object.fromEntries(['top','height','left','right'].map(k=>[k,a.getBoundingClientRect()[k]]))})));
+    assert.deepEqual(authLayout.map(a=>a.href),['login.html','register.html']);
+    assert(Math.abs(authLayout[0].top-authLayout[1].top)<2 && authLayout[0].height>=44 && authLayout[1].height>=44,'Mobile account actions should be side by side with touch-sized targets');
+    assert(await page.locator('.mobile-menu-brand').isVisible());
+    assert(await page.locator('.close-menu').isVisible());
     await page.locator('[data-home-menu="explore"]').click();
     assert(await page.locator('#home-menu-explore').isVisible());
     await page.keyboard.press('Escape');
     assert(await page.locator('#home-menu-explore').isHidden());
     await page.locator('.close-menu').click();
+    assert.equal(await page.locator('.hamburger').getAttribute('aria-expanded'),'false');
     await page.locator('.reference-next').click();
     await page.waitForTimeout(500);
     assert(await page.locator('.reference-track').evaluate(el=>el.scrollLeft>0));
+    await page.setViewportSize({width:1024,height:768});
+    await page.locator('.hamburger').click();
+    await checkChevrons();
+    await page.locator('[data-home-menu="company"]').click();
+    assert(await page.locator('#home-menu-company').isVisible());
+    await page.locator('.close-menu').click();
     await page.setViewportSize({width:1366,height:900});
     let referenceHeader;
     for(const file of ['services.html','about.html','contact.html','faq.html','privacy.html','terms.html','login.html','register.html']) {
