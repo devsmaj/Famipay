@@ -7,16 +7,38 @@ function formatPrice(price) {
 
 // Load HTML component into an element
 function loadComponent(elementId, componentPath) {
-    fetch(componentPath, { signal: AbortSignal.timeout(15000) })
-        .then(response => {
-            if (!response.ok) throw new Error('Component unavailable');
-            return response.text();
-        })
-        .then(data => {
-            document.getElementById(elementId).innerHTML = data;
+    const target = document.getElementById(elementId);
+    if (!target) return;
+    const isHeader = elementId === 'header';
+    const cacheKey = 'famipay:header:v2';
+    let cached = null;
+    if (isHeader) {
+        try { cached = sessionStorage.getItem(cacheKey); } catch (_) {}
+        if (cached) {
+            target.innerHTML = cached;
             document.dispatchEvent(new CustomEvent('componentloaded'));
-        })
-        .catch(error => { console.error('Error loading component:', error); window.FaminaLoading?.componentFailed?.(elementId); window.FaminaNotifications.show('Could not load this page section. Please refresh and try again.', 'error'); });
+        }
+    }
+    const earlyRequest = isHeader && window.__famipayHeaderPromise;
+    const request = earlyRequest || fetch(componentPath, { signal: AbortSignal.timeout(15000) }).then(response => {
+        if (!response.ok) throw new Error('Component unavailable');
+        return response.text();
+    });
+    Promise.resolve(request).then(data => {
+        if (!target.isConnected) return;
+        if (isHeader) {
+            try { sessionStorage.setItem(cacheKey, data); } catch (_) {}
+        }
+        if (target.innerHTML !== data) {
+            target.innerHTML = data;
+            document.dispatchEvent(new CustomEvent('componentloaded'));
+        }
+    }).catch(error => {
+        if (cached && isHeader) return;
+        console.error('Error loading component:', error);
+        window.FaminaLoading?.componentFailed?.(elementId);
+        window.FaminaNotifications?.show?.('Could not load this page section. Please refresh and try again.', 'error');
+    });
 }
 
 // Shared five-second notifications; loaded on every page.
