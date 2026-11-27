@@ -1,5 +1,6 @@
 window.FamipayTranslations = Object.fromEntries([
 ['More Services','Plus de services','خدمات أخرى'],
+['FAMIPAY account number','Numéro de compte FAMIPAY','رقم حساب FAMIPAY'],
 ['Good morning','Bonjour','صباح الخير'],
 ['Receive Money','Recevoir de l’argent','استلام الأموال'],
 ['Mobile Money','Mobile Money','الأموال عبر الهاتف'],

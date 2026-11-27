@@ -52,3 +52,7 @@ test('profile and address validation make only expected writes',async()=>{
   await f.go('Add address');await f.submit('address',{label:'Home',address:'Test',phone:'invalid',latitude:'0',longitude:'0'});
   assert.equal(f.calls.filter(c=>c.path==='/addresses'&&c.options).length,0);
 });
+test('account page shows the verified profile phone as the FAMIPAY account identifier',async()=>{
+  const f=fixture();f.F.user.phone='+23566123456';await flush();await f.go('Me');
+  assert.match(f.app.innerHTML,/FAMIPAY account number/);assert.match(f.app.innerHTML,/\+23566123456/);
+});

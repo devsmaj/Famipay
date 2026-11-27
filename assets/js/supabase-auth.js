@@ -5,10 +5,16 @@
   const phoneForm = document.getElementById('phone-form');
   const codeForm = document.getElementById('phone-code-form');
   const phoneInput = document.getElementById('auth-phone');
+  const passwordInput = document.getElementById('auth-password');
+  const confirmation = document.getElementById('auth-confirm-password');
+  const terms = document.getElementById('auth-terms');
+  const existing = document.getElementById('already-registered');
+  const resetButton = document.getElementById('reset-password');
+  const resetForm = document.getElementById('password-reset-form');
   const codeInput = document.getElementById('auth-code');
   const resend = document.getElementById('resend-code');
   const changePhone = document.getElementById('change-phone');
-  let sentPhone = '', resendAt = 0, busy = false, leaving = false, releaseAction = () => {};
+  let sentPhone = '', resendAt = 0, busy = false, leaving = false, recovery = false, releaseAction = () => {};
   const message = (key, fallback) => window.i18n?.t('auth.errors.' + key, fallback) || fallback;
   const setStep = code => {
     phoneForm.hidden = code;
@@ -42,11 +48,15 @@
     if (/^\+235\d{8}$/.test(compact)) return compact;
     throw Error(message('phone', 'Enter a valid Chad phone number.'));
   }
-  async function send(phone) {
-    if (Date.now() < resendAt) throw Error(message('wait', 'Please wait before requesting another code.'));
-    const register = document.body.dataset.authPage === 'register';
-    const { error } = await F.client.auth.signInWithOtp({ phone, options: { shouldCreateUser: register } });
-    if (error) throw error;
+  async function finish(session) {
+    if (!session) throw Error(message('failed', 'Sign-in failed. Please try again.'));
+    await F.refreshUser(session);
+    if (!F.user) throw Error(message('server', 'Could not verify your account. Please try again.'));
+    await F.Cart?.merge();
+    leaving = true;
+    location.href = 'famipay-app.html';
+  }
+  function showVerification(phone) {
     sentPhone = phone;
     resendAt = Date.now() + 60000;
     document.getElementById('sent-phone').textContent = phone;
@@ -56,12 +66,57 @@
   }
   phoneForm.addEventListener('submit', e => {
     e.preventDefault();
-    action(() => send(normalisePhone(phoneInput.value)), e.submitter || phoneForm.querySelector('[type=submit]'));
+    action(async () => {
+      const phone = normalisePhone(phoneInput.value);
+      const password = passwordInput.value;
+      if (password.length < 8) throw Error(message('password_length', 'Use at least 8 characters for your password.'));
+      if (document.body.dataset.authPage === 'register') {
+        recovery = false;
+        if (existing) existing.hidden = true;
+        if (!terms?.checked) throw Error(message('terms_required', 'Please agree to the terms and privacy policy.'));
+        if (password !== confirmation?.value) throw Error(message('password_mismatch', 'Passwords do not match.'));
+        const { data, error } = await F.client.auth.signUp({ phone, password, options: { data: { terms_accepted_at: new Date().toISOString(), terms_version: '2026-10' } } });
+        if (error) {
+          if (['user_already_exists','phone_exists'].includes(error.code) || /already registered|already exists/i.test(error.message || '')) {
+            if (existing) existing.hidden = false;
+            return;
+          }
+          throw error;
+        }
+        if (Array.isArray(data?.user?.identities) && data.user.identities.length === 0) {
+          if (existing) existing.hidden = false;
+          return;
+        }
+        passwordInput.value = '';
+        if (confirmation) confirmation.value = '';
+        if (data?.session) await finish(data.session);
+        else if (data?.user) showVerification(phone);
+        else throw Error(message('failed', 'Sign-in failed. Please try again.'));
+      } else {
+        const { data, error } = await F.client.auth.signInWithPassword({ phone, password });
+        if (error) throw error;
+        passwordInput.value = '';
+        await finish(data?.session);
+      }
+    }, e.submitter || phoneForm.querySelector('[type=submit]'));
   });
-  changePhone.addEventListener('click', () => { sentPhone = ''; resendAt = 0; setStep(false); });
+  resetButton?.addEventListener('click', e => action(async () => {
+    const phone = normalisePhone(phoneInput.value);
+    const { error } = await F.client.auth.signInWithOtp({ phone, options: { shouldCreateUser: false } });
+    if (error) throw error;
+    recovery = true;
+    showVerification(phone);
+  }, e.currentTarget));
+  changePhone.addEventListener('click', () => { sentPhone = ''; resendAt = 0; recovery = false; setStep(false); });
   resend.addEventListener('click', e => action(() => {
     if (!sentPhone) throw Error(message('first', 'Request an SMS code first.'));
-    return send(sentPhone);
+    if (Date.now() < resendAt) throw Error(message('wait', 'Please wait before requesting another code.'));
+    const request = recovery ? F.client.auth.signInWithOtp({ phone: sentPhone, options: { shouldCreateUser: false } }) : F.client.auth.resend({ type: 'sms', phone: sentPhone });
+    return request.then(({ error }) => {
+      if (error) throw error;
+      resendAt = Date.now() + 60000;
+      F.notify(message('sent', 'Verification code sent.'));
+    });
   }, e.currentTarget));
   codeForm.addEventListener('submit', e => {
     e.preventDefault();
@@ -73,11 +128,27 @@
       if (error) throw error;
       const session = data?.session || (await F.client.auth.getSession()).data?.session;
       if (!session) throw Error(message('failed', 'Sign-in failed. Please try again.'));
-      await F.refreshUser(session);
-      if (!F.user) throw Error(message('server', 'Could not verify your account. Please try again.'));
-      await F.Cart?.merge();
-      leaving = true;
-      location.href = 'famipay-app.html';
+      if (recovery && resetForm) {
+        codeForm.hidden = true;
+        resetForm.hidden = false;
+        document.getElementById('reset-new-password').focus();
+      } else await finish(session);
     }, e.submitter || codeForm.querySelector('[type=submit]'));
   });
+  resetForm?.addEventListener('submit', e => {
+    e.preventDefault();
+    action(async () => {
+      const password = document.getElementById('reset-new-password').value;
+      const confirm = document.getElementById('reset-confirm-password').value;
+      if (password.length < 8) throw Error(message('password_length', 'Use at least 8 characters for your password.'));
+      if (password !== confirm) throw Error(message('password_mismatch', 'Passwords do not match.'));
+      const { error } = await F.client.auth.updateUser({ password });
+      if (error) throw error;
+      document.getElementById('reset-new-password').value = '';
+      document.getElementById('reset-confirm-password').value = '';
+      const { data } = await F.client.auth.getSession();
+      await finish(data?.session);
+    }, e.submitter || resetForm.querySelector('[type=submit]'));
+  });
+  F.ready.then(() => { if (F.user && !busy) location.href = 'famipay-app.html'; });
 })();

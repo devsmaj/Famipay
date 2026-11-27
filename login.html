@@ -6,7 +6,7 @@
     <title>Login - FAMIPAY</title>
     <link rel="stylesheet" href="assets/css/style.css?v=20261127">
     <link rel="stylesheet" href="assets/css/responsive.css">
-    <link rel="stylesheet" href="assets/css/auth.css?v=20261127">
+    <link rel="stylesheet" href="assets/css/auth.css?v=20261127-password">
     <link rel="stylesheet" href="assets/css/notifications.css?v=20261127">
     <link rel="stylesheet" href="assets/css/platform.css">
     <script>document.documentElement.classList.add('page-loading', 'header-loading');</script>
@@ -39,9 +39,9 @@
                             <label for="auth-phone" data-i18n="auth.phone_label">Chad phone number (+235)</label>
                             <input id="auth-phone" type="tel" autocomplete="tel" placeholder="66 12 34 56" dir="ltr" inputmode="tel" maxlength="20" required>
                         </div>
-                        <p class="sms-notice" data-i18n="auth.sms_notice">By continuing, you agree to receive a verification SMS. Standard message rates may apply. </p>
-                        <div id="recaptcha-container"></div>
-                        <button type="submit" class="submit-btn" data-i18n="auth.send_code">Send verification code</button>
+                        <div class="form-group"><label for="auth-password" data-i18n="auth.password">Password</label><input id="auth-password" type="password" autocomplete="current-password" minlength="8" maxlength="128" required></div>
+                        <button type="submit" class="submit-btn" data-i18n="auth.login">Login</button>
+                        <button type="button" id="reset-password" class="auth-reset-link" data-i18n="auth.reset_password">Set or reset password</button>
                     </form>
                     <form id="phone-code-form" hidden>
                         <p class="phone-destination"><span data-i18n="auth.code_sent_to">Enter the code sent to</span> <strong id="sent-phone" dir="ltr"></strong></p>
@@ -51,6 +51,11 @@
                         </div>
                         <button type="submit" class="submit-btn" data-i18n="auth.verify">Verify and continue</button>
                         <div class="phone-actions"><button type="button" id="change-phone" data-i18n="auth.change_phone">Change number</button><button type="button" id="resend-code" data-i18n="auth.resend">Resend code</button></div>
+                    </form>
+                    <form id="password-reset-form" hidden>
+                        <div class="form-group"><label for="reset-new-password" data-i18n="auth.password">Password</label><input id="reset-new-password" type="password" autocomplete="new-password" minlength="8" maxlength="128" required></div>
+                        <div class="form-group"><label for="reset-confirm-password" data-i18n="auth.confirm_password">Confirm Password</label><input id="reset-confirm-password" type="password" autocomplete="new-password" minlength="8" maxlength="128" required></div>
+                        <button type="submit" class="submit-btn" data-i18n="auth.save_password">Save password and continue</button>
                     </form>
                 </section>
                 <p class="auth-trust"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="m12 3 8 4v5c0 5-8 9-8 9s-8-4-8-9V7z"/><path d="m8 12 3 3 5-6"/></svg><span data-i18n="auth.trust">Sign in securely with your phone number.</span></p>
@@ -65,7 +70,7 @@
     <script src="assets/js/loading.js" onerror="document.documentElement.classList.remove('page-loading', 'header-loading')"></script>
     <script src="assets/js/notifications.js"></script>
     <script src="assets/js/session.js"></script>
-    <script src="assets/locales/catalog.js"></script>
+    <script src="assets/locales/catalog.js?v=20261127-password"></script>
     <script src="assets/js/i18n.js"></script>
     <script src="assets/js/auth-scene.js" defer></script>
     <script src="assets/js/config.js"></script>
@@ -78,6 +83,6 @@
     <script src="assets/js/utils.js"></script>
     <script src="assets/js/main.js"></script>
     <script src="assets/js/navigation.js"></script>
-    <script src="assets/js/supabase-auth.js"></script>
+    <script src="assets/js/supabase-auth.js?v=20261127-password"></script>
 </body>
 </html>

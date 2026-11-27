@@ -81,7 +81,7 @@
     "subtitle": "Welcome to FAMIPAY.",
     "phone": "Continue with phone number",
     "phone_label": "Chad phone number (+235)",
-    "sms_notice": "By continuing, you agree to receive a verification SMS. Standard message rates may apply.",
+    "sms_notice": "A verification SMS may be sent to your phone.",
     "send_code": "Send verification code",
     "code_label": "SMS verification code",
     "verify": "Verify and continue",
@@ -105,10 +105,18 @@
       "wait": "Please wait 60 seconds before requesting another code.",
       "first": "Request an SMS code first.",
       "sent": "SMS code sent. Enter the six-digit code below.",
-      "failed": "Sign-in failed. Please try again."
+      "failed": "Sign-in failed. Please try again.",
+      "password_length": "Use at least 8 characters for your password.",
+      "password_mismatch": "Passwords do not match.",
+      "terms_required": "Please agree to the terms and privacy policy."
     },
     "code_sent_to": "Enter the code sent to",
-    "change_phone": "Change number"
+    "change_phone": "Change number",
+    "agree_terms": "I agree to the",
+    "and": "and",
+    "already_registered": "This phone number is already registered.",
+    "reset_password": "Set or reset password",
+    "save_password": "Save password and continue"
   },
   "cart": {
     "title": "Your Cart",

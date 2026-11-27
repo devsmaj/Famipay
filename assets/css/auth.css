@@ -176,3 +176,5 @@ html[dir="rtl"] .header .language-picker .language-menu [lang="ar-TD"] {
   .header .header-actions > #auth-links { order: 1; }
   .header .header-actions > .language-picker { order: 2; }
 }
+.auth-card .auth-consent{display:flex;align-items:flex-start;gap:10px;margin:16px 0;color:#42574c;line-height:1.5;font-size:.85rem}.auth-card .auth-consent input{flex:none;width:18px;height:18px;min-height:0;margin:2px 0 0;accent-color:#08774e}.auth-card .auth-consent a,.auth-card .auth-existing a{color:#08774e;text-decoration:underline}.auth-card .auth-existing{color:#263e31;background:#e9f5ee;padding:12px;border-radius:9px;font-size:.85rem}
+.auth-card .auth-reset-link{display:block;background:transparent;border:0;padding:12px 0;color:#08774e;font:inherit;font-weight:700;cursor:pointer}

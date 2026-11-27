@@ -6,7 +6,7 @@
     <title>Register - FAMIPAY</title>
     <link rel="stylesheet" href="assets/css/style.css?v=20261127">
     <link rel="stylesheet" href="assets/css/responsive.css">
-    <link rel="stylesheet" href="assets/css/auth.css?v=20261127">
+    <link rel="stylesheet" href="assets/css/auth.css?v=20261127-password">
     <link rel="stylesheet" href="assets/css/notifications.css?v=20261127">
     <link rel="stylesheet" href="assets/css/platform.css">
     <script>document.documentElement.classList.add('page-loading', 'header-loading');</script>
@@ -40,9 +40,12 @@
                             <label for="auth-phone" data-i18n="auth.phone_label">Chad phone number (+235)</label>
                             <input id="auth-phone" type="tel" autocomplete="tel" placeholder="66 12 34 56" dir="ltr" inputmode="tel" maxlength="20" required>
                         </div>
-                        <p class="sms-notice" data-i18n="auth.sms_notice">By continuing, you agree to receive a verification SMS. Standard message rates may apply. </p>
-                        <div id="recaptcha-container"></div>
-                        <button type="submit" class="submit-btn" data-i18n="auth.send_code">Send verification code</button>
+                        <div class="form-group"><label for="auth-password" data-i18n="auth.password">Password</label><input id="auth-password" type="password" autocomplete="new-password" minlength="8" maxlength="128" required></div>
+                        <div class="form-group"><label for="auth-confirm-password" data-i18n="auth.confirm_password">Confirm Password</label><input id="auth-confirm-password" type="password" autocomplete="new-password" minlength="8" maxlength="128" required></div>
+                        <label class="auth-consent"><input id="auth-terms" type="checkbox" required> <span><span data-i18n="auth.agree_terms">I agree to the</span> <a href="terms.html" target="_blank" rel="noopener noreferrer" data-i18n="footer.terms">Terms of Service</a> <span data-i18n="auth.and">and</span> <a href="privacy.html" target="_blank" rel="noopener noreferrer" data-i18n="footer.privacy">Privacy Policy</a>.</span></label>
+                        <p class="sms-notice" data-i18n="auth.sms_notice">A verification SMS may be sent to your phone.</p>
+                        <p id="already-registered" class="auth-existing" role="status" hidden><span data-i18n="auth.already_registered">This phone number is already registered.</span> <a href="login.html" data-i18n="auth.login_here">Login here</a></p>
+                        <button type="submit" class="submit-btn" data-i18n="auth.register_title">Create Account</button>
                     </form>
                     <form id="phone-code-form" hidden>
                         <p class="phone-destination"><span data-i18n="auth.code_sent_to">Enter the code sent to</span> <strong id="sent-phone" dir="ltr"></strong></p>
@@ -66,7 +69,7 @@
     <script src="assets/js/loading.js" onerror="document.documentElement.classList.remove('page-loading', 'header-loading')"></script>
     <script src="assets/js/notifications.js"></script>
     <script src="assets/js/session.js"></script>
-    <script src="assets/locales/catalog.js"></script>
+    <script src="assets/locales/catalog.js?v=20261127-password"></script>
     <script src="assets/js/i18n.js"></script>
     <script src="assets/js/auth-scene.js" defer></script>
     <script src="assets/js/config.js"></script>
@@ -79,6 +82,6 @@
     <script src="assets/js/utils.js"></script>
     <script src="assets/js/main.js"></script>
     <script src="assets/js/navigation.js"></script>
-    <script src="assets/js/supabase-auth.js"></script>
+    <script src="assets/js/supabase-auth.js?v=20261127-password"></script>
 </body>
 </html>
