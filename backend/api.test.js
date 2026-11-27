@@ -193,6 +193,19 @@ test("profile details save authenticated first name, last name and E.164 phone",
       },
       token: "valid",
     });
+    const formattedPhone = await update({
+      firstName: "Amina",
+      lastName: "Customer",
+      phone: "+235 63 80 86 36",
+    });
+    assert.equal(formattedPhone.status, 200);
+    assert.equal(calls[1].args.p_phone, "+23563808636");
+    const missingPhone = await update({
+      firstName: "Amina",
+      lastName: "Customer",
+    });
+    assert.equal(missingPhone.status, 400);
+    assert.equal((await missingPhone.json()).field, "phone");
     const invalidPhone = await update({
       firstName: "Ada",
       lastName: "Customer",
@@ -200,16 +213,16 @@ test("profile details save authenticated first name, last name and E.164 phone",
     });
     assert.equal(invalidPhone.status, 400);
     assert.equal((await invalidPhone.json()).field, "phone");
-    assert.equal(calls.length, 1);
+    assert.equal(calls.length, 2);
     const missingName = await update({
       lastName: "Customer",
       phone: "+33612345678",
     });
     assert.equal(missingName.status, 400);
     assert.equal((await missingName.json()).field, "firstName");
-    assert.equal(calls.length, 1);
+    assert.equal(calls.length, 2);
     assert.equal((await update({ name: "Legacy Name" })).status, 200);
-    assert.equal(calls[1].name, "update_profile");
+    assert.equal(calls[2].name, "update_profile");
   } finally {
     await new Promise((resolve) => server.close(resolve));
   }
