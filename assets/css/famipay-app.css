@@ -667,3 +667,99 @@ body.fp-app {
         grid-template-columns: 1fr;
     }
 }
+
+/* Restored compact green private dashboard — keep service screens unchanged */
+body.fp-app { --bg: #f5f9f7; }
+.app:not(.fp-service-focused) .main { background: #f5f9f7; }
+.app:not(.fp-service-focused) .fp-wallet-overview {
+    margin: 14px 0 22px;
+    padding: 18px 18px 20px;
+    border-radius: 20px;
+    background: linear-gradient(125deg, #006c4b 0%, #009665 100%);
+    color: #fff;
+}
+.app:not(.fp-service-focused) .fp-wallet-overview .fp-balance-label {
+    margin: 0 0 18px;
+    color: rgba(255,255,255,.92);
+    font-size: 14px;
+    font-weight: 600;
+}
+.app:not(.fp-service-focused) .fp-wallet-overview .hero {
+    margin: 0;
+    padding: 0;
+    border-radius: 0;
+    background: none;
+    color: #fff;
+}
+.app:not(.fp-service-focused) .fp-wallet-overview .hero h2 {
+    margin: 0 0 12px;
+    font-size: clamp(25px, 6vw, 34px);
+    letter-spacing: -.6px;
+}
+.app:not(.fp-service-focused) .fp-wallet-overview .hero p {
+    color: rgba(255,255,255,.88);
+    font-size: 13px;
+}
+.app:not(.fp-service-focused) .fp-section-title {
+    margin: 20px 0 12px;
+    font-size: 18px;
+    font-weight: 750;
+}
+.app:not(.fp-service-focused) .fp-service-grid.cards {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 10px;
+}
+.app:not(.fp-service-focused) .fp-service-grid .card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-width: 0;
+    min-height: 100px;
+    padding: 12px 5px;
+    border: 1px solid #e4ede8;
+    border-radius: 16px;
+    background: #fff;
+    text-align: center;
+    box-shadow: 0 2px 9px rgba(0, 63, 42, .035);
+}
+.app:not(.fp-service-focused) .fp-service-grid .card > span {
+    display: grid;
+    width: 36px;
+    height: 36px;
+    margin-bottom: 6px;
+    place-items: center;
+    border-radius: 11px;
+    background: #e8f7ee;
+    color: #087052;
+}
+.app:not(.fp-service-focused) .fp-service-grid .card strong {
+    margin: 0;
+    font-size: 12px;
+    line-height: 1.25;
+}
+.app:not(.fp-service-focused) .fp-service-grid .card small {
+    display: none;
+}
+@media (max-width: 720px) {
+    .app:not(.fp-service-focused) .main {
+        padding: 16px 14px calc(105px + env(safe-area-inset-bottom));
+    }
+    .app:not(.fp-service-focused) .fp-service-grid.cards {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 9px;
+    }
+    .app:not(.fp-service-focused) .fp-service-grid .card {
+        min-height: 98px;
+    }
+}
+@media (max-width: 350px) {
+    .app:not(.fp-service-focused) .fp-service-grid.cards {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 6px;
+    }
+    .app:not(.fp-service-focused) .fp-service-grid .card strong {
+        font-size: 11px;
+    }
+}
