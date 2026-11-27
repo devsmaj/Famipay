@@ -1,0 +1,178 @@
+.fp-verification-page {
+    display: grid;
+    min-height: 100vh;
+    min-height: 100dvh;
+    place-items: center;
+    padding: calc(24px + env(safe-area-inset-top)) 16px calc(24px + env(safe-area-inset-bottom));
+    background:
+        radial-gradient(ellipse at 12% 8%, #dff4e9 0, transparent 35%),
+        linear-gradient(145deg, #f8fbf9, #edf5f1);
+    color: #193346;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.fp-verification-shell {
+    width: min(100%, 480px);
+}
+
+.fp-verification-card {
+    padding: clamp(24px, 7vw, 42px);
+    border: 1px solid #dce9e4;
+    border-radius: 22px;
+    background: #fff;
+    box-shadow: 0 18px 55px #183a2d14;
+}
+
+.fp-verification-brand {
+    display: inline-flex;
+    margin-bottom: 30px;
+}
+
+.fp-verification-brand img {
+    display: block;
+    width: 156px;
+    height: auto;
+}
+
+.fp-verification-icon {
+    display: grid;
+    width: 58px;
+    height: 58px;
+    margin-bottom: 18px;
+    place-items: center;
+    border-radius: 18px;
+    background: #e7f5ed;
+    color: #087052;
+}
+
+.fp-verification-icon svg {
+    width: 29px;
+    height: 29px;
+}
+
+.fp-verification-card h1 {
+    margin: 0;
+    font-size: clamp(25px, 6vw, 32px);
+    line-height: 1.18;
+}
+
+.fp-verification-intro {
+    margin: 12px 0 26px;
+    color: #637789;
+    line-height: 1.6;
+}
+
+.fp-verification-card label {
+    display: block;
+    margin-bottom: 7px;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.fp-verification-card input {
+    width: 100%;
+    min-height: 48px;
+    padding: 12px 14px;
+    border: 1px solid #cbd9d3;
+    border-radius: 10px;
+    background: #fff;
+    color: #193346;
+    font: inherit;
+}
+
+.fp-verification-card input:focus-visible,
+.fp-verification-card button:focus-visible,
+.fp-verification-login:focus-visible {
+    outline: 3px solid #087052;
+    outline-offset: 3px;
+}
+
+.fp-verification-status {
+    min-height: 48px;
+    margin: 15px 0 0;
+    padding: 12px 13px;
+    border: 1px solid #dce9e4;
+    border-radius: 10px;
+    background: #f7faf8;
+    color: #516a5d;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.fp-verification-status[data-state="success"] {
+    border-color: #b7d8ca;
+    background: #eaf6ef;
+    color: #075e46;
+}
+
+.fp-verification-status[data-state="error"] {
+    border-color: #f0c5bf;
+    background: #fff5f3;
+    color: #9e332b;
+}
+
+.fp-verification-countdown {
+    margin: 9px 0 0;
+    color: #637789;
+    font-size: 12px;
+}
+
+.fp-verification-actions {
+    display: grid;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.fp-verification-actions button {
+    min-height: 48px;
+    padding: 12px 16px;
+    border: 0;
+    border-radius: 10px;
+    font: inherit;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.fp-verification-primary {
+    background: #087052;
+    color: #fff;
+}
+
+.fp-verification-primary:hover:not(:disabled) {
+    background: #075e46;
+}
+
+.fp-verification-secondary {
+    border: 1px solid #cbd9d3 !important;
+    background: #fff;
+    color: #087052;
+}
+
+.fp-verification-actions button:disabled {
+    cursor: not-allowed;
+    opacity: .58;
+}
+
+.fp-verification-login {
+    display: inline-block;
+    margin-top: 22px;
+    color: #087052;
+    font-size: 14px;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.fp-verification-login:hover {
+    text-decoration: underline;
+}
+
+@media (max-width: 420px) {
+    .fp-verification-card {
+        border-radius: 17px;
+        box-shadow: 0 10px 32px #183a2d10;
+    }
+
+    .fp-verification-brand {
+        margin-bottom: 24px;
+    }
+}

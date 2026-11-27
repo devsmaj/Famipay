@@ -11,8 +11,6 @@
   const emailMethodButton = document.getElementById('auth-use-email');
   const phoneMethodButton = document.getElementById('auth-use-phone');
   const phoneNotice = document.getElementById('auth-phone-notice');
-  const emailPending = document.getElementById('email-pending');
-  const sentEmail = document.getElementById('sent-email');
   const passwordInput = document.getElementById('auth-password');
   const confirmation = document.getElementById('auth-confirm-password');
   const terms = document.getElementById('auth-terms');
@@ -28,6 +26,18 @@
   const message = (key, fallback) => window.i18n?.t('auth.errors.' + key, fallback) || fallback;
   const label = (key, fallback) => window.i18n?.t('auth.' + key, fallback) || fallback;
   const emailRecovery = /(?:\?|&)recovery=1(?:&|$)/.test(location.search || '');
+  function redirectToEmailVerification(value) {
+    const email = String(value || '').trim();
+    if (!email) return false;
+    try { sessionStorage.setItem('famina-pending-email-verification', email); } catch (_) {}
+    leaving = true;
+    location.replace('verify-email.html');
+    return true;
+  }
+  function isEmailNotVerified(error) {
+    return error?.code === 'email_not_confirmed' ||
+      /email\s+(?:is\s+)?not\s+confirmed|email.*not verified/i.test(error?.message || '');
+  }
   function setAuthMethod(method) {
     authMethod = method === 'phone' ? 'phone' : 'email';
     const useEmail = authMethod === 'email';
@@ -109,6 +119,8 @@
       }
       await fn();
     } catch (error) {
+      if (authMethod === 'email' && isEmailNotVerified(error) &&
+          redirectToEmailVerification(emailInput.value)) return;
       leaving = false;
       const detail = error.code === 'phone_provider_disabled'
         ? message('phone_disabled', 'Phone registration is not enabled yet. Please contact support.')
@@ -138,8 +150,10 @@
     if (!session) throw Error(message('failed', 'Sign-in failed. Please try again.'));
     await F.refreshUser(session);
     if (!F.user) throw Error(message('server', 'Could not verify your account. Please try again.'));
-    if (!F.user.email_verified && !F.user.phone_verified)
+    if (!F.user.email_verified && !F.user.phone_verified) {
+      if (authMethod === 'email' && redirectToEmailVerification(F.user.email)) return;
       throw Error(message('verification_required', 'Verify your email address or phone number before continuing.'));
+    }
     leaving = true;
     if (!F.user.onboarding_complete) {
       location.replace('famipay-onboarding.html');
@@ -164,10 +178,8 @@
     F.notify(message('sent', 'Verification code sent.'));
   }
   function showEmailConfirmation(email) {
-    if (!emailPending || !sentEmail) throw Error(message('failed', 'Sign-in failed. Please try again.'));
-    phoneForm.hidden = true;
-    emailPending.hidden = false;
-    sentEmail.textContent = email;
+    if (!redirectToEmailVerification(email))
+      throw Error(message('failed', 'Sign-in failed. Please try again.'));
   }
   phoneForm.addEventListener('submit', e => {
     e.preventDefault();
@@ -198,7 +210,7 @@
           data: { terms_accepted_at: new Date().toISOString(), terms_version: '2026-10' }
         };
         const { data, error } = authMethod === 'email'
-          ? await F.client.auth.signUp({ email, password, options: { ...options, emailRedirectTo: appUrl('login.html') } })
+          ? await F.client.auth.signUp({ email, password, options: { ...options, emailRedirectTo: appUrl('verify-email.html') } })
           : await F.client.auth.signUp({ phone, password, options });
         if (error) {
           if (['user_already_exists','phone_exists'].includes(error.code) || /already registered|already exists/i.test(error.message || '')) {
