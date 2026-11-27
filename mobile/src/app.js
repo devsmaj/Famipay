@@ -3,7 +3,7 @@
  const tabs=['Home','Wallet','Services','Transactions','Me'];
  const services=['Send Money','Receive Money','Mobile Money','Add Money','Withdraw','Bank Transfer','Airtime','Mobile Data','Pay Bills','QR Payment','Merchant Payments','Agent Services'];
  const settings=['Personal Information','Identity Verification','Security & PIN','Language','Help & Support','Notifications'];
- let language=(window.FaminaSession.getPreference('language')||'fr').split('-')[0],screen='Home',hidden=false,review;
+ let language=(window.FaminaSession.getPreference('language')||'fr').split('-')[0],screen='Home',hidden=false,review,backward=false;
  if(!['en','fr','ar'].includes(language))language='fr';
  const esc=F.escape,t=value=>esc(language==='en'?value:window.FamipayTranslations[value]?.[language]||value);
  const panel=value=>`<div class="panel">${value}</div>`;
@@ -35,17 +35,18 @@
   app.querySelector('#language').onchange=event=>{language=event.target.value;window.FaminaSession.setPreference('language',language==='en'?'en':language+'-TD');render();};
  }
  function open(value){location.hash=encodeURIComponent(value);}
- function route(){let value;try{value=decodeURIComponent(location.hash.slice(1));}catch{value='Home';}screen=[...tabs,...services,...settings,'Review'].includes(value)?value:'Home';if(screen==='Review'&&!review)screen='Home';render();window.scrollTo(0,0);}
+ function route(initial=false){let value;try{value=decodeURIComponent(location.hash.slice(1));}catch{value='Home';}screen=[...tabs,...services,...settings,'Review'].includes(value)?value:'Home';if(screen==='Review'&&!review)screen='Home';const loader=window.FamipayLoading;if(initial===true){render();}else{const loading=loader?.begin(),animation=loader?loader.slide(render,{back:backward}):render();backward=false;Promise.resolve(animation).finally(()=>loader?.end(loading));}window.scrollTo(0,0);}
  app.addEventListener('click',async event=>{
   const el=event.target.closest('button');if(!el)return;
   if(el.dataset.open)return open(el.dataset.open);
-  if(el.dataset.action==='back')return open(screen==='Review'?review.service:'Home');
+  if(el.dataset.action==='back'){backward=true;return open(screen==='Review'?review.service:'Home');}
   if(el.dataset.action==='hide'){hidden=!hidden;render();return;}
   if(el.dataset.action==='logout'){el.disabled=true;try{const {error}=await F.client.auth.signOut();if(error)throw error;location.replace('login.html');}catch{el.disabled=false;app.querySelector('#err').textContent=t('Unable to complete. Please try again.');}}
  });
  app.addEventListener('submit',async event=>{
   event.preventDefault();const form=event.target;if(!form.reportValidity())return;
   const values=Object.fromEntries(new FormData(form)),submit=event.submitter;submit.disabled=true;
+  const loading=window.FamipayLoading?.begin();
   try{
    if(form.dataset.form==='payment'){
     const amount=Number(values.amount);if(!values.recipient.trim()||!Number.isSafeInteger(amount)||amount<1)throw Error('Invalid');
@@ -53,9 +54,10 @@
    }else{
     if(!values.name.trim())throw Error('Invalid');await F.api('/profile',{method:'PUT',body:{name:values.name.trim()}});await F.retryAuth();open('Me');
    }
-  }catch{app.querySelector('#err').textContent=t('Unable to complete. Please try again.');}finally{submit.disabled=false;}
+  }catch{app.querySelector('#err').textContent=t('Unable to complete. Please try again.');}finally{submit.disabled=false;window.FamipayLoading?.end(loading);}
  });
  window.addEventListener('hashchange',route);window.addEventListener('famina-signed-out',()=>location.replace('login.html'));
  app.innerHTML='<main id="fp-content" role="status">'+t('Checking your session…')+'</main>';
- F.ready.then(route);
+ const startup=window.FamipayLoading?.begin({startup:true});
+ F.ready.then(()=>{route(true);requestAnimationFrame(()=>requestAnimationFrame(()=>window.FamipayLoading?.end(startup)));}).catch(()=>window.FamipayLoading?.end(startup));
 })();

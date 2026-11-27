@@ -19,7 +19,7 @@
     <style name="AppTheme.NoActionBarLaunch" parent="Theme.SplashScreen">
         <item name="android:background">@drawable/splash</item>
         <item name="windowSplashScreenBackground">#005A46</item>
-        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_famipay</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/famipay_splash_mark</item>
         <item name="postSplashScreenTheme">@style/AppTheme.NoActionBar</item>
     </style>
 </resources>
