@@ -48,9 +48,9 @@ function boot({page = 'register', signUpError = null, signInError = null} = {}) 
   const values = new Map();
   const calls = {signUp: [], signIn: [], notifications: []};
   const location = {
-    href: `https://famina.example/${page}.html`,
-    hostname: 'famina.example',
-    origin: 'https://famina.example',
+    href: `https://${page === 'register' ? 'devsmaj.github.io/Famipay/' : 'famina.example/'}`,
+    hostname: page === 'register' ? 'devsmaj.github.io' : 'famina.example',
+    origin: page === 'register' ? 'https://devsmaj.github.io' : 'https://famina.example',
     search: '',
     replace: destination => calls.notifications.push({redirect: destination}),
   };
@@ -119,7 +119,7 @@ async function settle() {
     await new Promise(resolve => setImmediate(resolve));
 }
 
-test('email registration directs new users to OTP verification without a private-page redirect', async () => {
+test('email registration directs new users to confirmation page without a private-page redirect', async () => {
   const app = boot({page: 'register'});
   await settle();
   app.elements['auth-email'].value = 'member@example.com';
@@ -134,14 +134,14 @@ test('email registration directs new users to OTP verification without a private
 
   assert.equal(app.calls.signUp.length, 1);
   assert.equal(app.calls.signUp[0].email, 'member@example.com');
-  assert.match(app.calls.signUp[0].options.emailRedirectTo, /verify-email\.html$/);
+  assert.match(app.calls.signUp[0].options.emailRedirectTo, /devsmaj\.github\.io\/Famipay\/$/);
   assert.equal(app.values.get('famina-pending-email-verification'), 'member@example.com');
   assert.deepEqual(app.calls.notifications.filter(call => call.redirect), [
     {redirect: 'verify-email.html'},
   ]);
 });
 
-test('unverified email login routes to OTP verification rather than showing a generic error', async () => {
+test('unverified email login routes to confirmation page rather than showing a generic error', async () => {
   const app = boot({
     page: 'login',
     signInError: {code: 'email_not_confirmed', message: 'Email not confirmed'},

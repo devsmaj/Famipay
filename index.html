@@ -241,6 +241,32 @@
     <script src="assets/js/frontend-api.js"></script>
     <script src="assets/vendor/supabase.js"></script>
     <script src="assets/js/platform.js"></script>
+    <script>
+        (async () => {
+            const url = new URL(location.href);
+            const hash = new URLSearchParams(url.hash.replace(/^#/, ''));
+            const callback = url.searchParams.has('code') || hash.has('access_token') ||
+                hash.has('error_code') || url.searchParams.has('error_code');
+            if (!callback) return;
+            await window.Famina.ready;
+            if (window.Famina.user?.email_verified) {
+                try { sessionStorage.setItem('famina-pending-email-verification', window.Famina.user.email); } catch (_) {}
+                location.replace('verify-email.html?verified=1');
+            } else {
+                const email = sessionStorage.getItem('famina-pending-email-verification');
+                const errorCode = url.searchParams.get('error_code') || hash.get('error_code');
+                const errorDescription = url.searchParams.get('error_description') || hash.get('error_description');
+                if (errorCode || errorDescription) {
+                    const destination = new URL('verify-email.html', location.href);
+                    if (errorCode) destination.searchParams.set('error_code', errorCode);
+                    if (errorDescription) destination.searchParams.set('error_description', errorDescription);
+                    location.replace(destination.href);
+                } else {
+                    location.replace(email ? 'verify-email.html' : 'login.html');
+                }
+            }
+        })();
+    </script>
     <script src="assets/js/cart-state.js"></script>
     <script src="assets/js/utils.js"></script>
     <script src="assets/js/main.js?v=header-1"></script>

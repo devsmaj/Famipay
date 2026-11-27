@@ -157,6 +157,12 @@
     const base = location.href || ((location.origin || 'http://localhost') + '/');
     return new URL(path, base).href;
   }
+  function emailConfirmationUrl() {
+    if (location.hostname === 'devsmaj.github.io') {
+      return new URL('/Famipay/', location.origin).href;
+    }
+    return appUrl('verify-email.html');
+  }
   async function finish(session, loginSuccess = false) {
     if (!session) throw Error(message('failed', 'Sign-in failed. Please try again.'));
     await F.refreshUser(session);
@@ -189,6 +195,7 @@
     F.notify(message('sent', 'Verification code sent.'));
   }
   function showEmailConfirmation(email) {
+    try { sessionStorage.setItem('famina-registration-success', '1'); } catch (_) {}
     if (!redirectToEmailVerification(email))
       throw Error(message('failed', 'Sign-in failed. Please try again.'));
   }
@@ -221,7 +228,7 @@
           data: { terms_accepted_at: new Date().toISOString(), terms_version: '2026-10' }
         };
         const { data, error } = authMethod === 'email'
-          ? await F.client.auth.signUp({ email, password, options: { ...options, emailRedirectTo: appUrl('verify-email.html') } })
+          ? await F.client.auth.signUp({ email, password, options: { ...options, emailRedirectTo: emailConfirmationUrl() } })
           : await F.client.auth.signUp({ phone, password, options });
         if (error) {
           if (['user_already_exists','phone_exists'].includes(error.code) || /already registered|already exists/i.test(error.message || '')) {
