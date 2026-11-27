@@ -103,9 +103,15 @@
         if (error) throw error;
         const session = data?.session;
         if (!session || normaliseEmail(session.user?.email) !== value) return null;
+        const confirmedBySupabase = Boolean(
+            session.user?.email_confirmed_at ||
+            session.user?.confirmed_at ||
+            session.user?.user_metadata?.email_verified
+        );
+        if (!confirmedBySupabase) return null;
         await F.refreshUser(session);
         const user = F.user;
-        if (!user || normaliseEmail(user.email) !== value || !user.email_verified) return null;
+        if (!user || normaliseEmail(user.email) !== value) return null;
         return user;
     }
 

@@ -20,10 +20,14 @@ test('confirmation uses a GitHub Pages callback and Supabase signup resend', () 
   assert.match(auth, /devsmaj\.github\.io/);
   assert.match(auth, /\/Famipay\//);
   assert.match(auth, /emailRedirectTo:\s*emailConfirmationUrl\(\)/);
+  assert.match(auth, /session\.user\?\.email_confirmed_at/);
   assert.match(verify, /type:\s*'signup'/);
   assert.match(verify, /emailRedirectTo:\s*callbackUrl/);
+  assert.match(verify, /session\.user\?\.email_confirmed_at/);
   assert.match(index, /verify-email\.html\?verified=1/);
-  assert.match(index, /email_verified/);
+  assert.match(index, /email_confirmed_at/);
+  assert.match(index, /exchangeCodeForSession/);
+  assert.match(index, /app_metadata\?\.provider\s*===\s*'google'/);
 });
 
 test('expired and already-used confirmation links have actionable states', () => {

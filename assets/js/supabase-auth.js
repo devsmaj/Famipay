@@ -167,7 +167,12 @@
     if (!session) throw Error(message('failed', 'Sign-in failed. Please try again.'));
     await F.refreshUser(session);
     if (!F.user) throw Error(message('server', 'Could not verify your account. Please try again.'));
-    if (!F.user.email_verified && !F.user.phone_verified) {
+    const confirmedBySupabase = Boolean(
+      session.user?.email_confirmed_at ||
+      session.user?.confirmed_at ||
+      session.user?.user_metadata?.email_verified
+    );
+    if (!confirmedBySupabase && !F.user.email_verified && !F.user.phone_verified) {
       if (authMethod === 'email' && redirectToEmailVerification(F.user.email)) return;
       throw Error(message('verification_required', 'Verify your email address or phone number before continuing.'));
     }
