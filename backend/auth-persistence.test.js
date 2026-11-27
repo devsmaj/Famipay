@@ -4,6 +4,7 @@ const vm = require('node:vm');
 const fs = require('node:fs');
 const path = require('node:path');
 const source = fs.readFileSync(path.join(__dirname,'../assets/js/platform.js'),'utf8');
+const loadingSource = fs.readFileSync(path.join(__dirname,'../assets/js/loading.js'),'utf8');
 const tick = () => new Promise(setImmediate);
 function boot({status=200,signedIn=true,initialEvent=false,hold=false,hangSession=false,emitOnGet=false}={}) {
   const state={status,session:signedIn?{access_token:'TEST_SESSION',user:{id:'customer'}}:null,saved:null,clears:0,calls:0,creates:0,updates:0,getCalls:0,events:{},timers:new Map(),listener:null};
@@ -53,6 +54,36 @@ test('sign-out during verification invalidates its late result',async()=>{
 });
 test('loading platform twice creates only one client and listener',async()=>{
   const a=boot();await a.F.ready;vm.runInContext(source,a.context);assert.equal(a.creates,1);assert.equal(a.calls,1);
+});
+test('foreground platform requests balance loader state and background requests stay quiet',async()=>{
+  const a=boot();await a.F.ready;let started=0,finished=0;
+  a.context.window.FaminaLoading={request(){started++;return()=>{finished++;}}};
+  await a.F.api('/cart');
+  await a.F.api('/cart',{background:true});
+  assert.equal(started,1);assert.equal(finished,1);
+  a.status=503;await assert.rejects(a.F.api('/cart'));
+  assert.equal(started,2);assert.equal(finished,2);
+});
+test('shared loader avoids quick flashes and remains visible until overlapping requests finish',()=>{
+  const timers=new Map();let nextTimer=0;
+  class Element {
+    constructor(){this.children=[];this.attributes={};this.hidden=false;this.classList={contains:name=>name==='fp-app',add(){},remove(){}};}
+    append(...children){this.children.push(...children);}
+    setAttribute(name,value){this.attributes[name]=value;}
+  }
+  const body=new Element();body.dataset={};
+  const document={body,baseURI:'https://devsmaj.github.io/Famipay/',documentElement:{classList:{remove(){}}},createElement:()=>new Element(),addEventListener(){}};
+  const window={setTimeout(fn){const id=++nextTimer;timers.set(id,fn);return id;},clearTimeout(id){timers.delete(id);},addEventListener(){}};
+  vm.runInNewContext(loadingSource,{window,document,URL});
+  const quick=window.FaminaLoading.request();quick();
+  assert.equal(body.children.length,0);
+  const finishA=window.FaminaLoading.request(),finishB=window.FaminaLoading.request();
+  const [timerId,show]=timers.entries().next().value;timers.delete(timerId);show();
+  const loader=body.children[0];
+  assert.equal(loader.hidden,false);assert.equal(loader.children.length,2);
+  assert.equal(loader.children[0].className,'fp-global-loader-ring');
+  finishA();finishA();assert.equal(loader.hidden,false);
+  finishB();assert.equal(loader.hidden,true);
 });
 test('public catalog does not wait for a stalled authentication SDK',async()=>{
   const a=boot({hangSession:true});await tick();assert.deepEqual(await a.F.api('/menu'),[]);

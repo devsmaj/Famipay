@@ -11,9 +11,6 @@
     <link rel="stylesheet" href="assets/css/famipay-loading.css">
 </head>
 <body class="fp-app">
-    <main id="auth-status" class="fp-loading-status" role="status" aria-label="Loading FAMIPAY">
-        <span class="fp-loader-logo">FAMIPAY</span>
-    </main>
     <div id="app" class="fp-bootstrap-shell">
         <div class="fp-bootstrap">
             <div class="fp-brand">FAMIPAY</div>
@@ -21,6 +18,7 @@
             <a href="login.html">Login / Sign up</a>
         </div>
     </div>
+    <script src="assets/js/loading.js"></script>
     <script src="assets/js/config.js"></script>
     <script src="assets/js/session.js"></script>
     <script src="assets/vendor/supabase.js"></script>
@@ -29,7 +27,6 @@
     <script src="assets/js/famipay-navigation.js"></script>
     <script>
         (async function () {
-            const status = document.getElementById('auth-status');
             const app = document.getElementById('app');
             const mapRole = role => ({
                 restaurant_owner: 'merchant',
@@ -43,7 +40,6 @@
                 if (renderedRole === role) return Promise.resolve();
                 renderedRole = role;
                 window.FAMIPAY_AUTH_ROLE = role;
-                app.replaceChildren();
                 app.hidden = false;
                 return new Promise((resolve, reject) => {
                     const script = document.createElement('script');
@@ -76,7 +72,6 @@
                     link.textContent = 'Login / Sign up';
                     shell.append(brand, message, link);
                     app.replaceChildren(shell);
-                    status.hidden = true;
                     return;
                 }
                 if (!window.Famina.user.onboarding_complete) {
@@ -87,10 +82,10 @@
                 const role = mapRole(window.Famina.user.role);
                 const earlyError = await earlyRender;
                 if (earlyError || renderedRole !== role) await renderApp(role);
-                status.hidden = true;
             } catch (error) {
-                app.hidden = true;
-                status.textContent = error.message === 'Unable to load the preview.'
+                app.hidden = false;
+                const message = app.querySelector('.fp-bootstrap p');
+                if (message) message.textContent = error.message === 'Unable to load the preview.'
                     ? error.message
                     : 'Unable to verify your session. Please try again.';
             }

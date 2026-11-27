@@ -30,28 +30,40 @@
       new Promise((resolve, reject) => { timer = setTimeout(() => reject(Error("Service unavailable. Please try again.")), 15000); })
     ]).finally(() => clearTimeout(timer));
   }
-  async function request(path, options = {}, token) {
-    const response = await fetch(window.FAMINA_API_BASE + path, {
-      ...options,
-      headers: {
-        "Content-Type": "application/json",
-        ...(token ? { Authorization: "Bearer " + token } : {}),
-        ...options.headers,
-      },
-      signal: options.signal || AbortSignal.timeout(20000),
-    });
-    const data = await response.json().catch(() => ({}));
-    if (!response.ok) {
-      const error = new Error(
-        data.message || "Service unavailable. Please try again.",
-      );
-      error.status = response.status;
-      throw error;
+  async function request(path, options = {}, token, foreground = true) {
+    const finished = foreground
+      ? window.FaminaLoading?.request?.() || (() => {})
+      : () => {};
+    try {
+      const response = await fetch(window.FAMINA_API_BASE + path, {
+        ...options,
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: "Bearer " + token } : {}),
+          ...options.headers,
+        },
+        signal: options.signal || AbortSignal.timeout(20000),
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        const error = new Error(
+          data.message || "Service unavailable. Please try again.",
+        );
+        error.status = response.status;
+        throw error;
+      }
+      return data;
+    } finally {
+      finished();
     }
-    return data;
   }
-  const apiRequest = async (path, options = {}) => {
-    if ((options.method || "GET") === "GET" && /^\/(menu|restaurants)(\?|$)/.test(path)) return request(path, options);
+  const apiRequest = async (path, options = {}, foreground = true) => {
+    if (
+      (options.method || "GET") === "GET" &&
+      /^\/(menu|restaurants)(\?|$)/.test(path)
+    ) {
+      return request(path, options, undefined, foreground);
+    }
     await F.ready;
     if (!F.user) { const error = F.authError || F.setupError || new Error("Please sign in again."); error.status ||= 401; throw error; }
     const session = F.client
@@ -72,6 +84,7 @@
               : JSON.stringify(options.body),
         },
         session?.access_token,
+        foreground,
       );
     } catch (error) {
       if (error.status === 401 && F.user && verifiedToken === session?.access_token) {
@@ -83,8 +96,7 @@
   };
   F.api = (path, options = {}) => {
     const { background, ...requestOptions } = options;
-    const finished = !background && window.FaminaLoading?.request?.() || (() => {});
-    return apiRequest(path, requestOptions).finally(finished);
+    return apiRequest(path, requestOptions, !background);
   };
   F.require = async (role) => {
     await F.ready;
