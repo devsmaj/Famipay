@@ -6,7 +6,9 @@ window.FaminaMainInitialized = true;
 document.addEventListener('DOMContentLoaded', function() {
     if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js',{updateViaCache:'none'}).catch(()=>{});
     // Header/auth/cart initialize through their single shared event handlers.
-    loadComponent('header', 'components/header.html');
+    const header = document.getElementById('header');
+    if (header?.querySelector('.header')) document.dispatchEvent(new CustomEvent('componentloaded'));
+    else if (header) loadComponent('header', 'components/header.html');
     if (document.getElementById('footer')) loadComponent('footer', 'components/footer.html');
 
     // Newsletter form submission (delegated for async-loaded footer on all pages)
