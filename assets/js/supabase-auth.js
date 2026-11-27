@@ -23,6 +23,17 @@
   const isRegistration = document.body.dataset.authPage === 'register';
   let sentPhone = '', resendAt = 0, busy = false, leaving = false, recovery = false, releaseAction = () => {};
   let authMethod = 'email';
+  let changingEmail = false;
+  if (isRegistration) {
+    try {
+      const changedEmail = sessionStorage.getItem('famina-change-email');
+      if (changedEmail) {
+        changingEmail = true;
+        emailInput.value = changedEmail;
+        sessionStorage.removeItem('famina-change-email');
+      }
+    } catch (_) {}
+  }
   const message = (key, fallback) => window.i18n?.t('auth.errors.' + key, fallback) || fallback;
   const label = (key, fallback) => window.i18n?.t('auth.' + key, fallback) || fallback;
   const emailRecovery = /(?:\?|&)recovery=1(?:&|$)/.test(location.search || '');
@@ -154,11 +165,6 @@
       if (authMethod === 'email' && redirectToEmailVerification(F.user.email)) return;
       throw Error(message('verification_required', 'Verify your email address or phone number before continuing.'));
     }
-    leaving = true;
-    if (!F.user.onboarding_complete) {
-      location.replace('famipay-onboarding.html');
-      return;
-    }
     if (loginSuccess) {
       try {
         sessionStorage.setItem(
@@ -166,6 +172,11 @@
           JSON.stringify({userId: F.user.id, at: Date.now()}),
         );
       } catch (_) {}
+    }
+    leaving = true;
+    if (!F.user.onboarding_complete) {
+      location.replace('famipay-onboarding.html');
+      return;
     }
     location.replace(loginSuccess ? 'famipay-app.html?login=success' : 'famipay-app.html');
   }
@@ -297,7 +308,7 @@
     }, e.submitter || resetForm.querySelector('[type=submit]'));
   });
   F.ready.then(async () => {
-    if (!F.user || busy || emailRecovery) return;
+    if (!F.user || busy || emailRecovery || changingEmail) return;
     try {
       const {data, error} = await F.client.auth.getSession();
       if (error) throw error;

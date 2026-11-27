@@ -87,6 +87,27 @@
     outline-offset: 3px;
 }
 
+.fp-verification-destination {
+    margin: 8px 0 18px;
+    color: #637789;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.fp-verification-destination strong {
+    display: block;
+    margin-top: 3px;
+    color: #193346;
+    overflow-wrap: anywhere;
+}
+
+.fp-verification-card input#verification-code {
+    text-align: center;
+    font-size: 24px;
+    font-weight: 700;
+    letter-spacing: .45em;
+}
+
 .fp-verification-status {
     min-height: 48px;
     margin: 15px 0 0;
@@ -155,11 +176,29 @@
 
 .fp-verification-login {
     display: inline-block;
-    margin-top: 22px;
     color: #087052;
     font-size: 14px;
     font-weight: 700;
     text-decoration: none;
+}
+
+.fp-verification-links {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 14px;
+    margin-top: 22px;
+}
+
+.fp-verification-links a {
+    color: #087052;
+    font-size: 14px;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.fp-verification-links a:hover {
+    text-decoration: underline;
 }
 
 .fp-verification-login:hover {

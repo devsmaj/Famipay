@@ -266,7 +266,8 @@
   async function showLoginSuccess() {
     await F.ready;
     if (!F.user || (!F.user.email_verified && !F.user.phone_verified) ||
-        !F.user.onboarding_complete || /\/(login|register)\.html$/.test(location.pathname)) return;
+        /\/(login|register)\.html$/.test(location.pathname) ||
+        (!F.user.onboarding_complete && !/\/famipay-onboarding\.html$/.test(location.pathname))) return;
     const url = new URL(location.href);
     const querySuccess = url.searchParams.get("login") === "success";
     if (querySuccess) {
