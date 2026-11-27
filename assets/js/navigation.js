@@ -75,7 +75,7 @@
     renderingRole = null,
     routeIdentity = null;
   const page = () => location.pathname.split("/").pop() || "index.html";
-  const unifiedPublicPages = new Set(["index.html","login.html","register.html","about.html","services.html","contact.html","faq.html","privacy.html","terms.html","photo-credits.html","restaurant.html","menu.html"]);
+  const unifiedPublicPages = new Set(["index.html","login.html","register.html","about.html","services.html","contact.html","faq.html","privacy.html","terms.html","photo-credits.html","restaurant.html","menu.html","cart.html","404.html"]);
   const isUnifiedPublicPage = () => unifiedPublicPages.has(page());
   const homeMenus = {
     products: ["Products", [

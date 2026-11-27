@@ -28,3 +28,148 @@ body .header .language-toggle,body .header #auth-links a,body .header .nav-sign-
 .about-page .fp-about-hero .fp-landing-wrap{max-width:1200px}
 .about-page .fp-service-card{background:#f1f8f4}
 @media(max-width:800px){.service-page-hero{padding:60px 0}.service-page-hero-grid{grid-template-columns:1fr;gap:35px}.service-page-device{width:160px;height:320px}.service-page-section{padding:65px 0}.service-detail{grid-template-columns:1fr;padding:30px 24px}.service-detail-screen{height:250px;width:125px}.service-detail-illustration{min-height:190px}}
+
+/* Shared homepage-style navigation for every public page. */
+.public-site-page #header{position:sticky;top:0;z-index:1000;min-height:82px;background:#080e19}
+.public-site-page #header .header{position:relative}
+.public-site-page .header{background:#080e19;box-shadow:none;border-bottom:1px solid #202c3d}
+.public-site-page .header .container{max-width:1200px;min-height:82px;padding:14px 24px;display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:16px}
+.public-site-page .header .famina-brand-image{content:url("../branding/famipay-logo-dark.svg?v=3");width:155px;height:auto;max-height:50px;object-fit:contain}
+.public-site-page .header .nav{display:contents}
+.public-site-page .header .nav-list{grid-column:2;grid-row:1;justify-self:center;gap:4px}
+.public-site-page .header .nav-list li{margin:0}
+.public-site-page .header .nav-list a,.public-site-page .header .home-menu-toggle{display:flex;align-items:center;min-height:44px;padding:10px 12px;border:0;border-radius:9px;background:transparent;color:#9ba9bf;font:inherit;font-size:15px;font-weight:600;white-space:nowrap;cursor:pointer}
+.public-site-page .header .nav-list a:hover,.public-site-page .header .nav-list a[aria-current=page],.public-site-page .header .home-menu-toggle:hover,.public-site-page .header .home-menu-toggle[aria-expanded=true]{background:#141f2e;color:#fff}
+.public-site-page .header .home-menu-toggle{justify-content:center;gap:9px}
+.public-site-page .header .home-chevron{color:#7b8ca3;font-size:18px;line-height:1;transition:transform .18s ease}
+.public-site-page .header .home-menu-toggle[aria-expanded=true] .home-chevron{transform:rotate(180deg)}
+.public-site-page .header .header-actions{grid-column:3;grid-row:1;justify-self:end;display:flex;align-items:center;gap:10px;direction:ltr}
+.public-site-page .header #auth-links{display:flex;align-items:center;gap:8px;white-space:nowrap}
+.public-site-page .header #auth-links a{display:inline-flex;align-items:center;justify-content:center;min-height:42px;padding:10px 15px;border:1px solid #168a65;border-radius:9px;background:#168a65;color:#fff;font-size:13px;font-weight:700}
+.public-site-page .header #auth-links .home-sign-in{border-color:transparent;background:transparent;color:#aebed1}
+.public-site-page .header #auth-links .home-sign-in:hover{background:#151f2d;color:#fff}
+.public-site-page .header #auth-links .home-sign-up:hover{background:#107451;color:#fff}
+.public-site-page .header .nav-sign-out{border:1px solid #168a65;border-radius:9px;background:#168a65;color:#fff;padding:10px 15px;font:inherit;font-size:13px;font-weight:700;white-space:nowrap}
+.public-site-page .header .language-picker{position:relative;margin:0}
+.public-site-page .header .language-toggle{min-height:42px;padding:8px 10px;border:0;border-radius:9px;background:transparent;color:#b7c6d7;font:inherit;font-size:13px;font-weight:700}
+.public-site-page .header .language-toggle:hover,.public-site-page .header .language-toggle[aria-expanded=true]{background:#141f2e;color:#77e7b6}
+.public-site-page .header .language-menu{z-index:1300;width:235px;background:#101b2b;border:1px solid #2b3b50;border-radius:14px;color:#eef5fc;box-shadow:0 18px 40px #0008}
+.public-site-page .header .language-menu-title{color:#a8bacd}
+.public-site-page .header .language-menu button{color:#e9f2fa}
+.public-site-page .header .language-menu button small{color:#a8bacd}
+.public-site-page .header .language-menu button:hover{background:#1c3042}
+.public-site-page .header .language-menu button[aria-checked=true]{background:#163f35;color:#77e7b6}
+.public-site-page .header .mobile-menu-brand,.public-site-page .header .mobile-language-name{display:none}
+.public-site-page .header .hamburger{display:none;color:#b8c8d9}
+.public-site-page .header .hamburger:focus-visible,.public-site-page .header .close-menu:focus-visible,.public-site-page .header .nav-list a:focus-visible,.public-site-page .header .home-menu-toggle:focus-visible,.public-site-page .header .language-toggle:focus-visible,.public-site-page .header .language-menu button:focus-visible,.public-site-page .header #auth-links a:focus-visible{outline:3px solid #62dbaa;outline-offset:3px}
+.public-site-page .header .home-mega-menu{position:absolute;inset-block-start:calc(100% + 10px);inset-inline-start:0;z-index:1300;width:540px;padding:22px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;background:#0e1827;border:1px solid #29384c;border-radius:18px;box-shadow:0 20px 45px #0009}
+.public-site-page .header .home-mega-menu[hidden]{display:none}
+.public-site-page .header .home-menu-item{position:relative}
+.public-site-page .header .home-menu-item:last-child .home-mega-menu{width:280px;grid-template-columns:1fr;inset-inline-start:auto;inset-inline-end:0}
+.public-site-page .header .home-menu-entry{display:flex;align-items:flex-start;gap:12px;padding:8px;border-radius:10px;color:#f4f7fb;text-decoration:none;white-space:normal}
+.public-site-page .header .home-menu-entry:hover{background:#18283a}
+.public-site-page .header .home-menu-entry>span:last-child{min-width:0}
+.public-site-page .header .home-menu-entry strong,.public-site-page .header .home-menu-entry small{display:block}
+.public-site-page .header .home-menu-entry strong{font-size:13px}
+.public-site-page .header .home-menu-entry small{margin-top:4px;color:#a9b8cb;font-size:11px;line-height:1.45}
+.public-site-page .header .home-menu-icon{display:grid;place-items:center;flex:none;width:36px;height:36px;border-radius:10px;background:#163b34;color:#75e4b3}
+.public-site-page .header .home-menu-icon svg{display:block;width:19px;height:19px}
+.public-site-page .header .home-menu-entry:nth-child(4n+2) .home-menu-icon{background:#142f47;color:#83bdf4}
+.public-site-page .header .home-menu-entry:nth-child(4n+3) .home-menu-icon{background:#272141;color:#b9a6ff}
+.public-site-page .header .home-menu-entry:nth-child(4n+4) .home-menu-icon{background:#163e35;color:#8be2bb}
+.public-site-page .nav-backdrop{background:#030712b8;backdrop-filter:blur(3px)}
+.public-site-page .footer{background:#0d1726;border-top:1px solid #202c3d;color:#d9e3ef}
+.public-site-page .footer a{color:#b4c3d4}
+.public-site-page .footer a:hover{color:#78e6b7}
+.public-site-page .footer h3,.public-site-page .footer h4{color:#f4f7fb}
+.public-site-page .footer-bottom{border-color:#29384c}
+@media(max-width:1279px){
+  .public-site-page #header{min-height:72px}
+  .public-site-page .header .container{grid-template-columns:minmax(0,1fr) auto;gap:8px 16px;min-height:72px}
+  .public-site-page .header .logo{grid-column:1;grid-row:1}
+  .public-site-page .header .hamburger{grid-column:2;grid-row:1;display:grid;place-items:center;width:44px;height:44px}
+  .public-site-page .header .menu-ribbon{width:28px;height:28px}
+  .public-site-page .header .nav{position:fixed;inset-block-start:calc(12px + env(safe-area-inset-top));inset-inline-start:auto;inset-inline-end:12px;z-index:1200;width:min(520px,calc(100% - 24px));height:auto;max-height:calc(100dvh - 24px - env(safe-area-inset-top) - env(safe-area-inset-bottom));padding:0 16px calc(16px + env(safe-area-inset-bottom));display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start;overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain;visibility:hidden;transform:translateX(110%);background:#090d16;border:1px solid #263247;border-radius:18px;box-shadow:0 18px 55px #0009;transition:transform .2s ease,visibility .2s}
+  .public-site-page .header .nav.active{visibility:visible;transform:translateX(0)}
+  .public-site-page .header .mobile-menu-brand{position:static;inset:auto;display:flex;align-items:center;gap:12px;min-height:60px;padding:12px 50px 12px 4px;border-bottom:1px solid #263247;color:#fff;font-size:18px;font-weight:800}
+  .public-site-page .header .mobile-menu-brand::before{content:"";display:block;width:32px;height:32px;flex:none;border-radius:9px;background:#116d51 url("../branding/famipay-logo.svg") no-repeat left center;background-size:130px 32px}
+  .public-site-page .header .close-menu{position:absolute;inset-block-start:9px;inset-inline-end:12px;display:grid;place-items:center;width:42px;height:42px;padding:0;border:0;border-radius:50%;background:transparent;color:#aebed0;font-size:28px;line-height:1;cursor:pointer}
+  .public-site-page .header .nav-list{display:flex;flex-direction:column;align-items:stretch;justify-self:auto;gap:4px;width:100%;margin:12px 0 0}
+  .public-site-page .header .nav-list li,.public-site-page .header .home-menu-item{display:block;width:100%}
+  .public-site-page .header .nav-list a,.public-site-page .header .home-menu-toggle{justify-content:flex-start;width:100%;min-height:52px;padding:12px;border-radius:9px;color:#e4edf6;text-align:start}
+  .public-site-page .header .nav-list a:hover,.public-site-page .header .home-menu-toggle:hover,.public-site-page .header .home-menu-toggle[aria-expanded=true]{background:#172438}
+  .public-site-page .header .home-menu-toggle{justify-content:space-between;font-size:16px}
+  .public-site-page .header .home-mega-menu,.public-site-page .header .home-menu-item:last-child .home-mega-menu{position:static;width:100%;grid-template-columns:1fr;padding:12px;gap:8px;margin:2px 0 10px;box-shadow:none}
+  .public-site-page .header .home-menu-entry{padding:8px 4px}
+  .public-site-page .header .header-actions{align-self:stretch;grid-column:auto;grid-row:auto;width:100%;flex-direction:column;align-items:stretch;gap:12px;margin-top:18px;padding-top:16px;border-top:1px solid #263247}
+  .public-site-page .header .language-picker{align-self:flex-end}
+  .public-site-page .header .language-toggle{min-height:44px}
+  .public-site-page .header [data-language-code]{display:none}
+  .public-site-page .header .mobile-language-name{display:inline}
+  .public-site-page .header #auth-links{display:flex;width:100%;gap:8px}
+  .public-site-page .header #auth-links a{flex:1;min-width:0;min-height:44px;padding:10px 8px;text-align:center;font-size:13px}
+  .public-site-page .header #auth-links .home-sign-in{border:1px solid #344258;background:#151f2d;color:#d5deea}
+  .public-site-page .header #auth-links .home-sign-up{border:1px solid #168a65;background:#168a65;color:#fff}
+  .public-site-page .header .language-menu{position:static;width:100%;margin-top:6px;box-shadow:none}
+  .public-site-page .header .nav-backdrop{z-index:1100}
+  html[dir=rtl] .public-site-page .header .nav{transform:translateX(-110%)}
+  html[dir=rtl] .public-site-page .header .nav.active{transform:translateX(0)}
+  html[dir=rtl] .public-site-page .header .mobile-menu-brand{padding-inline:4px 50px}
+}
+@media(max-width:360px){.public-site-page .header .container{padding-inline:16px}.public-site-page .header #auth-links a{font-size:12px}}
+@media(prefers-reduced-motion:reduce){.public-site-page .header .nav,.public-site-page .header .home-chevron{transition:none}}
+
+/* Dark navy and green content treatment for the existing public-page layouts. */
+.public-site-page:not(.home-page){background:#080e19;color:#e6edf6;overflow-x:clip}
+.public-site-page:not(.home-page) main{background:#080e19;color:#e6edf6}
+.public-site-page:not(.home-page) main :is(h1,h2,h3,h4){color:#f4f7fb}
+.public-site-page:not(.home-page) main :is(p,li,label,legend){color:#a9b8ca}
+.public-site-page:not(.home-page) main a:not(.btn):not(.fp-primary):not(.home-sign-in):not(.home-sign-up){color:#70ddb0}
+.public-site-page:not(.home-page) main :is(input,textarea,select){border-color:#344258;background:#101b2b;color:#edf4fb}
+.public-site-page:not(.home-page) main :is(input,textarea,select)::placeholder{color:#8999ae}
+.public-site-page:not(.home-page) .contact-section,.public-site-page:not(.home-page) .privacy-section,.public-site-page:not(.home-page) .terms-section,.public-site-page:not(.home-page) .error-section{background:#080e19;color:#e6edf6}
+.public-site-page:not(.home-page) .contact-form,.public-site-page.photo-credits-page .credits-grid article{border:1px solid #263449;border-radius:18px;background:#101b2b;color:#e6edf6;box-shadow:0 14px 34px #0003}
+.public-site-page.photo-credits-page .credits-content{max-width:1120px;padding-top:42px;padding-bottom:56px}
+.public-site-page.photo-credits-page .credits-grid article h2{color:#f4f7fb}
+.public-site-page.photo-credits-page .credits-grid article p{color:#a9b8ca}
+.public-site-page .error-section{min-height:60vh;display:grid;place-items:center;text-align:center}
+.public-site-page .error-section .btn{display:inline-flex;align-items:center;justify-content:center;min-height:46px;padding:0 20px;border-radius:10px;background:#168a65;color:#fff}
+.public-site-page .contact-form :is(input,textarea,select){width:100%;border-radius:9px}
+.public-site-page.about-page,.public-site-page.services-page,.public-site-page.faq-page{background:#080e19;color:#e6edf6;overflow-x:clip}
+.public-site-page.about-page .fp-about-hero,.public-site-page.about-page .fp-services-intro,.public-site-page.about-page .fp-support,.public-site-page.services-page .service-page-hero,.public-site-page.services-page .service-page-section,.public-site-page.faq-page .discovery-faq{background:#080e19;color:#e6edf6}
+.public-site-page.about-page .fp-about-hero h1,.public-site-page.about-page .fp-services-intro h2,.public-site-page.services-page .service-page-hero h1,.public-site-page.services-page .service-page-heading h2{color:#f4f7fb}
+.public-site-page.about-page :is(.fp-about-hero p:not(.fp-eyebrow),.fp-services-intro>div>p:not(.fp-eyebrow),.fp-service-card p,.fp-support p:not(.fp-eyebrow)),.public-site-page.services-page .service-page-hero p:not(.fp-eyebrow),.public-site-page.services-page .service-page-heading>p:last-child,.public-site-page.services-page .service-detail-copy p{color:#a9b8ca}
+.public-site-page.about-page .fp-service-card,.public-site-page.services-page .service-detail{border:1px solid #263449;background:#101b2b;color:#e6edf6}
+.public-site-page.about-page .fp-service-card h3,.public-site-page.services-page .service-detail-copy h3{color:#f4f7fb}
+.public-site-page.about-page .fp-support-box{background:#101b2b;border:1px solid #263449}
+.public-site-page.services-page .service-detail-illustration{background:#142c2b;color:#77dfb2}
+.public-site-page.faq-page .discovery-heading h1{color:#f4f7fb}
+.public-site-page.faq-page .discovery-heading>p:last-child{color:#a9b8ca}
+.public-site-page.faq-page .discovery-text-link{color:#77dfb2}
+.public-site-page.faq-page .discovery-faq-list details{background:#101b2b;border-color:#263449}
+.public-site-page.faq-page .discovery-faq-list summary{color:#e6edf6}
+.public-site-page.faq-page .discovery-faq-list details[open] summary{color:#77dfb2}
+.public-site-page.faq-page .discovery-faq-list details>p{color:#a9b8ca}
+.public-site-page.menu-page,.public-site-page.restaurant-directory-page,.public-site-page.cart-page{background:#080e19}
+.public-site-page.menu-page .menu-section,.public-site-page.restaurant-directory-page .directory-section,.public-site-page.cart-page .cart-section{background:#080e19;color:#e6edf6}
+.public-site-page.menu-page .menu-section h1,.public-site-page.cart-page .cart-section h1,.public-site-page.restaurant-directory-page .directory-title h1{color:#f4f7fb}
+.public-site-page.menu-page .menu-lead,.public-site-page.menu-page .results-info,.public-site-page.cart-page .cart-page-intro{color:#a9b8ca}
+.public-site-page.menu-page .menu-item,.public-site-page.cart-page .cart-item,.public-site-page.cart-page .cart-summary,.public-site-page.cart-page .cart-empty,.public-site-page.menu-page .menu-state{border:1px solid #263449;background:#101b2b;color:#e6edf6;box-shadow:none}
+.public-site-page.menu-page .menu-item-info :is(h3,p),.public-site-page.cart-page .cart-item-info :is(h3,p),.public-site-page.cart-page .cart-empty h2{color:#edf4fb}
+.public-site-page.menu-page .menu-item-info p,.public-site-page.menu-page .menu-state p,.public-site-page.cart-page .cart-empty p,.public-site-page.cart-page .cart-page-intro,.public-site-page.cart-page .cart-fee-note{color:#a9b8ca}
+.public-site-page.menu-page .menu-back-link,.public-site-page.cart-page .cart-back-link,.public-site-page.cart-page .cart-location-link{color:#77dfb2}
+.public-site-page.menu-page .menu-state-symbol,.public-site-page.cart-page .cart-empty-icon{background:#163b34;color:#77dfb2}
+.public-site-page.menu-page .menu-state-actions .menu-state-secondary{background:#172438;color:#a9e8ca}
+.public-site-page.restaurant-directory-page .directory-breadcrumb,.public-site-page.restaurant-directory-page .directory-toolbar>p,.public-site-page.restaurant-directory-page .directory-toolbar label,.public-site-page.restaurant-directory-page .directory-check,.public-site-page.restaurant-directory-page .directory-row h2{color:#e6edf6}
+.public-site-page.restaurant-directory-page .directory-title>p,.public-site-page.restaurant-directory-page .directory-address a,.public-site-page.restaurant-directory-page .directory-row-cuisine,.public-site-page.restaurant-directory-page .directory-row-links{color:#77dfb2}
+.public-site-page.restaurant-directory-page .directory-address,.public-site-page.restaurant-directory-page .directory-sidebar,.public-site-page.restaurant-directory-page .directory-empty{border-color:#263449;background:#101b2b;color:#e6edf6}
+.public-site-page.restaurant-directory-page .directory-address small,.public-site-page.restaurant-directory-page .directory-row-address,.public-site-page.restaurant-directory-page .directory-row-status,.public-site-page.restaurant-directory-page .directory-listing-note,.public-site-page.restaurant-directory-page .directory-review-note{color:#9eafc3}
+.public-site-page.restaurant-directory-page .directory-sidebar fieldset,.public-site-page.restaurant-directory-page .directory-toolbar,.public-site-page.restaurant-directory-page .directory-notice,.public-site-page.restaurant-directory-page .directory-row{border-color:#263449}
+.public-site-page.restaurant-directory-page .directory-row h2{color:#edf4fb}
+.public-site-page.restaurant-directory-page .directory-badge{background:#172438;color:#c5d0dc}
+.public-site-page.restaurant-directory-page .directory-badge.is-orderable{background:#163b34;color:#8ee7bb}
+.public-site-page.restaurant-directory-page .directory-pagination button{background:#172438;color:#dce7f1}
+.public-site-page.restaurant-directory-page .directory-pagination button[aria-current=page],.public-site-page.restaurant-directory-page .directory-apply,.public-site-page.restaurant-directory-page .directory-empty button{background:#168a65;color:#fff}
+.public-site-page.restaurant-directory-page :is(input,select){border-color:#344258!important;background:#101b2b!important;color:#edf4fb!important}
+.public-site-page :is(.contact-section,.privacy-section,.terms-section,.error-section,.credits-content,.directory-section,.menu-section,.cart-section) :is(a,button,input,textarea,select):focus-visible{outline:3px solid #69e0b0;outline-offset:3px}
+@media(max-width:800px){.public-site-page.about-page .fp-about-hero,.public-site-page.about-page .fp-services-intro,.public-site-page.about-page .fp-support,.public-site-page.services-page .service-page-hero,.public-site-page.services-page .service-page-section{background:#080e19}}

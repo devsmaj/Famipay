@@ -7,7 +7,8 @@ document.addEventListener('DOMContentLoaded', function() {
     if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js',{updateViaCache:'none'}).catch(()=>{});
     // Header/auth/cart initialize through their single shared event handlers.
     const header = document.getElementById('header');
-    if (header?.querySelector('.header')) document.dispatchEvent(new CustomEvent('componentloaded'));
+    if (header && document.body.classList.contains('public-site-page')) loadComponent('header', 'components/header.html');
+    else if (header?.querySelector('.header')) document.dispatchEvent(new CustomEvent('componentloaded'));
     else if (header) loadComponent('header', 'components/header.html');
     if (document.getElementById('footer')) loadComponent('footer', 'components/footer.html');
 
