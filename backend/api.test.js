@@ -176,6 +176,8 @@ test("profile details save authenticated first name, last name and E.164 phone",
       body: JSON.stringify(body),
     });
   try {
+    const health = await (await fetch(base + "/health")).json();
+    assert.equal(health.profileDetails, true);
     const saved = await update({
       firstName: "Ada",
       lastName: "Customer",
@@ -191,11 +193,20 @@ test("profile details save authenticated first name, last name and E.164 phone",
       },
       token: "valid",
     });
-    assert.equal((await update({
+    const invalidPhone = await update({
       firstName: "Ada",
       lastName: "Customer",
       phone: "+123",
-    })).status, 400);
+    });
+    assert.equal(invalidPhone.status, 400);
+    assert.equal((await invalidPhone.json()).field, "phone");
+    assert.equal(calls.length, 1);
+    const missingName = await update({
+      lastName: "Customer",
+      phone: "+33612345678",
+    });
+    assert.equal(missingName.status, 400);
+    assert.equal((await missingName.json()).field, "firstName");
     assert.equal(calls.length, 1);
     assert.equal((await update({ name: "Legacy Name" })).status, 200);
     assert.equal(calls[1].name, "update_profile");

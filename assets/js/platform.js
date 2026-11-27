@@ -55,6 +55,7 @@
           data.message || "Service unavailable. Please try again.",
         );
         error.status = response.status;
+        error.field = data.field || null;
         throw error;
       }
       return data;

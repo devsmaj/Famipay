@@ -1,7 +1,8 @@
 class ApiError extends Error {
-  constructor(status, message) {
+  constructor(status, message, field = null) {
     super(message);
     this.status = status;
+    this.field = field;
   }
 }
 function createSupabase(env = process.env, request = fetch) {

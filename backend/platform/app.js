@@ -25,6 +25,13 @@ const text = (s, max = 500) => {
     throw new ApiError(400, "Required information is missing or too long.");
   return s.trim();
 };
+const profileText = (value, field, label, max) => {
+  if (typeof value !== "string" || !value.trim())
+    throw new ApiError(400, `${label} is required.`, field);
+  if (value.trim().length > max)
+    throw new ApiError(400, `${label} must be ${max} characters or fewer.`, field);
+  return value.trim();
+};
 function createApp({
   env = process.env,
   db = createSupabase(env),
@@ -92,6 +99,7 @@ function createApp({
       status: "ok",
       databaseConfigured: db.configured,
       paymentsLive: false,
+      profileDetails: true,
     }),
   );
   app.get("/api/config", (req, res) =>
@@ -147,11 +155,15 @@ function createApp({
         req.body.lastName !== undefined ||
         req.body.phone !== undefined
       ) {
-        const firstName = text(req.body.firstName, 80);
-        const lastName = text(req.body.lastName, 80);
-        const phone = text(req.body.phone, 16);
+        const firstName = profileText(req.body.firstName, "firstName", "First name", 80);
+        const lastName = profileText(req.body.lastName, "lastName", "Last name", 80);
+        const phone = profileText(req.body.phone, "phone", "Phone number", 16);
         if (!/^\+[1-9]\d{7,14}$/.test(phone))
-          throw new ApiError(400, "Enter a valid international phone number.");
+          throw new ApiError(
+            400,
+            "Enter a valid international phone number, including its country code.",
+            "phone",
+          );
         res.json(
           await db.rpc(
             "update_personal_details",
@@ -642,6 +654,7 @@ function createApp({
           : error.type === "entity.parse.failed"
             ? "Invalid JSON request."
             : error.message,
+      ...(error.field ? { field: error.field } : {}),
     });
   });
   return app;

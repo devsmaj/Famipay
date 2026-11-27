@@ -301,17 +301,27 @@
                     throw new Error(translate('last_name_required', 'Enter a valid last name.'));
                 if (!submittedPhone?.isValid())
                     throw new Error(translate('phone_invalid', 'Enter a valid international phone number, including its country code.'));
-                await withTimeout(
-                    F.api('/profile', {
-                        method: 'PUT',
-                        body: {
-                            firstName: submittedFirstName,
-                            lastName: submittedLastName,
-                            phone: submittedPhone.number,
-                        },
-                    }),
-                    translate('timeout', 'This is taking longer than expected. Please retry.'),
-                );
+                try {
+                    await withTimeout(
+                        F.api('/profile', {
+                            method: 'PUT',
+                            body: {
+                                firstName: submittedFirstName,
+                                lastName: submittedLastName,
+                                phone: submittedPhone.number,
+                            },
+                        }),
+                        translate('timeout', 'This is taking longer than expected. Please retry.'),
+                    );
+                } catch (error) {
+                    if (error.field === 'firstName')
+                        throw new Error(translate('first_name_required', 'Enter a valid first name.'));
+                    if (error.field === 'lastName')
+                        throw new Error(translate('last_name_required', 'Enter a valid last name.'));
+                    if (error.field === 'phone')
+                        throw new Error(translate('phone_invalid', 'Enter a valid international phone number, including its country code.'));
+                    throw error;
+                }
                 await getVerifiedSession();
                 showStep('pin');
                 document.getElementById('account-pin').focus();
