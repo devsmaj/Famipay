@@ -98,9 +98,11 @@ async function boot() {
     if(updates.textContent!==t('updates'))updates.textContent=t('updates');
   };
   new MutationObserver(refreshLabels).observe(document.documentElement,{attributes:true,attributeFilter:['lang']});
-  window.addEventListener('offline',()=>notice('offline'));
-  window.addEventListener('online',()=>{status.textContent='';});
-  if(!navigator.onLine)notice('offline');
+  if(!window.FAMIPAY_MOBILE_BUILD.preview){
+    window.addEventListener('offline',()=>notice('offline'));
+    window.addEventListener('online',()=>{status.textContent='';});
+    if(!navigator.onLine)notice('offline');
+  }
   if(!native)return;
   document.addEventListener('click',event=>{
     const link=event.target.closest('a[href]');if(!link)return;
