@@ -20,13 +20,16 @@
     ];
     const views = [...root.querySelectorAll('.fp-view')];
     const routeStack = [location.hash.slice(1) || 'home'];
+    let activeTab = routeStack[0];
 
     function show(id) {
         const view = views.find(item => item.dataset.fpView === id);
         const activeId = view ? id : 'home';
+        if (root.querySelector(`[data-fp-target="${activeId}"]`)) activeTab = activeId;
         views.forEach(item => item.classList.toggle('active', item.dataset.fpView === activeId));
         root.querySelectorAll('.fp-nav a').forEach(link => {
-            link.setAttribute('aria-current', link.dataset.fpTarget === activeId ? 'page' : 'false');
+            const selectedTab = activeId === 'service' ? 'services' : activeTab;
+            link.setAttribute('aria-current', link.dataset.fpTarget === selectedTab ? 'page' : 'false');
         });
     }
 
