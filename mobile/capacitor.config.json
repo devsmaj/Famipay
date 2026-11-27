@@ -1,0 +1,11 @@
+{
+  "appId": "com.famipay.app",
+  "appName": "FAMIPAY",
+  "webDir": "www",
+  "server": { "androidScheme": "https", "hostname": "localhost", "cleartext": false },
+  "android": { "allowMixedContent": false, "backgroundColor": "#005a46" },
+  "plugins": {
+    "SplashScreen": { "launchAutoHide": false, "launchShowDuration": 3000, "backgroundColor": "#005a46", "showSpinner": false },
+    "PushNotifications": { "presentationOptions": ["badge", "sound", "alert"] }
+  }
+}

@@ -1,6 +1,7 @@
 # GitHub Pages serves the static frontend. Backend code and dependency docs
 # must not be parsed as Liquid templates or copied into the published site.
 exclude:
+  - mobile
   - backend
   - node_modules
   - README.md
