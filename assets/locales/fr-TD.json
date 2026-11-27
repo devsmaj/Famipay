@@ -108,7 +108,10 @@
       "failed": "Échec de la connexion. Veuillez réessayer.",
       "password_length": "Utilisez au moins 8 caractères pour le mot de passe.",
       "password_mismatch": "Les mots de passe ne correspondent pas.",
-      "terms_required": "Veuillez accepter les conditions et la politique de confidentialité."
+      "terms_required": "Veuillez accepter les conditions et la politique de confidentialité.",
+      "backend_local": "Le service de compte local est indisponible. Démarrez le serveur configuré et réessayez.",
+      "backend_unavailable": "Le service de compte est indisponible. Vérifiez votre connexion et réessayez.",
+      "phone_disabled": "L’inscription par téléphone n’est pas encore activée. Contactez le support."
     },
     "code_sent_to": "Saisissez le code envoyé au",
     "change_phone": "Modifier le numéro",
@@ -116,7 +119,12 @@
     "and": "et la",
     "already_registered": "Ce numéro de téléphone est déjà enregistré.",
     "reset_password": "Créer ou réinitialiser le mot de passe",
-    "save_password": "Enregistrer le mot de passe et continuer"
+    "save_password": "Enregistrer le mot de passe et continuer",
+    "show_password": "Afficher le mot de passe",
+    "hide_password": "Masquer le mot de passe",
+    "password_hint": "Utilisez au moins 8 caractères.",
+    "password_match": "Les mots de passe correspondent.",
+    "password_mismatch": "Les mots de passe ne correspondent pas."
   },
   "cart": {
     "title": "Votre panier",

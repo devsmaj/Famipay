@@ -16,6 +16,42 @@
   const changePhone = document.getElementById('change-phone');
   let sentPhone = '', resendAt = 0, busy = false, leaving = false, recovery = false, releaseAction = () => {};
   const message = (key, fallback) => window.i18n?.t('auth.errors.' + key, fallback) || fallback;
+  const label = (key, fallback) => window.i18n?.t('auth.' + key, fallback) || fallback;
+  phoneInput.addEventListener('input', () => {
+    if (/^\s*\+235/.test(phoneInput.value)) phoneInput.value = phoneInput.value.replace(/^\s*\+235\s*/, '');
+  });
+  panel.addEventListener('click', event => {
+    const toggle = event.target.closest('[data-password-toggle]');
+    if (!toggle || !panel.contains(toggle)) return;
+    const input = document.getElementById(toggle.dataset.passwordToggle);
+    if (!input) return;
+    const visible = input.type === 'password';
+    input.type = visible ? 'text' : 'password';
+    toggle.setAttribute('aria-pressed', String(visible));
+    toggle.setAttribute('aria-label', visible ? label('hide_password', 'Hide password') : label('show_password', 'Show password'));
+  });
+  document.addEventListener('languagechange', () => {
+    panel.querySelectorAll('[data-password-toggle]').forEach(toggle => {
+      const visible = toggle.getAttribute('aria-pressed') === 'true';
+      toggle.setAttribute('aria-label', visible ? label('hide_password', 'Hide password') : label('show_password', 'Show password'));
+    });
+  });
+  const feedback = document.getElementById('password-feedback');
+  function updateFeedback() {
+    if (!feedback || !confirmation) return;
+    let key = 'password_hint', fallback = 'Use at least 8 characters.';
+    if (passwordInput.value.length >= 8 && confirmation.value) {
+      key = passwordInput.value === confirmation.value ? 'password_match' : 'password_mismatch';
+      fallback = key === 'password_match' ? 'Passwords match.' : 'Passwords do not match.';
+    }
+    feedback.textContent = label(key, fallback);
+  }
+  if (feedback) {
+    passwordInput.addEventListener('input', updateFeedback);
+    confirmation?.addEventListener('input', updateFeedback);
+    document.addEventListener('languagechange', updateFeedback);
+    updateFeedback();
+  }
   const setStep = code => {
     phoneForm.hidden = code;
     codeForm.hidden = !code;
@@ -34,11 +70,20 @@
     };
     try {
       await F.ready;
-      if (!F.client) throw Error(message('disabled', 'Phone sign-in is temporarily unavailable.'));
+      if (!F.client && F.retryAuth) await F.retryAuth();
+      if (!F.client) {
+        const local = ['localhost', '127.0.0.1'].includes(location.hostname);
+        throw Error(local
+          ? message('backend_local', 'The local account service is not connected. Start the configured backend and try again.')
+          : message('backend_unavailable', 'The account service is unavailable. Please check your connection and try again.'));
+      }
       await fn();
     } catch (error) {
       leaving = false;
-      F.notify(error.message || message('failed', 'Sign-in failed. Please try again.'), 'error');
+      const detail = error.code === 'phone_provider_disabled'
+        ? message('phone_disabled', 'Phone registration is not enabled yet. Please contact support.')
+        : error.message || message('failed', 'Sign-in failed. Please try again.');
+      F.notify(detail, 'error');
     } finally { if (!leaving) releaseAction(); }
   };
   window.addEventListener('pageshow', e => { if (e.persisted) releaseAction(); });
@@ -66,15 +111,26 @@
   }
   phoneForm.addEventListener('submit', e => {
     e.preventDefault();
+    let phone;
+    try {
+      phone = normalisePhone(phoneInput.value);
+      if (passwordInput.value.length < 8) throw Error(message('password_length', 'Use at least 8 characters for your password.'));
+      if (document.body.dataset.authPage === 'register') {
+        if (!terms?.checked) throw Error(message('terms_required', 'Please agree to the terms and privacy policy.'));
+        if (passwordInput.value !== confirmation?.value) throw Error(message('password_mismatch', 'Passwords do not match.'));
+      }
+    } catch (error) {
+      const field = !/^\+235\d{8}$/.test((phoneInput.value || '').trim().replace(/[\s().-]/g, '').replace(/^(\d{8})$/, '+235$1'))
+        ? phoneInput : passwordInput.value.length < 8 ? passwordInput : !terms?.checked ? terms : confirmation;
+      field?.setAttribute('aria-invalid', 'true');
+      field?.focus();
+      F.notify(error.message, 'error'); return;
+    }
     action(async () => {
-      const phone = normalisePhone(phoneInput.value);
       const password = passwordInput.value;
-      if (password.length < 8) throw Error(message('password_length', 'Use at least 8 characters for your password.'));
       if (document.body.dataset.authPage === 'register') {
         recovery = false;
         if (existing) existing.hidden = true;
-        if (!terms?.checked) throw Error(message('terms_required', 'Please agree to the terms and privacy policy.'));
-        if (password !== confirmation?.value) throw Error(message('password_mismatch', 'Passwords do not match.'));
         const { data, error } = await F.client.auth.signUp({ phone, password, options: { data: { terms_accepted_at: new Date().toISOString(), terms_version: '2026-10' } } });
         if (error) {
           if (['user_already_exists','phone_exists'].includes(error.code) || /already registered|already exists/i.test(error.message || '')) {

@@ -20,8 +20,9 @@ function fixture(page, config = {}) {
     verifyOtp:async x=>{calls.push({kind:'verify',...x});return x.token==='123456'?{data:{session:{access_token:'test'}}}:{error:Error('Invalid code')};}
   }} };
   if (config.authenticated) F.user = {id:'verified'};
+  if (config.noClient) F.client = null;
   const location = {href:''};
-  const context = {window:{Famina:F,FaminaLoading:{button:()=>()=>{}},addEventListener(){}},document:{body:{dataset:{authPage:page}},getElementById:id=>nodes[id] || null},location,Date,Error};
+  const context = {window:{Famina:F,FaminaLoading:{button:()=>()=>{}},addEventListener(){}},document:{body:{dataset:{authPage:page}},getElementById:id=>nodes[id] || null,addEventListener(){}},location,Date,Error};
   vm.runInNewContext(source,context);
   const fire=async(id,name)=>{events[id+':'+name]({preventDefault(){},submitter:button,currentTarget:nodes[id]});await flush();await flush();};
   return {nodes,calls,notifications,location,fire};
@@ -51,4 +52,13 @@ test('existing SMS-only account can set a password after phone verification',asy
   f.nodes['auth-code'].value='123456';await f.fire('phone-code-form','submit');assert.equal(f.nodes['password-reset-form'].hidden,false);assert.equal(f.location.href,'');
   f.nodes['reset-new-password'].value='new-password';f.nodes['reset-confirm-password'].value='new-password';await f.fire('password-reset-form','submit');
   assert.ok(f.calls.some(call=>call.kind==='update' && call.password==='new-password'));assert.equal(f.location.href,'famipay-app.html');
+});
+test('invalid fields are reported even when the account service is offline',async()=>{
+  const f=fixture('register',{noClient:true});f.nodes['auth-phone'].value='123';f.nodes['auth-password'].value='password1';f.nodes['auth-confirm-password'].value='password1';f.nodes['auth-terms'].checked=true;
+  await f.fire('phone-form','submit');assert.match(f.notifications.at(-1)[0],/phone number/i);
+  f.nodes['auth-phone'].value='66123456';await f.fire('phone-form','submit');assert.match(f.notifications.at(-1)[0],/service is unavailable/i);
+});
+test('disabled phone provider reports the configuration issue',async()=>{
+  const f=fixture('register',{signup:{error:{code:'phone_provider_disabled',message:'provider disabled'}}});f.nodes['auth-phone'].value='66123456';f.nodes['auth-password'].value='password1';f.nodes['auth-confirm-password'].value='password1';f.nodes['auth-terms'].checked=true;
+  await f.fire('phone-form','submit');assert.match(f.notifications.at(-1)[0],/Phone registration is not enabled/i);
 });

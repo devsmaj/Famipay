@@ -6,7 +6,7 @@
     <title>Register - FAMIPAY</title>
     <link rel="stylesheet" href="assets/css/style.css?v=20261127">
     <link rel="stylesheet" href="assets/css/responsive.css">
-    <link rel="stylesheet" href="assets/css/auth.css?v=20261127-password">
+    <link rel="stylesheet" href="assets/css/auth.css?v=20261127-visibility">
     <link rel="stylesheet" href="assets/css/notifications.css?v=20261127">
     <link rel="stylesheet" href="assets/css/platform.css">
     <script>document.documentElement.classList.add('page-loading', 'header-loading');</script>
@@ -71,10 +71,11 @@
                     <form id="phone-form">
                         <div class="form-group">
                             <label for="auth-phone" data-i18n="auth.phone_label">Chad phone number (+235)</label>
-                            <input id="auth-phone" type="tel" autocomplete="tel" placeholder="66 12 34 56" dir="ltr" inputmode="tel" maxlength="20" required>
+                            <div class="auth-phone-field" dir="ltr"><span class="auth-phone-prefix" aria-label="Chad, +235"><svg viewBox="0 0 30 20" aria-hidden="true" focusable="false"><path fill="#002664" d="M0 0h10v20H0z"/><path fill="#FECB00" d="M10 0h10v20H10z"/><path fill="#C60C30" d="M20 0h10v20H20z"/></svg><span>+235</span></span><input id="auth-phone" type="tel" autocomplete="tel-national" placeholder="66 12 34 56" dir="ltr" inputmode="tel" maxlength="20" required></div>
                         </div>
-                        <div class="form-group"><label for="auth-password" data-i18n="auth.password">Password</label><input id="auth-password" type="password" autocomplete="new-password" minlength="8" maxlength="128" required></div>
-                        <div class="form-group"><label for="auth-confirm-password" data-i18n="auth.confirm_password">Confirm Password</label><input id="auth-confirm-password" type="password" autocomplete="new-password" minlength="8" maxlength="128" required></div>
+                        <div class="form-group"><label for="auth-password" data-i18n="auth.password">Password</label><div class="auth-password-field"><input id="auth-password" type="password" autocomplete="new-password" minlength="8" maxlength="128" required><button type="button" class="auth-password-toggle" data-password-toggle="auth-password" aria-label="Show password" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/><path class="eye-slash" d="M4 4 20 20"/></svg></button></div></div>
+                        <div class="form-group"><label for="auth-confirm-password" data-i18n="auth.confirm_password">Confirm Password</label><div class="auth-password-field"><input id="auth-confirm-password" type="password" autocomplete="new-password" minlength="8" maxlength="128" required><button type="button" class="auth-password-toggle" data-password-toggle="auth-confirm-password" aria-label="Show password" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/><path class="eye-slash" d="M4 4 20 20"/></svg></button></div></div>
+                        <p id="password-feedback" class="auth-password-feedback" aria-live="polite">Use at least 8 characters.</p>
                         <label class="auth-consent"><input id="auth-terms" type="checkbox" required> <span><span data-i18n="auth.agree_terms">I agree to the</span> <a href="terms.html" target="_blank" rel="noopener noreferrer" data-i18n="footer.terms">Terms of Service</a> <span data-i18n="auth.and">and</span> <a href="privacy.html" target="_blank" rel="noopener noreferrer" data-i18n="footer.privacy">Privacy Policy</a>.</span></label>
                         <p class="sms-notice" data-i18n="auth.sms_notice">A verification SMS may be sent to your phone.</p>
                         <p id="already-registered" class="auth-existing" role="status" hidden><span data-i18n="auth.already_registered">This phone number is already registered.</span> <a href="login.html" data-i18n="auth.login_here">Login here</a></p>
@@ -100,9 +101,9 @@
 
 
     <script src="assets/js/loading.js" onerror="document.documentElement.classList.remove('page-loading', 'header-loading')"></script>
-    <script src="assets/js/notifications.js"></script>
+    <script src="assets/js/notifications.js?v=20261127-fields"></script>
     <script src="assets/js/session.js"></script>
-    <script src="assets/locales/catalog.js?v=20261127-password"></script>
+    <script src="assets/locales/catalog.js?v=20261127-visibility"></script>
     <script src="assets/js/i18n.js"></script>
     <script src="assets/js/auth-scene.js" defer></script>
     <script src="assets/js/config.js"></script>
@@ -115,6 +116,6 @@
     <script src="assets/js/utils.js"></script>
     <script src="assets/js/main.js?v=header-1"></script>
     <script src="assets/js/navigation.js"></script>
-    <script src="assets/js/supabase-auth.js?v=20261127-password"></script>
+    <script src="assets/js/supabase-auth.js?v=20261127-visibility"></script>
 </body>
 </html>
