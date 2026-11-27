@@ -16,7 +16,8 @@ function copy(file){write(file,fs.readFileSync(path.join(root,file)));}
 for(const name of ['loading','notifications','i18n','supabase-auth'])copy('assets/js/'+name+'.js');
 copy('assets/vendor/supabase.js');
 for(const name of ['famipay-logo.svg','famipay-logo-dark.svg','famipay-mark.svg'])copy('assets/branding/'+name);
-for(const name of ['famipay-app','auth','notifications','loading'])copy('assets/css/'+name+'.css');
+for(const name of ['auth','notifications','loading'])copy('assets/css/'+name+'.css');
+write('assets/css/famipay-app.css',fs.readFileSync(path.join(mobile,'src/app.css')));
 // Share account authentication without the web app's commerce notification subscription.
 let platform=fs.readFileSync(path.join(root,'assets/js/platform.js'),'utf8');
 const subscription=platform.indexOf('  document.addEventListener("DOMContentLoaded", async () => {');

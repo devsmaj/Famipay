@@ -23,6 +23,8 @@ const server=http.createServer((req,res)=>{const file=path.resolve(root,'.'+new 
   await page.goto(origin+'/famipay-app.html#Send%20Money');await page.locator('#language').selectOption('en');await page.locator('#recipient').fill('+23512345678');await page.locator('#amount').fill('1000');await page.locator('[data-form="payment"] button').click();
   assert(await page.getByRole('button',{name:'Confirm transaction',exact:true}).isDisabled());assert.deepEqual(errors,[]);assert.deepEqual(external,[]);
   await page.setViewportSize({width:390,height:850});await page.goto(origin+'/famipay-app.html#Home');await page.locator('.home-grid').waitFor();await page.screenshot({path:path.resolve(__dirname,'../preview.png'),fullPage:true});
+  assert.equal(await page.locator('.home-grid').evaluate(node=>getComputedStyle(node).display),'grid');
+  assert.equal(await page.locator('.home-grid').evaluate(node=>getComputedStyle(node).gridTemplateColumns.split(' ').length),3);
   console.log('PASS: offline preview opens without auth, EN/FR/AR layout, profile persistence, no external requests, financial writes disabled.');
  }finally{await browser?.close();await new Promise(resolve=>server.close(resolve));}
 })().catch(error=>{console.error(error);process.exitCode=1;});
