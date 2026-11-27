@@ -22,6 +22,7 @@
   const codeInput = document.getElementById('auth-code');
   const resend = document.getElementById('resend-code');
   const changePhone = document.getElementById('change-phone');
+  const isRegistration = document.body.dataset.authPage === 'register';
   let sentPhone = '', resendAt = 0, busy = false, leaving = false, recovery = false, releaseAction = () => {};
   let authMethod = 'email';
   const message = (key, fallback) => window.i18n?.t('auth.errors.' + key, fallback) || fallback;
@@ -133,13 +134,26 @@
     const base = location.href || ((location.origin || 'http://localhost') + '/');
     return new URL(path, base).href;
   }
-  async function finish(session) {
+  async function finish(session, loginSuccess = false) {
     if (!session) throw Error(message('failed', 'Sign-in failed. Please try again.'));
     await F.refreshUser(session);
     if (!F.user) throw Error(message('server', 'Could not verify your account. Please try again.'));
-    await F.Cart?.merge();
+    if (!F.user.email_verified && !F.user.phone_verified)
+      throw Error(message('verification_required', 'Verify your email address or phone number before continuing.'));
     leaving = true;
-    location.href = 'famipay-app.html';
+    if (!F.user.onboarding_complete) {
+      location.replace('famipay-onboarding.html');
+      return;
+    }
+    if (loginSuccess) {
+      try {
+        sessionStorage.setItem(
+          'famina-login-success',
+          JSON.stringify({userId: F.user.id, at: Date.now()}),
+        );
+      } catch (_) {}
+    }
+    location.replace(loginSuccess ? 'famipay-app.html?login=success' : 'famipay-app.html');
   }
   function showVerification(phone) {
     sentPhone = phone;
@@ -162,7 +176,7 @@
       if (authMethod === 'email') email = normaliseEmail(emailInput.value);
       else phone = normalisePhone(phoneInput.value);
       if (passwordInput.value.length < 8) throw Error(message('password_length', 'Use at least 8 characters for your password.'));
-      if (document.body.dataset.authPage === 'register') {
+      if (isRegistration) {
         if (!terms?.checked) throw Error(message('terms_required', 'Please agree to the terms and privacy policy.'));
         if (passwordInput.value !== confirmation?.value) throw Error(message('password_mismatch', 'Passwords do not match.'));
       }
@@ -177,7 +191,7 @@
     }
     action(async () => {
       const password = passwordInput.value;
-      if (document.body.dataset.authPage === 'register') {
+      if (isRegistration) {
         recovery = false;
         if (existing) existing.hidden = true;
         const options = {
@@ -209,7 +223,7 @@
           : await F.client.auth.signInWithPassword({ phone, password });
         if (error) throw error;
         passwordInput.value = '';
-        await finish(data?.session);
+        await finish(data?.session, true);
       }
     }, e.submitter || phoneForm.querySelector('[type=submit]'));
   });
@@ -252,7 +266,7 @@
         codeForm.hidden = true;
         resetForm.hidden = false;
         document.getElementById('reset-new-password').focus();
-      } else await finish(session);
+      } else await finish(session, !isRegistration);
     }, e.submitter || codeForm.querySelector('[type=submit]'));
   });
   resetForm?.addEventListener('submit', e => {
@@ -270,5 +284,14 @@
       await finish(data?.session);
     }, e.submitter || resetForm.querySelector('[type=submit]'));
   });
-  F.ready.then(() => { if (F.user && !busy && !emailRecovery) location.href = 'famipay-app.html'; });
+  F.ready.then(async () => {
+    if (!F.user || busy || emailRecovery) return;
+    try {
+      const {data, error} = await F.client.auth.getSession();
+      if (error) throw error;
+      await finish(data?.session);
+    } catch (error) {
+      F.notify(error.message || message('failed', 'Sign-in failed. Please try again.'), 'error');
+    }
+  });
 })();

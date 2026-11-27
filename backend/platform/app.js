@@ -1,7 +1,10 @@
 const express = require("express");
 const cors = require("cors");
+const crypto = require("node:crypto");
+const { promisify } = require("node:util");
 const { createSupabase, ApiError } = require("./supabase");
 const { roadRoute, validPoint } = require("./routing");
+const scrypt = promisify(crypto.scrypt);
 const uuid = (value) => {
   if (
     typeof value !== "string" ||
@@ -181,6 +184,42 @@ function createApp({
         },
       });
       res.status(201).json({ ok: true });
+    }),
+  );
+  app.post(
+    "/api/auth/pin",
+    run(async (req, res) => {
+      if (!req.user.email_verified && !req.user.phone_verified)
+        throw new ApiError(403, "Verify your email address or phone number first.");
+      if (req.user.onboarding_complete)
+        throw new ApiError(409, "Account setup is already complete.");
+      if (typeof req.body.pin !== "string" || !/^\d{6}$/.test(req.body.pin))
+        throw new ApiError(400, "PIN must contain exactly six digits.");
+      if (typeof env.FAMINA_PIN_PEPPER !== "string" || Buffer.byteLength(env.FAMINA_PIN_PEPPER) < 32)
+        throw new ApiError(503, "Secure PIN setup is not configured.");
+
+      const salt = crypto.randomBytes(16);
+      const pepperedPin = crypto
+        .createHmac("sha256", env.FAMINA_PIN_PEPPER)
+        .update(req.body.pin)
+        .digest();
+      const hash = await scrypt(pepperedPin, salt, 64, {
+        N: 32768,
+        r: 8,
+        p: 1,
+        maxmem: 64 * 1024 * 1024,
+      });
+      const result = await db.rpc(
+        "set_secure_pin",
+        {
+          p_user: req.user.id,
+          p_pin_hash: hash.toString("hex"),
+          p_pin_salt: salt.toString("hex"),
+        },
+        null,
+        true,
+      );
+      res.json(result);
     }),
   );
   app.delete(

@@ -47,6 +47,52 @@ test("PostgreSQL security and complete cash order lifecycle", async (t) => {
       "insert into auth.users(id,raw_user_meta_data) values($1,$2)",
       [id(n), { name: "TEST FIXTURE " + n, role: "admin" }],
     );
+  await db.exec(
+    fs.readFileSync(
+      require.resolve("../supabase/migrations/202611270001_private_onboarding.sql"),
+      "utf8",
+    ),
+  );
+  await t.test("onboarding backfill and PIN storage are service-only", async () => {
+    assert.equal(
+      (await as(id(2), "select onboarding_complete from profiles where id=$1", [id(2)]))[0]
+        .onboarding_complete,
+      true,
+    );
+    await assert.rejects(
+      as(id(2), "select public.set_secure_pin($1,$2,$3)", [
+        id(2),
+        "a".repeat(128),
+        "b".repeat(32),
+      ]),
+      /permission denied/,
+    );
+    await assert.rejects(
+      as(id(2), "select * from private.account_pins"),
+      /permission denied/,
+    );
+    await db.query(
+      "insert into auth.users(id,raw_user_meta_data) values($1,$2)",
+      [id(7), { name: "NEW ACCOUNT" }],
+    );
+    assert.equal(
+      (await as(id(7), "select onboarding_complete from profiles where id=$1", [id(7)]))[0]
+        .onboarding_complete,
+      false,
+    );
+    const result = await as(
+      null,
+      "select public.set_secure_pin($1,$2,$3) as result",
+      [id(7), "a".repeat(128), "b".repeat(32)],
+      "service_role",
+    );
+    assert.deepEqual(result[0].result, { onboarding_complete: true });
+    assert.equal(
+      (await as(id(7), "select onboarding_complete from profiles where id=$1", [id(7)]))[0]
+        .onboarding_complete,
+      true,
+    );
+  });
   await db.query(
     "update profiles set role=case id when $1 then 'admin' when $2 then 'restaurant_owner' when $3 then 'rider' else 'customer' end",
     [id(1), id(3), id(4)],

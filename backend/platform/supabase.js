@@ -19,7 +19,7 @@ function createSupabase(env = process.env, request = fetch) {
       "Content-Type": "application/json",
     };
     if (token) headers.Authorization = "Bearer " + token;
-    // Server-only service key is used only for validated routing quotes.
+    // Service-role calls are restricted to server-validated quote and onboarding data.
     if (service && env.SUPABASE_SERVICE_ROLE_KEY.startsWith("ey"))
       headers.Authorization = "Bearer " + env.SUPABASE_SERVICE_ROLE_KEY;
     let response;
@@ -77,7 +77,12 @@ function createSupabase(env = process.env, request = fetch) {
       const profile = profiles?.[0];
       if (!profile?.active)
         throw new ApiError(403, "Account access is disabled.");
-      return { ...profile, email: user.email || null };
+      return {
+        ...profile,
+        email: user.email || null,
+        email_verified: Boolean(user.email_confirmed_at),
+        phone_verified: Boolean(user.phone_confirmed_at),
+      };
     },
   };
 }

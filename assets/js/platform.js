@@ -265,13 +265,22 @@
   };
   async function showLoginSuccess() {
     await F.ready;
-    if (!F.user || /\/(login|register)\.html$/.test(location.pathname)) return;
+    if (!F.user || (!F.user.email_verified && !F.user.phone_verified) ||
+        !F.user.onboarding_complete || /\/(login|register)\.html$/.test(location.pathname)) return;
+    const url = new URL(location.href);
+    const querySuccess = url.searchParams.get("login") === "success";
+    if (querySuccess) {
+      url.searchParams.delete("login");
+      history.replaceState(null, "", url.pathname + url.search + url.hash);
+    }
+    let receipt = null;
     try {
-      const receipt = JSON.parse(sessionStorage.getItem("famina-login-success") || "null");
+      receipt = JSON.parse(sessionStorage.getItem("famina-login-success") || "null");
       sessionStorage.removeItem("famina-login-success");
-      if (receipt?.userId === F.user.id && Date.now() - receipt.at >= 0 && Date.now() - receipt.at < 60000)
-        F.notify("Login successful.", "success");
     } catch (_) { /* A blocked storage area must not interrupt authentication. */ }
+    const recentSuccess = receipt?.userId === F.user.id &&
+      Date.now() - receipt.at >= 0 && Date.now() - receipt.at < 60000;
+    if (recentSuccess || querySuccess) F.notify("Login successful!", "success");
   }
   document.addEventListener("DOMContentLoaded", showLoginSuccess);
   window.addEventListener("famina-auth-updated", showLoginSuccess);

@@ -7,16 +7,24 @@
     <title>FAMIPAY Private Preview</title>
     <link rel="stylesheet" href="assets/css/famipay-app.css">
     <link rel="stylesheet" href="assets/css/famipay-bottom-nav.css">
+    <link rel="stylesheet" href="assets/css/famipay-language-settings.css">
     <link rel="stylesheet" href="assets/css/famipay-loading.css">
 </head>
-<body>
+<body class="fp-app">
     <main id="auth-status" class="fp-loading-status" role="status" aria-label="Loading FAMIPAY">
         <span class="fp-loader-logo">FAMIPAY</span>
     </main>
-    <div id="app" hidden></div>
+    <div id="app" class="fp-bootstrap-shell">
+        <div class="fp-bootstrap">
+            <div class="fp-brand">FAMIPAY</div>
+            <p>Your private dashboard will appear here.</p>
+            <a href="login.html">Login / Sign up</a>
+        </div>
+    </div>
     <script src="assets/js/config.js"></script>
     <script src="assets/js/session.js"></script>
     <script src="assets/vendor/supabase.js"></script>
+    <script src="assets/js/notifications.js"></script>
     <script src="assets/js/platform.js"></script>
     <script src="assets/js/famipay-navigation.js"></script>
     <script>
@@ -50,19 +58,29 @@
             }
 
             const cachedUser = window.FaminaSession.user();
-            const earlyRender = cachedUser
+            const earlyRender = cachedUser?.onboarding_complete
                 ? renderApp(mapRole(cachedUser.role)).catch(error => error)
                 : Promise.resolve(null);
 
             try {
                 await window.Famina.ready;
                 if (!window.Famina.user) {
-                    app.hidden = true;
-                    status.replaceChildren(document.createTextNode('Please sign in to access FAMIPAY. '));
+                    const shell = document.createElement('main');
+                    shell.className = 'fp-bootstrap';
+                    const brand = document.createElement('strong');
+                    brand.textContent = 'FAMIPAY';
+                    const message = document.createElement('p');
+                    message.textContent = 'Please sign in to access FAMIPAY.';
                     const link = document.createElement('a');
                     link.href = 'login.html';
                     link.textContent = 'Login / Sign up';
-                    status.append(link);
+                    shell.append(brand, message, link);
+                    app.replaceChildren(shell);
+                    status.hidden = true;
+                    return;
+                }
+                if (!window.Famina.user.onboarding_complete) {
+                    location.replace('famipay-onboarding.html');
                     return;
                 }
 
@@ -79,5 +97,6 @@
         })();
     </script>
     <script src="assets/js/famipay-i18n.js" defer></script>
+    <script src="assets/js/famipay-language-settings.js" defer></script>
 </body>
 </html>

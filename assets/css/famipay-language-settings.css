@@ -1,0 +1,22 @@
+body.fp-app:not(.fp-language-ready) .fp-language {
+    visibility: hidden !important;
+}
+
+[data-fp-language-settings] .fp-language {
+    position: static !important;
+    inset: auto !important;
+    width: min(240px, 100%);
+    margin-top: 8px;
+    box-shadow: none !important;
+}
+
+.fp-language-setting {
+    display: grid;
+    gap: 6px;
+    color: var(--fp-ink, var(--d, #193346));
+    font-weight: 650;
+}
+
+.fp-language-setting .fp-language {
+    max-width: 100%;
+}

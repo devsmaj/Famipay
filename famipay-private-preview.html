@@ -7,6 +7,7 @@
     <title>FAMIPAY Private Frontend | Design Preview</title>
     <link rel="stylesheet" href="assets/css/famipay-private.css">
     <link rel="stylesheet" href="assets/css/famipay-bottom-nav.css">
+    <link rel="stylesheet" href="assets/css/famipay-language-settings.css">
     <link rel="stylesheet" href="assets/css/famipay-loading.css">
 </head>
 <body class="fp-app">
@@ -50,6 +51,10 @@
         <section class="fp-view" data-fp-view="me">
             <h1>My account</h1>
             <p class="fp-note">Profile, identity verification, language, security, support and account settings will be integrated with existing authentication.</p>
+            <section class="fp-note" aria-labelledby="fp-settings-title">
+                <h2 id="fp-settings-title">Language settings</h2>
+                <div data-fp-language-settings></div>
+            </section>
         </section>
         <section class="fp-view" data-fp-view="service">
             <button class="fp-back" type="button" data-fp-back>← Back</button>
@@ -69,5 +74,6 @@
     <script src="assets/js/famipay-navigation.js"></script>
     <script src="assets/js/famipay-private.js" defer></script>
     <script src="assets/js/famipay-i18n.js" defer></script>
+    <script src="assets/js/famipay-language-settings.js" defer></script>
 </body>
 </html>

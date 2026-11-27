@@ -1,0 +1,110 @@
+.fp-onboarding-shell {
+    width: min(820px, calc(100% - 32px));
+    min-height: calc(100vh - 44px);
+    min-height: calc(100dvh - 44px);
+    margin: 0 auto;
+    padding-bottom: 32px;
+}
+
+.fp-onboarding-header {
+    padding: 18px 0;
+}
+
+.fp-onboarding-header a {
+    color: var(--g);
+    text-decoration: none;
+}
+
+.fp-onboarding-main {
+    padding: 12px 0 24px;
+}
+
+.fp-onboarding-main > h1 {
+    margin: 0 0 18px;
+    font-size: clamp(24px, 5vw, 34px);
+}
+
+.fp-onboarding-progress {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0 0 18px;
+    padding: 0;
+    list-style: none;
+}
+
+.fp-onboarding-progress li {
+    padding: 7px 10px;
+    border: 1px solid var(--l);
+    border-radius: 999px;
+    background: white;
+    color: var(--m);
+    font-size: 12px;
+}
+
+.fp-onboarding-progress li[aria-current="step"] {
+    border-color: #b7d8ca;
+    background: #e4f4eb;
+    color: var(--g);
+    font-weight: 700;
+}
+
+.fp-onboarding-progress li[data-complete="true"] {
+    border-color: #b7d8ca;
+    color: var(--g);
+}
+
+.fp-onboarding-message:empty { display: none; }
+
+.fp-onboarding-main .panel { max-width: 560px; }
+
+.fp-onboarding-main .field {
+    margin: 14px 0 6px;
+}
+
+.fp-onboarding-main input {
+    display: block;
+    width: 100%;
+    max-width: 440px;
+    min-height: 48px;
+    margin: 0 0 16px;
+    padding: 12px 14px;
+    border: 1px solid #cad9d3;
+    border-radius: 10px;
+    font: inherit;
+}
+
+.fp-onboarding-main input[inputmode="numeric"] {
+    letter-spacing: .3em;
+}
+
+.fp-onboarding-main .btn[disabled] {
+    cursor: progress;
+    opacity: .8;
+}
+
+.fp-onboarding-spinner {
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    margin-inline-start: 8px;
+    border: 2px solid currentColor;
+    border-inline-end-color: transparent;
+    border-radius: 50%;
+    vertical-align: middle;
+    animation: fp-onboarding-spin .75s linear infinite;
+}
+
+@keyframes fp-onboarding-spin {
+    to { transform: rotate(360deg); }
+}
+
+@media (max-width: 560px) {
+    .fp-onboarding-progress { gap: 6px; }
+    .fp-onboarding-progress li { font-size: 11px; }
+    .fp-onboarding-main .panel { padding: 18px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .fp-onboarding-spinner { animation: none; }
+}

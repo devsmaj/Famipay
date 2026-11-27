@@ -152,6 +152,92 @@ test("protected API rejects forged identity, amounts and role escalation", async
     await new Promise((resolve) => server.close(resolve));
   }
 });
+test("secure PIN onboarding requires verification and stores only a server hash", async () => {
+  const calls = [];
+  let user = {
+    id,
+    role: "customer",
+    email_verified: true,
+    phone_verified: false,
+    onboarding_complete: false,
+  };
+  const db = {
+    configured: true,
+    authenticate: async () => user,
+    rpc: async (...args) => {
+      calls.push(args);
+      return { onboarding_complete: true };
+    },
+  };
+  const server = createApp({
+    env: { FAMINA_PIN_PEPPER: "p".repeat(32) },
+    db,
+  }).listen(0, "127.0.0.1");
+  await new Promise((resolve) => server.once("listening", resolve));
+  const base = "http://127.0.0.1:" + server.address().port;
+  const postPin = (pin) =>
+    fetch(base + "/api/auth/pin", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer valid",
+      },
+      body: JSON.stringify({ pin }),
+    });
+  try {
+    assert.equal((await postPin("12345")).status, 400);
+    assert.equal(calls.length, 0);
+
+    user = { ...user, email_verified: false };
+    assert.equal((await postPin("123456")).status, 403);
+    assert.equal(calls.length, 0);
+
+    user = { ...user, phone_verified: true };
+    const response = await postPin("123456");
+    assert.equal(response.status, 200);
+    assert.deepEqual(await response.json(), { onboarding_complete: true });
+    assert.equal(calls.length, 1);
+    assert.equal(calls[0][0], "set_secure_pin");
+    assert.equal(calls[0][1].p_user, id);
+    assert.match(calls[0][1].p_pin_hash, /^[0-9a-f]{128}$/);
+    assert.match(calls[0][1].p_pin_salt, /^[0-9a-f]{32}$/);
+    assert.notEqual(calls[0][1].p_pin_hash, "123456");
+    assert.equal(calls[0][2], null);
+    assert.equal(calls[0][3], true);
+  } finally {
+    await new Promise((resolve) => server.close(resolve));
+  }
+});
+test("PIN onboarding fails closed when the server pepper is missing", async () => {
+  const db = {
+    configured: true,
+    authenticate: async () => ({
+      id,
+      role: "customer",
+      phone_verified: true,
+      onboarding_complete: false,
+    }),
+    rpc: async () => assert.fail("must not persist an unpeppered PIN"),
+  };
+  const server = createApp({ env: {}, db }).listen(0, "127.0.0.1");
+  await new Promise((resolve) => server.once("listening", resolve));
+  try {
+    const response = await fetch(
+      "http://127.0.0.1:" + server.address().port + "/api/auth/pin",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer valid",
+        },
+        body: JSON.stringify({ pin: "123456" }),
+      },
+    );
+    assert.equal(response.status, 503);
+  } finally {
+    await new Promise((resolve) => server.close(resolve));
+  }
+});
 test("Supabase identity is verified remotely and database requests use user tokens", async () => {
   const calls = [];
   const db = createSupabase(
@@ -164,12 +250,19 @@ test("Supabase identity is verified remotely and database requests use user toke
       calls.push({ url, init });
       return Response.json(
         url.endsWith("/auth/v1/user")
-          ? { id, email: "test@example.test" }
+          ? {
+              id,
+              email: "test@example.test",
+              email_confirmed_at: "2026-01-01T00:00:00Z",
+            }
           : [{ id, active: true, role: "customer" }],
       );
     },
   );
-  assert.equal((await db.authenticate("SIGNED_USER_TOKEN")).id, id);
+  const user = await db.authenticate("SIGNED_USER_TOKEN");
+  assert.equal(user.id, id);
+  assert.equal(user.email_verified, true);
+  assert.equal(user.phone_verified, false);
   assert(
     calls.every(
       (c) =>

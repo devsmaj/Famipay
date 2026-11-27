@@ -117,7 +117,15 @@
       "terms_required": "Veuillez accepter les conditions et la politique de confidentialité.",
       "backend_local": "Le service de compte local est indisponible. Démarrez le serveur configuré et réessayez.",
       "backend_unavailable": "Le service de compte est indisponible. Vérifiez votre connexion et réessayez.",
-      "phone_disabled": "L’inscription par téléphone n’est pas encore activée. Contactez le support."
+      "phone_disabled": "L’inscription par téléphone n’est pas encore activée. Contactez le support.",
+      "verification_link": "Lien de vérification envoyé. Consultez votre messagerie.",
+      "verification_required": "Vérifiez votre e-mail ou votre téléphone avant de continuer.",
+      "pin_format": "Le code PIN doit contenir exactement six chiffres.",
+      "pin_mismatch": "Les codes PIN ne correspondent pas.",
+      "pin_unavailable": "La configuration sécurisée du code PIN n’est pas disponible.",
+      "onboarding_failed": "Impossible de terminer la configuration du compte. Veuillez réessayer.",
+      "onboarding_unconfirmed": "Impossible de confirmer la configuration du compte. Veuillez réessayer.",
+      "verification_unavailable": "Impossible de vérifier votre compte. Veuillez réessayer."
     },
     "code_sent_to": "Saisissez le code envoyé au",
     "change_phone": "Modifier le numéro",
@@ -131,6 +139,26 @@
     "password_hint": "Utilisez au moins 8 caractères.",
     "password_match": "Les mots de passe correspondent.",
     "password_mismatch": "Les mots de passe ne correspondent pas."
+  },
+  "onboarding": {
+    "title": "Complétez votre compte",
+    "register": "Inscription",
+    "verify": "Vérifier l’e-mail ou le téléphone",
+    "profile": "Compléter le profil",
+    "pin": "Créer un code PIN sécurisé",
+    "pin_label": "Code PIN sécurisé",
+    "ready": "Compte prêt",
+    "confirming": "Vérification de votre compte confirmé",
+    "profile_title": "Complétez votre profil",
+    "name": "Nom complet",
+    "continue": "Continuer",
+    "pin_title": "Créer un code PIN sécurisé à six chiffres",
+    "pin_note": "Votre code PIN est haché de manière sécurisée sur le serveur et n’est jamais enregistré dans votre navigateur.",
+    "confirm_pin": "Confirmer le code PIN",
+    "save_pin": "Enregistrer le code PIN en toute sécurité",
+    "ready_title": "Votre compte est prêt",
+    "ready_message": "Votre profil vérifié est complet. Vous pouvez maintenant ouvrir l’accueil FAMIPAY.",
+    "home": "Aller à l’accueil"
   },
   "cart": {
     "title": "Votre panier",

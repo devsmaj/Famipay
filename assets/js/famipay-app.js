@@ -347,6 +347,14 @@
             const related = element('section', null, 'panel');
             related.append(element('h2', 'Related pages'), cards(visible.filter(item => item.group === screen.group && item.id !== screenId).slice(0, 8)));
             main.append(related, element('div', 'Prototype only: no backend writes, authorization or financial processing are implemented here.', 'warning'));
+            if (screenId === 'settings') {
+                const preferences = element('section', null, 'panel');
+                preferences.append(element('h2', 'Language preferences'));
+                const languageSettings = element('div');
+                languageSettings.dataset.fpLanguageSettings = '';
+                preferences.append(languageSettings);
+                main.append(preferences);
+            }
         }
         side.querySelectorAll('a').forEach(link => link.classList.toggle('active', link.hash === `#${screenId}`));
         bottom.querySelectorAll('a').forEach(link => {
