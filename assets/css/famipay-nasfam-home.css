@@ -153,3 +153,36 @@
   .step-screen img{width:160px}
 }
 @media(prefers-reduced-motion:reduce){.step-screen img{animation:none}}
+
+/* Business, support and community interactions. */
+.home-business,.home-faq,.fp-story{position:relative;overflow:hidden}
+.home-business-mark{position:relative;animation:community-float 5s ease-in-out infinite;filter:drop-shadow(0 18px 28px #0005);transition:filter .3s ease,transform .3s ease}
+.home-business-mark img{transition:transform .35s ease}
+.fp-story-graphic{position:relative;overflow:hidden;background:radial-gradient(circle at 50% 35%,#1c5344,#102c29 68%);transition:box-shadow .35s ease,transform .35s ease}
+.fp-story-graphic::before{content:"";position:absolute;width:260px;height:260px;border:1px solid #74e5b42b;border-radius:50%;animation:community-orbit 9s linear infinite}
+.fp-story-graphic img,.fp-story-pill{position:relative;transition:transform .35s ease,box-shadow .35s ease}
+.fp-story-graphic img{box-shadow:0 14px 28px #0003;animation:community-float 5s ease-in-out infinite}
+.home-business .fp-primary,.fp-story .fp-primary,.fp-support .fp-primary,.fp-support .fp-secondary{display:inline-flex;align-items:center;justify-content:center;transition:transform .25s ease,box-shadow .25s ease,background-color .25s ease}
+.home-business .fp-primary:active,.fp-story .fp-primary:active,.fp-support .fp-primary:active,.fp-support .fp-secondary:active{transform:scale(.97)}
+.home-faq details{transition:background-color .25s ease,border-color .25s ease,padding .25s ease}
+.home-faq details[open]{background:#172a37;border-color:#4abf91;padding-inline:16px;border-radius:10px}
+.home-faq details[open] p{animation:faq-appear .25s ease both}
+.home-faq summary{transition:color .25s ease}
+.home-faq summary::after{transition:transform .25s ease,color .25s ease}
+.home-faq details[open] summary::after{transform:rotate(90deg)}
+.home-faq-link{display:inline-block;transition:color .25s ease,transform .25s ease}
+@media(hover:hover){
+  .home-business:hover .home-business-mark img{transform:scale(1.06) rotate(-4deg)}
+  .fp-story-graphic:hover{transform:translateY(-5px);box-shadow:0 22px 45px #0005}
+  .fp-story-graphic:hover img{transform:scale(1.05)}
+  .fp-story-graphic:hover .fp-story-pill{transform:translateY(4px)}
+  .home-business .fp-primary:hover,.fp-story .fp-primary:hover,.fp-support .fp-primary:hover,.fp-support .fp-secondary:hover{transform:translateY(-3px);box-shadow:0 10px 24px #087c5d66}
+  .home-faq details:hover summary,.home-faq-link:hover{color:#83edbd}
+  .home-faq-link:hover{transform:translateX(4px)}
+}
+@keyframes community-float{0%,100%{translate:0 0}50%{translate:0 -9px}}
+@keyframes community-orbit{to{transform:rotate(360deg)}}
+@keyframes faq-appear{from{opacity:0;transform:translateY(-5px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:600px){.home-business-mark{display:block;width:132px;height:132px;margin:32px auto 0}.fp-story-graphic{min-height:220px}}
+@media(prefers-reduced-motion:reduce){.home-business-mark,.fp-story-graphic::before,.fp-story-graphic img,.home-faq details[open] p{animation:none}.home-business-mark,.home-business-mark img,.fp-story-graphic,.fp-story-graphic img,.fp-story-pill,.home-faq details,.home-faq summary,.home-faq summary::after,.home-faq-link,.home-business .fp-primary,.fp-story .fp-primary,.fp-support .fp-primary,.fp-support .fp-secondary{transition:none}}
+@media(prefers-reduced-motion:reduce) and (hover:hover){.home-business:hover .home-business-mark img,.fp-story-graphic:hover,.fp-story-graphic:hover img,.fp-story-graphic:hover .fp-story-pill,.home-business .fp-primary:hover,.fp-story .fp-primary:hover,.fp-support .fp-primary:hover,.fp-support .fp-secondary:hover,.home-faq-link:hover{transform:none}}

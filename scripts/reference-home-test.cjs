@@ -37,6 +37,10 @@ const server = http.createServer((req,res) => {
     assert(await page.locator('.service-track').evaluate(el=>el.scrollLeft>0),'Desktop carousel must advance');
     assert(await page.locator('.hero-real-screen img').evaluate(el=>el.complete && el.naturalWidth>0));
     assert(await page.locator('.famina-brand-image').evaluate(el=>el.complete && el.naturalWidth>0));
+    assert(await page.locator('.home-business-mark img').evaluate(el=>el.complete && el.naturalWidth>0));
+    await page.locator('.home-faq summary').first().click();
+    assert(await page.locator('.home-faq details').first().evaluate(el=>el.open));
+    await page.locator('.home-faq summary').first().click();
     await page.locator('[data-home-menu="products"]').waitFor();
     const checkChevrons = async () => {
       const alignment=await page.locator('[data-home-menu] .home-chevron').evaluateAll(nodes=>nodes.map(node=> {
@@ -65,6 +69,7 @@ const server = http.createServer((req,res) => {
     }
     await page.setViewportSize({width:390,height:844});
     assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
+    assert(await page.locator('.home-business-mark img').isVisible(),'Business mark must be visible on phones');
     const steps=await page.locator('.home-steps article').evaluateAll(nodes=>nodes.map(el=>({left:el.getBoundingClientRect().left,right:el.getBoundingClientRect().right,border:getComputedStyle(el).borderTopWidth})));
     assert.equal(steps.length,3);
     assert(steps.every(step=>step.border==='0px'),'Walkthrough cards must be borderless');
