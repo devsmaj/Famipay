@@ -561,15 +561,50 @@
         bottom.hidden = !isPrimary;
         main.replaceChildren();
 
-        if (screenId === 'home') {
+        if (screenId === 'home' && role === 'customer') {
+            const dashboard = element('section', null, 'fp-classic-dashboard');
+            const masthead = element('div', null, 'fp-classic-masthead');
+            const heading = element('div');
+            heading.append(
+                element('p', greeting() + ',', 'fp-classic-greeting'),
+                element('h1', firstName() === 'there' ? 'FAMIPAY' : firstName(), 'fp-classic-name'),
+            );
+            const notifications = linkButton(notificationsPath, 'Notifications', 'bell');
+            notifications.classList.add('fp-notification-action');
+            const badge = element('span', '', 'fp-notification-badge');
+            badge.hidden = true;
+            notifications.append(badge);
+            masthead.append(heading, notifications);
+            const balance = element('section', null, 'fp-classic-balance');
+            const balanceTop = element('div', null, 'fp-classic-balance-top');
+            balanceTop.append(
+                element('span', translateText('Available Balance')),
+                element('span', translateText('Wallet not connected')),
+            );
+            const balanceBottom = element('div', null, 'fp-classic-balance-bottom');
+            balanceBottom.append(element('strong', '— FCFA'));
+            const addMoney = element('button', translateText('Add Money'), 'fp-classic-add-money');
+            addMoney.type = 'button';
+            addMoney.onclick = () => navigate('add-money');
+            balanceBottom.append(addMoney);
+            balance.append(balanceTop, balanceBottom);
+            dashboard.append(masthead, balance);
+            main.append(dashboard);
+            const quick = ['send-money', 'receive-money', 'mobile-money', 'airtime', 'pay-bills', 'qr-payment'];
+            const more = ['restaurants', 'online-shop', 'agriculture'];
+            const quickGrid = cards(quick.map(id => byId[id]).filter(Boolean));
+            quickGrid.classList.add('fp-classic-grid');
+            main.append(quickGrid);
+            main.append(element('h2', translateText('More Services'), 'fp-classic-more-title'));
+            const moreGrid = cards(more.map(id => byId[id]).filter(Boolean));
+            moreGrid.classList.add('fp-classic-grid');
+            main.append(moreGrid);
+        } else if (screenId === 'home') {
             main.append(buildHeader());
             const walletHeader = element('section', null, 'fp-wallet-overview');
             walletHeader.append(element('div', translateText('Available balance'), 'fp-balance-label'));
             const hero = element('div', null, 'hero');
-            hero.append(
-                element('h2', '— FCFA'),
-                element('p', translateText('Wallet not connected')),
-            );
+            hero.append(element('h2', '— FCFA'), element('p', translateText('Wallet not connected')));
             walletHeader.append(hero);
             main.append(walletHeader);
             for (const group of groups.filter(item => !['Getting started', 'Account'].includes(item))) {
