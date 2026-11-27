@@ -23,7 +23,9 @@ test('confirmation uses a GitHub Pages callback and Supabase signup resend', () 
   assert.match(auth, /session\.user\?\.email_confirmed_at/);
   assert.match(verify, /type:\s*'signup'/);
   assert.match(verify, /emailRedirectTo:\s*callbackUrl/);
-  assert.match(verify, /session\.user\?\.email_confirmed_at/);
+  assert.match(verify, /F\.client\.auth\.getUser/);
+  assert.match(verify, /authUser\.id !== session\.user\?\.id/);
+  assert.match(verify, /authUser\.email_confirmed_at/);
   assert.match(index, /verify-email\.html\?verified=1/);
   assert.match(index, /email_confirmed_at/);
   assert.match(index, /exchangeCodeForSession/);

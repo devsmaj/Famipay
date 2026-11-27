@@ -46,7 +46,14 @@ function node() {
   };
 }
 
-function boot({confirmed = true, metadataVerified = false, hangSession = false} = {}) {
+function boot({
+  confirmed = true,
+  profileConfirmed = confirmed,
+  metadataVerified = false,
+  authUserId = 'user-1',
+  refreshError = null,
+  hangSession = false,
+} = {}) {
   const ids = [
     'onboarding-back', 'verify-step', 'profile-step', 'pin-step', 'ready-step',
     'onboarding-progress-bar', 'verification-state', 'onboarding-error',
@@ -71,17 +78,23 @@ function boot({confirmed = true, metadataVerified = false, hangSession = false} 
   };
   const F = {
     ready: Promise.resolve(),
-    client: {auth: {getSession: async () => hangSession ? new Promise(() => {}) : ({data: {session: {
-      access_token: 'valid-session',
-      user: rawUser,
-    }}, error: null})}},
+    client: {auth: {
+      getSession: async () => hangSession ? new Promise(() => {}) : ({data: {session: {
+        access_token: 'valid-session',
+        user: rawUser,
+      }}, error: null}),
+      getUser: async token => token === 'valid-session'
+        ? ({data: {user: {...rawUser, id: authUserId}}, error: null})
+        : ({data: {user: null}, error: new Error('Invalid session token')}),
+    }},
     user: null,
     refreshUser: async () => {
+      if (refreshError) throw refreshError;
       F.user = {
         ...F.user,
         id: 'user-1',
         email: 'user@example.com',
-        email_verified: confirmed,
+        email_verified: profileConfirmed,
         phone_verified: false,
         onboarding_complete: F.user?.onboarding_complete || false,
         name: F.user?.name || 'Customer',
@@ -177,6 +190,37 @@ test('unverified Supabase session is not marked verified and exposes retry', asy
   assert.equal(app.elements['profile-step'].hidden, true);
   assert.equal(app.requests.length, 0);
   assert.deepEqual(app.redirects, []);
+});
+
+test('Supabase Auth confirmation wins over a stale backend verification flag', async () => {
+  const app = boot({confirmed: true, profileConfirmed: false});
+  await settle();
+  assert.equal(app.elements['verification-state'].dataset.state, 'success');
+  [...app.timers.values()].find(timer => timer.ms === 550)?.callback();
+  await settle();
+  assert.equal(app.elements['profile-step'].hidden, false);
+  assert.equal(app.F.user.email_verified, true);
+});
+
+test('a verified Auth session can reach profile entry while account details refresh', async () => {
+  const app = boot({
+    confirmed: true,
+    refreshError: Object.assign(new Error('Account status is syncing.'), {status: 503}),
+  });
+  await settle();
+  assert.equal(app.elements['verification-state'].dataset.state, 'success');
+  [...app.timers.values()].find(timer => timer.ms === 550)?.callback();
+  await settle();
+  assert.equal(app.elements['profile-step'].hidden, false);
+  assert.equal(app.F.user.id, 'user-1');
+  assert.equal(app.F.user.email_verified, true);
+});
+
+test('onboarding rejects an Auth user whose ID does not match the session', async () => {
+  const app = boot({confirmed: true, authUserId: 'user-2'});
+  await settle();
+  assert.equal(app.elements['verification-state'].dataset.state, 'error');
+  assert.equal(app.elements['profile-step'].hidden, true);
 });
 
 test('user-editable metadata cannot bypass Supabase email confirmation', async () => {

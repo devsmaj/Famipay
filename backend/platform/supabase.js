@@ -10,13 +10,14 @@ function createSupabase(env = process.env, request = fetch) {
   const configured = Boolean(url && key);
   async function call(
     path,
-    { token, method = "GET", body, service = false } = {},
+    { token, method = "GET", body, service = false, extraHeaders = {} } = {},
   ) {
     if (!configured || (service && !env.SUPABASE_SERVICE_ROLE_KEY))
       throw new ApiError(503, "Database is not configured.");
     const headers = {
       apikey: service ? env.SUPABASE_SERVICE_ROLE_KEY : key,
       "Content-Type": "application/json",
+      ...extraHeaders,
     };
     if (token) headers.Authorization = "Bearer " + token;
     // Service-role calls are restricted to server-validated quote and onboarding data.
@@ -70,11 +71,34 @@ function createSupabase(env = process.env, request = fetch) {
         throw new ApiError(401, "Please sign in.");
       const user = await call("/auth/v1/user", { token });
       if (!user?.id) throw new ApiError(401, "Please sign in again.");
-      const profiles = await call(
-        "/rest/v1/profiles?id=eq." + encodeURIComponent(user.id) + "&select=*",
+      const profilePath =
+        "/rest/v1/profiles?id=eq." + encodeURIComponent(user.id) + "&select=*";
+      let profiles = await call(
+        profilePath,
         { token },
       );
-      const profile = profiles?.[0];
+      let profile = profiles?.[0];
+      if (!profile && (user.email_confirmed_at || user.phone_confirmed_at)) {
+        const metadataName = user.user_metadata?.name;
+        const name =
+          typeof metadataName === "string" ? metadataName.trim().slice(0, 100) : "";
+        await call("/rest/v1/profiles?on_conflict=id", {
+          method: "POST",
+          body: {
+            id: user.id,
+            name,
+            phone: user.phone || null,
+            role: "customer",
+            active: true,
+          },
+          service: true,
+          extraHeaders: {
+            Prefer: "resolution=ignore-duplicates,return=minimal",
+          },
+        });
+        profiles = await call(profilePath, { service: true });
+        profile = profiles?.[0];
+      }
       if (!profile?.active)
         throw new ApiError(403, "Account access is disabled.");
       return {

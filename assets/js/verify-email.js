@@ -103,14 +103,33 @@
         if (error) throw error;
         const session = data?.session;
         if (!session || normaliseEmail(session.user?.email) !== value) return null;
-        const confirmedBySupabase = Boolean(
-            session.user?.email_confirmed_at ||
-            session.user?.confirmed_at
+        const {data: authData, error: authError} = await F.client.auth.getUser(
+            session.access_token,
         );
-        if (!confirmedBySupabase) return null;
-        await F.refreshUser(session);
-        const user = F.user;
-        if (!user || normaliseEmail(user.email) !== value) return null;
+        if (authError) throw authError;
+        const authUser = authData?.user;
+        if (
+            !authUser?.id ||
+            authUser.id !== session.user?.id ||
+            normaliseEmail(authUser.email) !== value ||
+            !authUser.email_confirmed_at
+        ) return null;
+        try {
+            await F.refreshUser(session);
+        } catch (error) {
+            if ([401, 403].includes(error?.status)) throw error;
+        }
+        const profile = F.user?.id === authUser.id ? F.user : null;
+        const user = {
+            ...(profile || {}),
+            id: authUser.id,
+            email: authUser.email,
+            email_verified: true,
+            phone_verified: Boolean(authUser.phone_confirmed_at),
+            name: profile?.name || authUser.user_metadata?.name || '',
+            onboarding_complete: profile?.onboarding_complete === true,
+        };
+        F.user = user;
         return user;
     }
 

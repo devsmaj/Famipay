@@ -117,36 +117,48 @@
             'session_required',
             'Your session has expired. Sign in again, then return to account setup.',
         ));
-        const supabaseUser = session.user;
-        const emailConfirmed = Boolean(
-            supabaseUser?.email_confirmed_at ||
-            supabaseUser?.confirmed_at,
+        const {data: authData, error: authError} = await withTimeout(
+            F.client.auth.getUser(session.access_token),
+            translate('timeout', 'This is taking longer than expected. Please retry.'),
+            verificationTimeoutMs,
         );
-        const phoneConfirmed = Boolean(supabaseUser?.phone_confirmed_at);
+        if (authError) throw authError;
+        const supabaseUser = authData?.user;
+        if (!supabaseUser?.id || supabaseUser.id !== session.user?.id) {
+            throw new Error(translate(
+                'session_required',
+                'Your session has expired. Sign in again, then return to account setup.',
+            ));
+        }
+        const emailConfirmed = Boolean(supabaseUser.email_confirmed_at);
+        const phoneConfirmed = Boolean(supabaseUser.phone_confirmed_at);
         if (!emailConfirmed && !phoneConfirmed) {
             throw new Error(translate(
                 'verify_required',
                 'Your email or phone has not been verified yet. Open the confirmation message and retry.',
             ));
         }
-        await withTimeout(
-            F.refreshUser(session, {force: true}),
-            translate('timeout', 'This is taking longer than expected. Please retry.'),
-            verificationTimeoutMs,
-        );
-        if (!F.user || F.user.id !== supabaseUser.id) {
-            throw new Error(translate(
-                'profile_unavailable',
-                'We could not load your account details. Please retry.',
-            ));
+        try {
+            await withTimeout(
+                F.refreshUser(session, {force: true}),
+                translate('timeout', 'This is taking longer than expected. Please retry.'),
+                verificationTimeoutMs,
+            );
+        } catch (error) {
+            if ([401, 403].includes(error?.status)) throw error;
         }
-        if (!F.user.email_verified && !F.user.phone_verified) {
-            throw new Error(translate(
-                'profile_verification_pending',
-                'Supabase confirmed your session, but account status is still syncing. Please retry shortly.',
-            ));
-        }
-        return {session, user: F.user, emailConfirmed};
+        const profile = F.user?.id === supabaseUser.id ? F.user : null;
+        const user = {
+            ...(profile || {}),
+            id: supabaseUser.id,
+            email: supabaseUser.email || session.user.email || null,
+            email_verified: emailConfirmed,
+            phone_verified: phoneConfirmed,
+            name: profile?.name || supabaseUser.user_metadata?.name || '',
+            onboarding_complete: profile?.onboarding_complete === true,
+        };
+        F.user = user;
+        return {session, user, emailConfirmed};
     }
 
     async function verifyAccount() {

@@ -274,6 +274,63 @@ test("Supabase identity is verified remotely and database requests use user toke
   assert.equal(calls[2].init.headers.apikey, "SERVER_SECRET");
   await assert.rejects(db.authenticate(""), (e) => e.status === 401);
 });
+test("verified Supabase users recover a missing profile without widening RLS", async () => {
+  const calls = [];
+  const db = createSupabase(
+    {
+      SUPABASE_URL: "https://project.supabase.co",
+      SUPABASE_ANON_KEY: "PUBLIC",
+      SUPABASE_SERVICE_ROLE_KEY: "SERVER_SECRET",
+    },
+    async (url, init) => {
+      calls.push({url, init});
+      if (url.endsWith("/auth/v1/user"))
+        return Response.json({
+          id,
+          email: "verified@example.test",
+          email_confirmed_at: "2026-11-27T00:00:00Z",
+          user_metadata: {name: "  Customer  ", role: "admin"},
+        });
+      if (url.includes("on_conflict=id"))
+        return new Response(null, {status: 204});
+      if (init.headers.apikey === "SERVER_SECRET")
+        return Response.json([{id, active: true, role: "customer", name: "Customer"}]);
+      return Response.json([]);
+    },
+  );
+  const user = await db.authenticate("VERIFIED_TOKEN");
+  assert.equal(user.id, id);
+  assert.equal(user.email_verified, true);
+  const create = calls.find(({url}) => url.includes("on_conflict=id"));
+  assert(create);
+  assert.equal(create.init.headers.apikey, "SERVER_SECRET");
+  assert.equal(create.init.headers.Prefer, "resolution=ignore-duplicates,return=minimal");
+  assert.deepEqual(JSON.parse(create.init.body), {
+    id,
+    name: "Customer",
+    phone: null,
+    role: "customer",
+    active: true,
+  });
+});
+test("unverified Supabase users cannot create a profile during recovery", async () => {
+  const calls = [];
+  const db = createSupabase(
+    {
+      SUPABASE_URL: "https://project.supabase.co",
+      SUPABASE_ANON_KEY: "PUBLIC",
+      SUPABASE_SERVICE_ROLE_KEY: "SERVER_SECRET",
+    },
+    async (url, init) => {
+      calls.push({url, init});
+      if (url.endsWith("/auth/v1/user"))
+        return Response.json({id, email: "pending@example.test"});
+      return Response.json([]);
+    },
+  );
+  await assert.rejects(db.authenticate("UNVERIFIED_TOKEN"), (error) => error.status === 403);
+  assert.equal(calls.some(({url}) => url.includes("on_conflict=id")), false);
+});
 test("routing never fabricates road distance or falls back to live GPS", async () => {
   const a = { latitude: 13.83, longitude: 20.83 },
     b = { latitude: 13.84, longitude: 20.84 };
