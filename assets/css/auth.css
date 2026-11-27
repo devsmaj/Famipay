@@ -155,3 +155,24 @@ body.mobile-nav-open { overflow: hidden; }
 @media (prefers-reduced-motion: reduce) { .header .nav { transition: none; } }
 /* Phone sign-in steps */
 .auth-card .social-auth form[hidden]{display:none!important}.auth-card #phone-form,.auth-card #phone-code-form{margin-top:20px}.auth-card .phone-destination{color:#526e60;line-height:1.6;margin:0 0 20px}.auth-card .phone-actions{display:flex;justify-content:space-between;gap:16px;margin-top:16px}.auth-card .phone-actions button{border:0;background:transparent;color:#116d51;font:inherit;font-weight:700;cursor:pointer;padding:10px 0}.auth-card .sms-notice{font-size:.8rem;color:#66766e;line-height:1.6;margin:0 0 20px}.auth-card input{min-height:52px;border:1px solid #cbded4;border-radius:10px}.auth-card input:focus{outline:2px solid #16895b;outline-offset:2px}.auth-card .submit-btn{min-height:52px;background:#08774e}.auth-card .auth-switch a{color:#08774e}
+
+/* Keep the language dropdown inside the viewport when switching to Arabic RTL. */
+html[dir="rtl"] .header .language-picker .language-menu {
+  left: auto !important;
+  right: 0 !important;
+  inset-inline-start: auto !important;
+  inset-inline-end: auto !important;
+  direction: ltr;
+  text-align: left;
+  max-width: min(235px, calc(100vw - 24px));
+}
+html[dir="rtl"] .header .language-picker .language-menu [lang="ar-TD"] {
+  direction: rtl;
+  text-align: right;
+}
+
+/* Consistent public header: Login, Create account, then language selector. */
+@media (min-width: 1280px) {
+  .header .header-actions > #auth-links { order: 1; }
+  .header .header-actions > .language-picker { order: 2; }
+}

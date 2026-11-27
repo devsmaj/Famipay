@@ -75,6 +75,8 @@
     renderingRole = null,
     routeIdentity = null;
   const page = () => location.pathname.split("/").pop() || "index.html";
+  const unifiedPublicPages = new Set(["index.html","login.html","register.html","about.html","services.html","contact.html","faq.html","privacy.html","terms.html","photo-credits.html","restaurant.html","menu.html"]);
+  const isUnifiedPublicPage = () => unifiedPublicPages.has(page());
   const homeMenus = {
     products: ["Products", [
       ["↗", "Send money", "Transfers · In development", "services.html"],
@@ -206,7 +208,7 @@
       !nav.querySelector("[data-navigation-link]")
     ) {
       const list = nav.querySelector(".nav-list");
-      list.innerHTML = page() === "index.html" ? homeNavigation() : keys
+      list.innerHTML = isUnifiedPublicPage() ? homeNavigation() : keys
         .map((key) => {
           const [defaultUrl, label, i18n, path] = links[key];
           const url = key === "home" && role === "customer" ? "customer-home.html" : defaultUrl;
@@ -215,7 +217,7 @@
         .join("");
       document.getElementById("auth-links").innerHTML = user
         ? '<button type="button" class="nav-sign-out" data-sign-out data-i18n="nav.sign_out">Sign out</button>'
-        : page() === "index.html"
+        : isUnifiedPublicPage()
           ? '<a class="home-sign-in" href="login.html" data-i18n="nav.login">Sign in</a><a class="home-sign-up" href="register.html">Create free account</a>'
           : '<a href="login.html" data-i18n="nav.access">Login / Sign up</a>';
       renderingRole = role;
