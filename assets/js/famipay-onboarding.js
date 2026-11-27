@@ -2,6 +2,7 @@
     'use strict';
 
     const F = window.Famina;
+    const backButton = document.getElementById('onboarding-back');
     const verifyStep = document.getElementById('verify-step');
     const profileStep = document.getElementById('profile-step');
     const pinStep = document.getElementById('pin-step');
@@ -13,6 +14,7 @@
     const errorText = document.getElementById('onboarding-error-text');
     const retryVerification = document.getElementById('retry-verification');
     const retryOnboarding = document.getElementById('retry-onboarding');
+    const verificationTimeoutMs = 12_000;
     const operationTimeoutMs = 20_000;
     let activeStep = 'verify';
     let busy = false;
@@ -24,12 +26,12 @@
     const authError = (key, fallback) =>
         window.i18n?.t(`auth.errors.${key}`, fallback) || fallback;
 
-    function withTimeout(promise, message) {
+    function withTimeout(promise, message, timeoutMs = operationTimeoutMs) {
         let timer;
         return Promise.race([
             promise,
             new Promise((_, reject) => {
-                timer = window.setTimeout(() => reject(new Error(message)), operationTimeoutMs);
+                timer = window.setTimeout(() => reject(new Error(message)), timeoutMs);
             }),
         ]).finally(() => window.clearTimeout(timer));
     }
@@ -76,18 +78,10 @@
         heading?.focus({preventScroll: true});
     }
 
-    function showInlineState(text, state = 'pending', loading = false) {
+    function showInlineState(text, state = 'pending') {
         inlineState.dataset.state = state;
-        inlineState.replaceChildren();
-        if (loading) {
-            const spinner = document.createElement('span');
-            spinner.className = 'fp-onboarding-spinner';
-            spinner.setAttribute('aria-hidden', 'true');
-            inlineState.append(spinner);
-        }
-        const label = document.createElement('span');
-        label.textContent = text;
-        inlineState.append(label);
+        inlineState.hidden = false;
+        inlineState.textContent = text;
     }
 
     function showError(error, {retry = true} = {}) {
@@ -107,7 +101,7 @@
     }
 
     async function getVerifiedSession() {
-        await withTimeout(F.ready, translate('timeout', 'This is taking longer than expected. Please retry.'));
+        await withTimeout(F.ready, translate('timeout', 'This is taking longer than expected. Please retry.'), verificationTimeoutMs);
         if (!F.client) throw new Error(translate(
             'service_unavailable',
             'FAMIPAY authentication is temporarily unavailable. Please retry.',
@@ -115,6 +109,7 @@
         const {data, error} = await withTimeout(
             F.client.auth.getSession(),
             translate('timeout', 'This is taking longer than expected. Please retry.'),
+            verificationTimeoutMs,
         );
         if (error) throw error;
         const session = data?.session;
@@ -137,6 +132,7 @@
         await withTimeout(
             F.refreshUser(session, {force: true}),
             translate('timeout', 'This is taking longer than expected. Please retry.'),
+            verificationTimeoutMs,
         );
         if (!F.user || F.user.id !== supabaseUser.id) {
             throw new Error(translate(
@@ -156,7 +152,8 @@
     async function verifyAccount() {
         activeStep = 'verify';
         showStep('verify');
-        showInlineState(translate('checking', 'Checking your Supabase session…'), 'pending', true);
+        showInlineState(translate('checking', 'Verifying your account…'), 'pending');
+        retryVerification.hidden = true;
         errorPanel.hidden = true;
         const operationId = ++runId;
         try {
@@ -165,7 +162,6 @@
             showInlineState(emailConfirmed
                 ? translate('verified', 'Email verified successfully!')
                 : translate('phone_verified', 'Phone verified successfully!'), 'success');
-            document.getElementById('continue-verification').disabled = false;
             if (user.onboarding_complete) {
                 location.replace('famipay-app.html');
                 return;
@@ -184,6 +180,7 @@
     async function run(button, operation) {
         if (busy) return;
         busy = true;
+        backButton.disabled = true;
         const operationId = ++runId;
         setBusy(button, true);
         errorPanel.hidden = true;
@@ -193,9 +190,24 @@
             if (operationId === runId) showError(error);
         } finally {
             setBusy(button, false);
+            backButton.disabled = false;
             busy = false;
         }
     }
+
+    backButton.addEventListener('click', () => {
+        if (busy) return;
+        if (activeStep === 'pin') {
+            showStep('profile');
+            document.getElementById('profile-name').focus();
+        } else if (activeStep === 'profile') {
+            showStep('verify');
+        } else if (activeStep === 'ready') {
+            location.replace('famipay-app.html');
+        } else {
+            location.assign('verify-email.html');
+        }
+    });
 
     document.getElementById('profile-form').addEventListener('submit', event => {
         event.preventDefault();
@@ -279,21 +291,6 @@
         lastOperation();
     });
 
-    document.querySelectorAll('[data-onboarding-back]').forEach(button => {
-        button.addEventListener('click', () => {
-            if (activeStep === 'pin') showStep('profile');
-            else if (activeStep === 'profile') {
-                lastOperation = verifyAccount;
-                verifyAccount();
-            }
-        });
-    });
-
-    document.getElementById('continue-verification').addEventListener('click', () => {
-        lastOperation = verifyAccount;
-        verifyAccount();
-    });
-
     document.getElementById('retry-verification').addEventListener('click', () => {
         lastOperation = verifyAccount;
         verifyAccount();
@@ -309,7 +306,7 @@
 
     document.addEventListener('languagechange', () => {
         if (inlineState.dataset.state === 'pending')
-            showInlineState(translate('checking', 'Checking your Supabase session…'), 'pending', true);
+            showInlineState(translate('checking', 'Verifying your account…'), 'pending');
     });
 
     verifyAccount();
