@@ -563,13 +563,15 @@
 
         if (screenId === 'home') {
             main.append(buildHeader());
-            main.append(element('div', translateText('Wallet balance'), 'fp-balance-label'));
+            const walletHeader = element('section', null, 'fp-wallet-overview');
+            walletHeader.append(element('div', translateText('Available balance'), 'fp-balance-label'));
             const hero = element('div', null, 'hero');
             hero.append(
-                element('h2', translateText('Balance unavailable')),
-                element('p', translateText('No wallet provider is connected.')),
+                element('h2', '— FCFA'),
+                element('p', translateText('Wallet not connected')),
             );
-            main.append(hero);
+            walletHeader.append(hero);
+            main.append(walletHeader);
             for (const group of groups.filter(item => !['Getting started', 'Account'].includes(item))) {
                 main.append(element('h2', translateText(group), 'fp-section-title'));
                 const grid = cards(visible.filter(item => item.group === group));
