@@ -152,6 +152,58 @@ test("protected API rejects forged identity, amounts and role escalation", async
     await new Promise((resolve) => server.close(resolve));
   }
 });
+
+test("profile details save authenticated first name, last name and E.164 phone", async () => {
+  const calls = [];
+  const db = {
+    configured: true,
+    authenticate: async () => ({ id, role: "customer" }),
+    rpc: async (name, args, token) => {
+      calls.push({ name, args, token });
+      return { id, ...args };
+    },
+  };
+  const server = createApp({ db }).listen(0, "127.0.0.1");
+  await new Promise((resolve) => server.once("listening", resolve));
+  const base = "http://127.0.0.1:" + server.address().port;
+  const update = (body) =>
+    fetch(base + "/api/profile", {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer valid",
+      },
+      body: JSON.stringify(body),
+    });
+  try {
+    const saved = await update({
+      firstName: "Ada",
+      lastName: "Customer",
+      phone: "+33612345678",
+    });
+    assert.equal(saved.status, 200);
+    assert.deepEqual(calls[0], {
+      name: "update_personal_details",
+      args: {
+        p_first_name: "Ada",
+        p_last_name: "Customer",
+        p_phone: "+33612345678",
+      },
+      token: "valid",
+    });
+    assert.equal((await update({
+      firstName: "Ada",
+      lastName: "Customer",
+      phone: "+123",
+    })).status, 400);
+    assert.equal(calls.length, 1);
+    assert.equal((await update({ name: "Legacy Name" })).status, 200);
+    assert.equal(calls[1].name, "update_profile");
+  } finally {
+    await new Promise((resolve) => server.close(resolve));
+  }
+});
+
 test("secure PIN onboarding requires verification and stores only a server hash", async () => {
   const calls = [];
   let user = {

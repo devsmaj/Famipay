@@ -3,6 +3,13 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
+const phoneLibrarySource = fs.readFileSync(
+  path.join(__dirname, '../assets/vendor/libphonenumber-max.js'),
+  'utf8',
+);
+const phoneLibraryContext = {};
+vm.runInNewContext(phoneLibrarySource, phoneLibraryContext);
+const phoneLibrary = phoneLibraryContext.libphonenumber;
 
 const source = fs.readFileSync(
   path.join(__dirname, '../assets/js/famipay-onboarding.js'),
@@ -60,10 +67,13 @@ function boot({
     'onboarding-progress-bar', 'verification-state', 'onboarding-error',
     'onboarding-error-text', 'retry-verification', 'retry-onboarding',
     'verify-title', 'profile-title', 'pin-title', 'ready-title',
-    'profile-form', 'profile-name',
+    'profile-form', 'profile-first-name', 'profile-last-name',
+    'profile-phone', 'profile-phone-flag', 'profile-phone-help',
     'pin-form', 'account-pin', 'confirm-pin', 'open-home',
   ];
   const elements = Object.fromEntries(ids.map(id => [id, node()]));
+  elements['profile-phone'].value = '+235 ';
+  elements['profile-phone-flag'].textContent = '🇹🇩';
   elements['pin-form'].reset = () => {
     elements['account-pin'].value = '';
     elements['confirm-pin'].value = '';
@@ -108,7 +118,10 @@ function boot({
     api: async (route, options) => {
       requests.push({route, options});
       if (route === '/profile') {
-        F.user.name = options.body.name;
+        F.user.first_name = options.body.firstName;
+        F.user.last_name = options.body.lastName;
+        F.user.phone = options.body.phone;
+        F.user.name = `${options.body.firstName} ${options.body.lastName}`;
         return {ok: true};
       }
       if (route === '/auth/pin') {
@@ -125,6 +138,7 @@ function boot({
   const assignments = [];
   const window = {
     Famina: F,
+    libphonenumber: phoneLibrary,
     i18n: {t: (_key, fallback) => fallback},
     setTimeout(callback, ms) {
       const id = ++timerId;
@@ -163,14 +177,20 @@ test('verified Supabase user can complete profile, secure PIN and reach the dash
   await settle();
   assert.equal(app.elements['profile-step'].hidden, false);
 
-  app.elements['profile-name'].value = 'Ada Customer';
+  app.elements['profile-first-name'].value = 'Ada';
+  app.elements['profile-last-name'].value = 'Customer';
+  app.elements['profile-phone'].value = '+235 66 12 34 56';
   await app.elements['profile-form'].listeners.submit({
     preventDefault() {},
     currentTarget: app.elements['profile-form'],
   });
   await settle();
   assert.equal(app.requests[0].route, '/profile');
-  assert.equal(app.requests[0].options.body.name, 'Ada Customer');
+  assert.equal(JSON.stringify(app.requests[0].options.body), JSON.stringify({
+    firstName: 'Ada',
+    lastName: 'Customer',
+    phone: '+23566123456',
+  }));
   assert.equal(app.elements['pin-step'].hidden, false);
 
   app.elements['account-pin'].value = '123456';
@@ -189,12 +209,40 @@ test('verified Supabase user can complete profile, secure PIN and reach the dash
   assert.deepEqual(app.redirects, ['famipay-app.html']);
 });
 
+test('phone field defaults to Chad and automatically tracks an international code', async () => {
+  const app = boot();
+  await settle();
+  assert.equal(app.elements['profile-phone-flag'].textContent, '🇹🇩');
+  app.elements['profile-phone'].value = '+33612345678';
+  app.elements['profile-phone'].listeners.input();
+  assert.equal(app.elements['profile-phone-flag'].textContent, '🇫🇷');
+});
+
+test('invalid international phone numbers do not save profile details', async () => {
+  const app = boot();
+  await settle();
+  [...app.timers.values()].find(timer => timer.ms === 550)?.callback();
+  await settle();
+  app.elements['profile-first-name'].value = 'Ada';
+  app.elements['profile-last-name'].value = 'Customer';
+  app.elements['profile-phone'].value = '+123';
+  await app.elements['profile-form'].listeners.submit({
+    preventDefault() {},
+    currentTarget: app.elements['profile-form'],
+  });
+  await settle();
+  assert.equal(app.requests.some(request => request.route === '/profile'), false);
+  assert.match(app.elements['onboarding-error-text'].textContent, /valid international phone number/i);
+});
+
 test('PIN retry resubmits retained fields after a failed request', async () => {
   const app = boot({pinFailures: 1});
   await settle();
   [...app.timers.values()].find(timer => timer.ms === 550)?.callback();
   await settle();
-  app.elements['profile-name'].value = 'Ada Customer';
+  app.elements['profile-first-name'].value = 'Ada';
+  app.elements['profile-last-name'].value = 'Customer';
+  app.elements['profile-phone'].value = '+23566123456';
   await app.elements['profile-form'].listeners.submit({
     preventDefault() {},
     currentTarget: app.elements['profile-form'],

@@ -2,6 +2,11 @@
     'use strict';
 
     const F = window.Famina;
+    const firstNameInput = document.getElementById('profile-first-name');
+    const lastNameInput = document.getElementById('profile-last-name');
+    const phoneInput = document.getElementById('profile-phone');
+    const phoneFlag = document.getElementById('profile-phone-flag');
+    const phoneLibrary = window.libphonenumber;
     const backButton = document.getElementById('onboarding-back');
     const verifyStep = document.getElementById('verify-step');
     const profileStep = document.getElementById('profile-step');
@@ -25,6 +30,38 @@
         window.i18n?.t(`onboarding.${key}`, fallback) || fallback;
     const authError = (key, fallback) =>
         window.i18n?.t(`auth.errors.${key}`, fallback) || fallback;
+
+    function normalizePhoneDigits(value) {
+        return value.replace(/[٠-٩۰-۹]/g, digit =>
+            String(digit.codePointAt(0) <= 0x0669
+                ? digit.codePointAt(0) - 0x0660
+                : digit.codePointAt(0) - 0x06f0));
+    }
+
+    function internationalPhone(value) {
+        const normalized = normalizePhoneDigits(value.trim());
+        return normalized.startsWith('00')
+            ? `+${normalized.slice(2)}`
+            : normalized;
+    }
+
+    function flagForCountry(country) {
+        if (!/^[A-Z]{2}$/.test(country || '')) return '🇹🇩';
+        return [...country].map(letter =>
+            String.fromCodePoint(127397 + letter.charCodeAt(0))).join('');
+    }
+
+    function updatePhoneFlag() {
+        const formatter = new phoneLibrary.AsYouType();
+        formatter.input(internationalPhone(phoneInput.value));
+        phoneFlag.textContent = flagForCountry(formatter.getCountry());
+    }
+
+    phoneInput.addEventListener('input', () => {
+        const normalized = normalizePhoneDigits(phoneInput.value);
+        if (normalized !== phoneInput.value) phoneInput.value = normalized;
+        updatePhoneFlag();
+    });
 
     function withTimeout(promise, message, timeoutMs = operationTimeoutMs) {
         let timer;
@@ -178,8 +215,11 @@
                 location.replace('famipay-app.html');
                 return;
             }
-            const profileName = document.getElementById('profile-name');
-            if (!profileName.value) profileName.value = user.name || '';
+            const nameParts = (user.name || '').trim().split(/\s+/);
+            if (!firstNameInput.value) firstNameInput.value = user.first_name || nameParts[0] || '';
+            if (!lastNameInput.value) lastNameInput.value = user.last_name || nameParts.slice(1).join(' ');
+            if (user.phone && phoneInput.value.trim() === '+235') phoneInput.value = user.phone;
+            updatePhoneFlag();
             window.setTimeout(() => {
                 if (operationId === runId) showStep('profile');
             }, 550);
@@ -211,7 +251,7 @@
         if (busy) return;
         if (activeStep === 'pin') {
             showStep('profile');
-            document.getElementById('profile-name').focus();
+            firstNameInput.focus();
         } else if (activeStep === 'profile') {
             showStep('verify');
         } else if (activeStep === 'ready') {
@@ -225,17 +265,51 @@
         event.preventDefault();
         const form = event.currentTarget;
         const button = form.querySelector('[type="submit"]');
-        const name = document.getElementById('profile-name').value.trim();
-        if (!form.reportValidity() || name.length < 1 || name.length > 100) return;
+        const firstName = firstNameInput.value.trim();
+        const lastName = lastNameInput.value.trim();
+        const parsedPhone = phoneLibrary.parsePhoneNumberFromString(
+            internationalPhone(phoneInput.value),
+        );
+        if (!form.reportValidity()) return;
+        if (!firstName || firstName.length > 80) {
+            showError(new Error(translate('first_name_required', 'Enter a valid first name.')), {retry: false});
+            firstNameInput.focus();
+            return;
+        }
+        if (!lastName || lastName.length > 80) {
+            showError(new Error(translate('last_name_required', 'Enter a valid last name.')), {retry: false});
+            lastNameInput.focus();
+            return;
+        }
+        if (!parsedPhone?.isValid()) {
+            showError(new Error(translate('phone_invalid', 'Enter a valid international phone number, including its country code.')), {retry: false});
+            phoneInput.focus();
+            return;
+        }
         lastOperation = () => {
             showStep('profile');
             run(button, async () => {
                 await getVerifiedSession();
-                const submittedName = document.getElementById('profile-name').value.trim();
-                if (!submittedName || submittedName.length > 100)
-                    throw new Error(translate('name_required', 'Enter your name to continue.'));
+                const submittedFirstName = firstNameInput.value.trim();
+                const submittedLastName = lastNameInput.value.trim();
+                const submittedPhone = phoneLibrary.parsePhoneNumberFromString(
+                    internationalPhone(phoneInput.value),
+                );
+                if (!submittedFirstName || submittedFirstName.length > 80)
+                    throw new Error(translate('first_name_required', 'Enter a valid first name.'));
+                if (!submittedLastName || submittedLastName.length > 80)
+                    throw new Error(translate('last_name_required', 'Enter a valid last name.'));
+                if (!submittedPhone?.isValid())
+                    throw new Error(translate('phone_invalid', 'Enter a valid international phone number, including its country code.'));
                 await withTimeout(
-                    F.api('/profile', {method: 'PUT', body: {name: submittedName}}),
+                    F.api('/profile', {
+                        method: 'PUT',
+                        body: {
+                            firstName: submittedFirstName,
+                            lastName: submittedLastName,
+                            phone: submittedPhone.number,
+                        },
+                    }),
                     translate('timeout', 'This is taking longer than expected. Please retry.'),
                 );
                 await getVerifiedSession();

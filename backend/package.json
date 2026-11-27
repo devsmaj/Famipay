@@ -17,6 +17,7 @@
   },
   "devDependencies": {
     "@electric-sql/pglite": "^0.5.16",
+    "libphonenumber-js": "^1.13.17",
     "nodemon": "^3.0.1",
     "playwright": "1.65.0",
     "prettier": "3.10.1"

@@ -67,10 +67,18 @@
                 </div>
                 <h2 id="profile-title" data-i18n="onboarding.profile_title">Complete your profile</h2>
                 <form id="profile-form">
-                    <label class="fp-onboarding-label" for="profile-name" data-i18n="onboarding.name">Full name</label>
-                    <input id="profile-name" name="name" autocomplete="name" maxlength="100" required>
+                    <label class="fp-onboarding-label" for="profile-first-name" data-i18n="onboarding.first_name">First name</label>
+                    <input id="profile-first-name" name="firstName" autocomplete="given-name" maxlength="80" required>
+                    <label class="fp-onboarding-label" for="profile-last-name" data-i18n="onboarding.last_name">Last name</label>
+                    <input id="profile-last-name" name="lastName" autocomplete="family-name" maxlength="80" required>
+                    <label class="fp-onboarding-label" for="profile-phone" data-i18n="onboarding.phone">Phone number</label>
+                    <div class="fp-onboarding-phone-field" dir="ltr">
+                        <span id="profile-phone-flag" aria-hidden="true">🇹🇩</span>
+                        <input id="profile-phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" value="+235 " maxlength="25" aria-describedby="profile-phone-help" required>
+                    </div>
+                    <span id="profile-phone-help" class="fp-onboarding-phone-help" data-i18n="onboarding.phone_help">Include the international country code.</span>
                     <div class="fp-onboarding-actions">
-                        <button class="fp-onboarding-button" type="submit" data-i18n="onboarding.continue">Continue</button>
+                        <button class="fp-onboarding-button" type="submit" data-i18n="onboarding.continue">Save &amp; Continue</button>
                     </div>
                 </form>
             </section>
@@ -115,6 +123,7 @@
     <script src="assets/js/session.js"></script>
     <script src="assets/js/notifications.js"></script>
     <script src="assets/vendor/supabase.js"></script>
+    <script src="assets/vendor/libphonenumber-max.js"></script>
     <script src="assets/js/platform.js"></script>
     <script src="assets/js/famipay-navigation.js"></script>
     <script src="assets/locales/catalog.js"></script>

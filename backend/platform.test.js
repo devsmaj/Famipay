@@ -53,6 +53,12 @@ test("PostgreSQL security and complete cash order lifecycle", async (t) => {
       "utf8",
     ),
   );
+  await db.exec(
+    fs.readFileSync(
+      require.resolve("../supabase/migrations/202611270002_profile_personal_details.sql"),
+      "utf8",
+    ),
+  );
   await t.test("onboarding backfill and PIN storage are service-only", async () => {
     assert.equal(
       (await as(id(2), "select onboarding_complete from profiles where id=$1", [id(2)]))[0]
@@ -91,6 +97,26 @@ test("PostgreSQL security and complete cash order lifecycle", async (t) => {
       (await as(id(7), "select onboarding_complete from profiles where id=$1", [id(7)]))[0]
         .onboarding_complete,
       true,
+    );
+  });
+  await t.test("personal details update only the authenticated user's profile", async () => {
+    const profile = await rpc(id(2), "update_personal_details", [
+      "Amina",
+      "Saleh",
+      "+23566123456",
+    ]);
+    assert.equal(profile.first_name, "Amina");
+    assert.equal(profile.last_name, "Saleh");
+    assert.equal(profile.name, "Amina Saleh");
+    assert.equal(profile.phone, "+23566123456");
+    await assert.rejects(
+      rpc(id(2), "update_personal_details", ["Amina", "Saleh", "+123"]),
+      /Invalid personal details/,
+    );
+    assert.equal(
+      (await as(id(3), "select first_name, last_name, phone from profiles where id=$1", [id(3)]))[0]
+        .phone,
+      null,
     );
   });
   await db.query(

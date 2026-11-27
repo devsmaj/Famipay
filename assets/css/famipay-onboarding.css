@@ -258,6 +258,49 @@
     font: inherit;
 }
 
+.fp-onboarding-phone-field {
+    display: flex;
+    min-height: 48px;
+    align-items: center;
+    gap: 9px;
+    padding: 0 12px;
+    border: 1px solid #cad9d3;
+    border-radius: 11px;
+    background: #fff;
+}
+
+.fp-onboarding-phone-field:focus-within {
+    border-color: var(--ob-green);
+    box-shadow: 0 0 0 2px #eaf5ef;
+}
+
+.fp-onboarding-phone-field > span {
+    flex: 0 0 auto;
+    font-size: 20px;
+    line-height: 1;
+}
+
+.fp-onboarding-phone-field input {
+    min-width: 0;
+    min-height: 46px;
+    padding: 9px 0;
+    border: 0;
+    border-radius: 0;
+    outline: 0;
+    box-shadow: none;
+}
+
+.fp-onboarding-phone-field input:focus-visible {
+    outline: 0;
+}
+
+.fp-onboarding-phone-help {
+    display: block;
+    margin-top: 5px;
+    color: var(--ob-muted);
+    font-size: 12px;
+}
+
 .fp-onboarding-step input[inputmode="numeric"] {
     letter-spacing: .35em;
 }

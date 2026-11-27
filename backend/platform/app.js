@@ -141,15 +141,38 @@ function createApp({
   );
   app.put(
     "/api/profile",
-    run(async (req, res) =>
+    run(async (req, res) => {
+      if (
+        req.body.firstName !== undefined ||
+        req.body.lastName !== undefined ||
+        req.body.phone !== undefined
+      ) {
+        const firstName = text(req.body.firstName, 80);
+        const lastName = text(req.body.lastName, 80);
+        const phone = text(req.body.phone, 16);
+        if (!/^\+[1-9]\d{7,14}$/.test(phone))
+          throw new ApiError(400, "Enter a valid international phone number.");
+        res.json(
+          await db.rpc(
+            "update_personal_details",
+            {
+              p_first_name: firstName,
+              p_last_name: lastName,
+              p_phone: phone,
+            },
+            req.token,
+          ),
+        );
+        return;
+      }
       res.json(
         await db.rpc(
           "update_profile",
           { p_name: text(req.body.name, 100) },
           req.token,
         ),
-      ),
-    ),
+      );
+    }),
   );
   app.get(
     "/api/addresses",

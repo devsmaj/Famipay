@@ -9,6 +9,8 @@ for (const [from, to] of [
   ["leaflet/LICENSE", "leaflet/LICENSE"],
   ["chart.js/dist/chart.umd.js", "chart.js"],
   ["chart.js/LICENSE.md", "CHART-LICENSE.md"],
+  ["libphonenumber-js/bundle/libphonenumber-max.js", "libphonenumber-max.js"],
+  ["libphonenumber-js/LICENSE", "LIBPHONENUMBER-LICENSE"],
 ]) {
   const dest = path.join(root, "assets/vendor", to);
   fs.mkdirSync(path.dirname(dest), { recursive: true });
