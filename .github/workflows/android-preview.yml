@@ -1,0 +1,135 @@
+name: FAMIPAY Android APK
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - mobile/**
+      - .github/workflows/android-preview.yml
+      - famipay-app.html
+      - famipay-onboarding.html
+      - login.html
+      - register.html
+      - verify-email.html
+      - terms.html
+      - privacy.html
+      - contact.html
+      - assets/**
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency:
+  group: famipay-android-preview
+  cancel-in-progress: false
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    env:
+      FAMIPAY_MOBILE_PUSH_ENABLED: 'false'
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: actions/setup-node@v7.1.0
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: mobile/package-lock.json
+      - uses: actions/setup-java@v6.3.0
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: android-actions/setup-android@v3
+        with:
+          packages: platform-tools
+      - name: Allocate an increasing Android version
+        run: |
+          echo "ANDROID_VERSION_CODE=$(($(date +%s) - 1577836800))" >> "$GITHUB_ENV"
+          echo "ANDROID_VERSION_NAME=1.0.${GITHUB_RUN_NUMBER}" >> "$GITHUB_ENV"
+      - name: Install mobile dependencies
+        run: npm ci --prefix mobile
+      - name: Bundle the shared web application and run package tests
+        run: |
+          npm run sync --prefix mobile
+          npm test --prefix mobile
+      - name: Browser-check the bundled role dashboards and authentication pages
+        run: |
+          npm ci --prefix backend
+          backend/node_modules/.bin/playwright install --with-deps chromium
+          BROWSER_CHANNEL=chromium npm run test:browser --prefix mobile
+      - name: Install Android build platform and emulator
+        run: |
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" \
+            "platforms;android-36" "build-tools;36.0.0" "emulator" \
+            "system-images;android-36;google_apis;x86_64"
+      - name: Restore the original preview update-signing key
+        run: |
+          gh release download famipay-preview \
+            --repo "$GITHUB_REPOSITORY" \
+            --pattern preview-signing.keystore \
+            --dir "$RUNNER_TEMP"
+          echo "FAMIPAY_PREVIEW_KEYSTORE=$RUNNER_TEMP/preview-signing.keystore" >> "$GITHUB_ENV"
+      - name: Download the currently distributed app
+        run: |
+          gh release download famipay-preview \
+            --repo "$GITHUB_REPOSITORY" \
+            --pattern FAMIPAY-preview.apk \
+            --dir "$RUNNER_TEMP"
+      - name: Build and verify the original Android application
+        working-directory: mobile/android
+        run: |
+          chmod +x gradlew
+          ./gradlew --no-daemon assembleDebug
+          mkdir -p ../dist
+          cp app/build/outputs/apk/debug/app-debug.apk ../dist/FAMIPAY.apk
+          "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --verbose ../dist/FAMIPAY.apk
+          OLD_CERT=$("$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --print-certs "$RUNNER_TEMP/FAMIPAY-preview.apk" | awk -F': ' '/certificate SHA-256 digest/ {print $2}')
+          NEW_CERT=$("$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --print-certs ../dist/FAMIPAY.apk | awk -F': ' '/certificate SHA-256 digest/ {print $2}')
+          test -n "$OLD_CERT" && test "$OLD_CERT" = "$NEW_CERT"
+          "$ANDROID_HOME/build-tools/36.0.0/aapt" dump badging "$RUNNER_TEMP/FAMIPAY-preview.apk" > ../dist/original-apk-info.txt
+          "$ANDROID_HOME/build-tools/36.0.0/aapt" dump badging ../dist/FAMIPAY.apk > ../dist/apk-info.txt
+          grep -q "name='com.famipay.app.preview'" ../dist/original-apk-info.txt
+          grep -q "name='com.famipay.app.preview'" ../dist/apk-info.txt
+          OLD_CODE=$(sed -n "s/.*versionCode='\([0-9]*\)'.*/\1/p" ../dist/original-apk-info.txt | head -n 1)
+          NEW_CODE=$(sed -n "s/.*versionCode='\([0-9]*\)'.*/\1/p" ../dist/apk-info.txt | head -n 1)
+          test "$NEW_CODE" -gt "$OLD_CODE"
+          cd ../dist && sha256sum FAMIPAY.apk > SHA256SUMS.txt
+      - name: Install existing APK and confirm the update on Android
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 36
+          target: google_apis
+          arch: x86_64
+          profile: pixel_2
+          script: |
+            adb install "$RUNNER_TEMP/FAMIPAY-preview.apk"
+            adb install -r mobile/dist/FAMIPAY.apk
+            adb shell pm path com.famipay.app.preview
+            adb shell dumpsys package com.famipay.app.preview | grep -q "versionCode=${ANDROID_VERSION_CODE}"
+      - uses: actions/upload-artifact@v7.0.2
+        with:
+          name: FAMIPAY.apk
+          path: mobile/dist/FAMIPAY.apk
+          retention-days: 30
+      - name: Publish the update APK
+        run: |
+          cat > "$RUNNER_TEMP/android-notes.md" <<'NOTES'
+          Updated FAMIPAY Android app using the existing Capacitor project, launcher icon, package identity and preview signing certificate.
+
+          Packages the website's existing login, registration, email verification, onboarding and role-aware private dashboard. Email confirmation opens the app through the existing `famipay://auth/login` callback. Web page markup and styles are reused; onboarding design is unchanged.
+
+          Package: `com.famipay.app.preview`. This update can install over the existing preview APK. Financial actions remain governed by the existing backend; this build does not fabricate payment results.
+          NOTES
+          printf '\nVersion: %s (%s)\nCommit: %s\n' "$ANDROID_VERSION_NAME" "$ANDROID_VERSION_CODE" "$GITHUB_SHA" >> "$RUNNER_TEMP/android-notes.md"
+          gh api --method PATCH "repos/$GITHUB_REPOSITORY/git/refs/tags/famipay-preview" -f sha="$GITHUB_SHA" -F force=true
+          gh release edit famipay-preview --repo "$GITHUB_REPOSITORY" \
+            --title "FAMIPAY Android $ANDROID_VERSION_NAME" \
+            --notes-file "$RUNNER_TEMP/android-notes.md" --prerelease
+          gh release upload famipay-preview --repo "$GITHUB_REPOSITORY" \
+            mobile/dist/FAMIPAY.apk mobile/dist/SHA256SUMS.txt mobile/dist/apk-info.txt --clobber
+          gh api --method DELETE "repos/$GITHUB_REPOSITORY/actions/artifacts/15230018820"
+          echo "APK: https://github.com/$GITHUB_REPOSITORY/releases/download/famipay-preview/FAMIPAY.apk" >> "$GITHUB_STEP_SUMMARY"

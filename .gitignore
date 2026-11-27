@@ -1,9 +1,6 @@
 node_modules/
-android-web/
-.gradle/
-android/.gradle/
-android/build/
-android/app/build/
+mobile/www/
+mobile/dist/
 .env
 .env.*
 !.env.example
