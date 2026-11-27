@@ -1,0 +1,47 @@
+.fp-loader,
+.fp-loading-status {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.fp-loader {
+    min-height: 20px;
+    margin: 0 auto 10px;
+}
+
+.fp-loader[hidden],
+.fp-loading-status[hidden] {
+    display: none;
+}
+
+.fp-loading-status {
+    min-height: 32px;
+    padding: 6px 18px;
+}
+
+.fp-loader-logo {
+    display: inline-block;
+    color: #08694e;
+    font-size: 13px;
+    font-weight: 850;
+    letter-spacing: .08em;
+    animation: fp-logo-loading 1.25s ease-in-out infinite;
+}
+
+.fp-loading-status .fp-loader-logo {
+    font-size: 13px;
+}
+
+@keyframes fp-logo-loading {
+    50% {
+        opacity: .48;
+        transform: translateY(-1px);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .fp-loader-logo {
+        animation: none;
+    }
+}
