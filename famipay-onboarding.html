@@ -4,57 +4,122 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
     <meta name="robots" content="noindex,nofollow">
+    <meta name="theme-color" content="#087052">
     <title>Complete your FAMIPAY account</title>
     <link rel="stylesheet" href="assets/css/famipay-app.css">
     <link rel="stylesheet" href="assets/css/famipay-loading.css">
     <link rel="stylesheet" href="assets/css/famipay-onboarding.css">
 </head>
-<body class="fp-app">
-    <div id="auth-status" class="fp-loading-status" role="status" aria-label="Loading FAMIPAY">
-        <span class="fp-loader-logo">FAMIPAY</span>
-    </div>
-    <div class="fp-onboarding-shell">
+<body class="fp-app fp-onboarding-page">
+    <main class="fp-onboarding-shell">
         <header class="fp-onboarding-header">
-            <a class="fp-brand" href="famipay-app.html">FAMIPAY</a>
+            <a class="fp-onboarding-brand" href="index.html" aria-label="FAMIPAY">
+                <img src="assets/branding/famipay-logo.svg" alt="FAMIPAY" width="154" height="40">
+            </a>
+            <a class="fp-onboarding-help" href="contact.html" data-i18n="onboarding.help">Help</a>
         </header>
-        <main class="fp-onboarding-main">
-            <h1 data-i18n="onboarding.title">Complete your account</h1>
+        <section class="fp-onboarding-card" aria-labelledby="onboarding-title">
+            <div class="fp-onboarding-kicker" data-i18n="onboarding.eyebrow">ACCOUNT SETUP</div>
+            <h1 id="onboarding-title" data-i18n="onboarding.title">Complete your account</h1>
+            <p class="fp-onboarding-intro" data-i18n="onboarding.intro">A few quick steps to get your FAMIPAY account ready.</p>
+
             <ol class="fp-onboarding-progress" aria-label="Account setup progress">
-                <li data-onboarding-step="register" data-i18n="onboarding.register">Register</li>
-                <li data-onboarding-step="verify" data-i18n="onboarding.verify">Verify email or phone</li>
-                <li data-onboarding-step="profile" data-i18n="onboarding.profile">Complete profile</li>
-                <li data-onboarding-step="pin" data-i18n="onboarding.pin">Set secure PIN</li>
-                <li data-onboarding-step="ready" data-i18n="onboarding.ready">Account ready</li>
+                <li data-onboarding-step="verify">
+                    <span class="fp-step-index">1</span><span data-i18n="onboarding.verify">Verify</span>
+                </li>
+                <li data-onboarding-step="profile">
+                    <span class="fp-step-index">2</span><span data-i18n="onboarding.profile">Profile</span>
+                </li>
+                <li data-onboarding-step="pin">
+                    <span class="fp-step-index">3</span><span data-i18n="onboarding.pin">Secure PIN</span>
+                </li>
+                <li data-onboarding-step="ready">
+                    <span class="fp-step-index">4</span><span data-i18n="onboarding.ready">Ready</span>
+                </li>
             </ol>
-            <p id="onboarding-message" class="fp-onboarding-message" role="status" aria-live="polite" data-i18n="onboarding.confirming">
-                Confirming your verified account
-            </p>
-            <section id="profile-step" class="panel" hidden>
-                <h2 data-i18n="onboarding.profile_title">Complete your profile</h2>
+            <div class="fp-onboarding-progress-track" aria-hidden="true">
+                <span id="onboarding-progress-bar"></span>
+            </div>
+
+            <p id="onboarding-message" class="fp-onboarding-message" role="status" aria-live="polite" hidden></p>
+
+            <section id="verify-step" class="fp-onboarding-step" hidden aria-labelledby="verify-title">
+                <div class="fp-onboarding-step-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M4 5h16v14H4z"></path><path d="m4 7 8 6 8-6"></path><path d="m9 17 2 2 4-4"></path>
+                    </svg>
+                </div>
+                <h2 id="verify-title" data-i18n="onboarding.verify_title">Verify your email</h2>
+                <p data-i18n="onboarding.verify_message">We’ll securely confirm your account before continuing.</p>
+                <div id="verification-state" class="fp-onboarding-inline-state" role="status" aria-live="polite">
+                    <span class="fp-onboarding-spinner" aria-hidden="true"></span>
+                    <span data-i18n="onboarding.checking">Checking your Supabase session…</span>
+                </div>
+                <div class="fp-onboarding-actions">
+                    <button id="retry-verification" class="fp-onboarding-button fp-onboarding-button-secondary" type="button" data-i18n="onboarding.retry" hidden>Retry</button>
+                    <button id="continue-verification" class="fp-onboarding-button" type="button" data-i18n="onboarding.continue" disabled>Continue</button>
+                </div>
+            </section>
+
+            <section id="profile-step" class="fp-onboarding-step" hidden aria-labelledby="profile-title">
+                <div class="fp-onboarding-step-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="8" r="4"></circle><path d="M4 21a8 8 0 0 1 16 0"></path>
+                    </svg>
+                </div>
+                <h2 id="profile-title" data-i18n="onboarding.profile_title">Complete your profile</h2>
+                <p data-i18n="onboarding.profile_message">Tell us what to call you in FAMIPAY.</p>
                 <form id="profile-form">
-                    <label class="field" for="profile-name" data-i18n="onboarding.name">Full name</label>
+                    <label class="fp-onboarding-label" for="profile-name" data-i18n="onboarding.name">Full name</label>
                     <input id="profile-name" name="name" autocomplete="name" maxlength="100" required>
-                    <button class="btn" type="submit" data-i18n="onboarding.continue">Continue</button>
+                    <div class="fp-onboarding-actions">
+                        <button class="fp-onboarding-button fp-onboarding-button-secondary" type="button" data-onboarding-back data-i18n="onboarding.back">Back</button>
+                        <button class="fp-onboarding-button" type="submit" data-i18n="onboarding.continue">Continue</button>
+                    </div>
                 </form>
             </section>
-            <section id="pin-step" class="panel" hidden>
-                <h2 data-i18n="onboarding.pin_title">Set a secure six-digit PIN</h2>
+
+            <section id="pin-step" class="fp-onboarding-step" hidden aria-labelledby="pin-title">
+                <div class="fp-onboarding-step-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="4" y="10" width="16" height="11" rx="2"></rect><path d="M8 10V7a4 4 0 1 1 8 0v3"></path><path d="M12 14v3"></path>
+                    </svg>
+                </div>
+                <h2 id="pin-title" data-i18n="onboarding.pin_title">Set your secure PIN</h2>
                 <p data-i18n="onboarding.pin_note">Your PIN is securely hashed by the server and is never saved in your browser.</p>
                 <form id="pin-form">
-                    <label class="field" for="account-pin" data-i18n="onboarding.pin_label">Secure PIN</label>
+                    <label class="fp-onboarding-label" for="account-pin" data-i18n="onboarding.pin_label">Secure PIN</label>
                     <input id="account-pin" name="pin" type="password" inputmode="numeric" autocomplete="new-password" pattern="[0-9]{6}" minlength="6" maxlength="6" required>
-                    <label class="field" for="confirm-pin" data-i18n="onboarding.confirm_pin">Confirm PIN</label>
+                    <label class="fp-onboarding-label" for="confirm-pin" data-i18n="onboarding.confirm_pin">Confirm PIN</label>
                     <input id="confirm-pin" name="confirmPin" type="password" inputmode="numeric" autocomplete="new-password" pattern="[0-9]{6}" minlength="6" maxlength="6" required>
-                    <button class="btn" type="submit" data-i18n="onboarding.save_pin">Save PIN securely</button>
+                    <div class="fp-onboarding-actions">
+                        <button class="fp-onboarding-button fp-onboarding-button-secondary" type="button" data-onboarding-back data-i18n="onboarding.back">Back</button>
+                        <button class="fp-onboarding-button" type="submit" data-i18n="onboarding.save_pin">Save PIN securely</button>
+                    </div>
                 </form>
             </section>
-            <section id="ready-step" class="panel" hidden>
-                <h2 data-i18n="onboarding.ready_title">Your account is ready</h2>
-                <p data-i18n="onboarding.ready_message">Your verified profile is complete. You can now open FAMIPAY Home.</p>
-                <button id="open-home" class="btn" type="button" data-i18n="onboarding.home">Go to Home</button>
+
+            <section id="ready-step" class="fp-onboarding-step" hidden aria-labelledby="ready-title">
+                <div class="fp-onboarding-step-icon fp-onboarding-success-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m5 12 4 4L19 6"></path>
+                    </svg>
+                </div>
+                <h2 id="ready-title" data-i18n="onboarding.ready_title">Your account is ready</h2>
+                <p data-i18n="onboarding.ready_message">Your verified profile is complete. Welcome to FAMIPAY.</p>
+                <button id="open-home" class="fp-onboarding-button" type="button" data-i18n="onboarding.home">Open FAMIPAY</button>
             </section>
-        </main>
-    </div>
+
+            <div id="onboarding-error" class="fp-onboarding-error" role="alert" hidden>
+                <p id="onboarding-error-text"></p>
+                <button id="retry-onboarding" class="fp-onboarding-button fp-onboarding-button-secondary" type="button" data-i18n="onboarding.retry">Retry</button>
+            </div>
+        </section>
+        <footer class="fp-onboarding-footer">
+            <span data-i18n="onboarding.secure_note">Your information is protected and securely processed.</span>
+            <a href="faq.html" data-i18n="onboarding.need_help">Need help?</a>
+        </footer>
+    </main>
     <script src="assets/js/config.js"></script>
     <script src="assets/js/session.js"></script>
     <script src="assets/js/notifications.js"></script>
@@ -64,8 +129,8 @@
     <script src="assets/locales/catalog.js"></script>
     <script>
         try {
-            const language = localStorage.getItem('famipay-private-language');
-            window.FAMIPAY_PRIVATE_LANGUAGE = {en: 'en', fr: 'fr-TD', ar: 'ar-TD'}[language] || null;
+            const language = window.FaminaSession?.getPreference('language') || localStorage.getItem('language');
+            window.FAMIPAY_PRIVATE_LANGUAGE = ['en', 'fr-TD', 'ar-TD'].includes(language) ? language : null;
         } catch (_) {}
     </script>
     <script src="assets/js/i18n.js"></script>

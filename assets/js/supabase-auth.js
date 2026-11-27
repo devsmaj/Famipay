@@ -169,8 +169,7 @@
     if (!F.user) throw Error(message('server', 'Could not verify your account. Please try again.'));
     const confirmedBySupabase = Boolean(
       session.user?.email_confirmed_at ||
-      session.user?.confirmed_at ||
-      session.user?.user_metadata?.email_verified
+      session.user?.confirmed_at
     );
     if (!confirmedBySupabase && !F.user.email_verified && !F.user.phone_verified) {
       if (authMethod === 'email' && redirectToEmailVerification(F.user.email)) return;

@@ -281,8 +281,7 @@
             }
 
             const rawUser = session?.user || null;
-            const confirmed = Boolean(rawUser?.email_confirmed_at ||
-                rawUser?.confirmed_at || rawUser?.user_metadata?.email_verified);
+            const confirmed = Boolean(rawUser?.email_confirmed_at || rawUser?.confirmed_at);
 
             if (confirmed) {
                 const email = rawUser.email || window.Famina.user?.email;
