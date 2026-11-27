@@ -1,4 +1,9 @@
 node_modules/
+android-web/
+.gradle/
+android/.gradle/
+android/build/
+android/app/build/
 .env
 .env.*
 !.env.example

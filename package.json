@@ -8,6 +8,19 @@
     "build:locales": "node scripts/build-locales.cjs",
     "build:vendor": "node scripts/build-vendor.cjs",
     "test:navigation": "node scripts/navigation-smoke.cjs",
-    "test:stability": "node scripts/stability-smoke.cjs"
+    "test:stability": "node scripts/stability-smoke.cjs",
+    "android:build-web": "node scripts/build-capacitor-web.cjs",
+    "android:sync": "npm run android:build-web && cap sync android",
+    "android:build-debug": "npm run android:sync && cd android && ./gradlew assembleDebug"
+  },
+  "dependencies": {
+    "@capacitor/android": "^8.6.3",
+    "@capacitor/app": "^8.1.2",
+    "@capacitor/core": "^8.6.3",
+    "@capacitor/keyboard": "^8.0.6",
+    "@capacitor/status-bar": "^8.0.4"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^8.6.3"
   }
 }
