@@ -29,8 +29,10 @@
     function setStatus(key, fallback, state = 'pending') {
         status.textContent = translate(key, fallback);
         status.dataset.state = state;
-        if (typeof F?.notify === 'function' && state === 'success')
-            F.notify(status.textContent, 'success');
+        F?.notify?.(
+            status.textContent,
+            state === 'success' ? 'success' : state === 'error' ? 'error' : 'info',
+        );
     }
 
     function updateDestination() {

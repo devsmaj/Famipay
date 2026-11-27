@@ -35,7 +35,7 @@ function boot({page = 'register', signUpError = null, signInError = null} = {}) 
     'firebase-auth', 'phone-form', 'phone-code-form', 'auth-phone', 'auth-email',
     'auth-email-group', 'auth-phone-group', 'auth-use-email', 'auth-use-phone',
     'auth-phone-notice', 'auth-password', 'auth-confirm-password', 'auth-terms',
-    'already-registered', 'reset-password', 'password-reset-form', 'auth-code',
+    'reset-password', 'password-reset-form', 'auth-code',
     'resend-code', 'change-phone', 'password-feedback', 'sent-phone',
     'reset-new-password', 'reset-confirm-password',
   ];
@@ -139,6 +139,28 @@ test('email registration directs new users to confirmation page without a privat
   assert.deepEqual(app.calls.notifications.filter(call => call.redirect), [
     {redirect: 'verify-email.html'},
   ]);
+});
+
+test('duplicate registration feedback uses the shared informational toast', async () => {
+  const app = boot({
+    page: 'register',
+    signUpError: {code: 'user_already_exists', message: 'User already registered'},
+  });
+  await settle();
+  app.elements['auth-email'].value = 'member@example.com';
+  app.elements['auth-password'].value = 'a-secure-password';
+  app.elements['auth-confirm-password'].value = 'a-secure-password';
+  app.elements['auth-terms'].checked = true;
+  await app.elements['phone-form'].listeners.submit({
+    preventDefault() {},
+    submitter: {},
+  });
+  await settle();
+
+  assert.deepEqual(app.calls.notifications.filter(call => !call.redirect), [{
+    message: 'This account is already registered. Please sign in instead.',
+    type: 'info',
+  }]);
 });
 
 test('unverified email login routes to confirmation page rather than showing a generic error', async () => {

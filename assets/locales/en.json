@@ -148,6 +148,7 @@
     "agree_terms": "I agree to the",
     "and": "and",
     "already_registered": "This email or phone number is already registered.",
+    "account_exists": "This account is already registered. Please sign in instead.",
     "reset_password": "Set or reset password",
     "save_password": "Save password and continue",
     "show_password": "Show password",

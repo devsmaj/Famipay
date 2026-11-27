@@ -15,16 +15,11 @@
     const steps = [...document.querySelectorAll('[data-onboarding-step]')];
     const progressBar = document.getElementById('onboarding-progress-bar');
     const inlineState = document.getElementById('verification-state');
-    const errorPanel = document.getElementById('onboarding-error');
-    const errorText = document.getElementById('onboarding-error-text');
-    const retryVerification = document.getElementById('retry-verification');
-    const retryOnboarding = document.getElementById('retry-onboarding');
     const verificationTimeoutMs = 12_000;
     const operationTimeoutMs = 20_000;
     let activeStep = 'verify';
     let busy = false;
     let runId = 0;
-    let lastOperation = verifyAccount;
 
     const translate = (key, fallback) =>
         window.i18n?.t(`onboarding.${key}`, fallback) || fallback;
@@ -49,6 +44,14 @@
         if (!/^[A-Z]{2}$/.test(country || '')) return '🇹🇩';
         return [...country].map(letter =>
             String.fromCodePoint(127397 + letter.charCodeAt(0))).join('');
+    }
+
+    function savedProfileDetails(user) {
+        const parts = (user.name || '').trim().split(/\s+/);
+        const firstName = user.first_name || parts[0] || '';
+        const lastName = user.last_name || parts.slice(1).join(' ');
+        const phone = phoneLibrary.parsePhoneNumberFromString(user.phone || '');
+        return Boolean(firstName.trim() && lastName.trim() && phone?.isValid());
     }
 
     function updatePhoneFlag() {
@@ -104,7 +107,6 @@
         profileStep.hidden = step !== 'profile';
         pinStep.hidden = step !== 'pin';
         readyStep.hidden = step !== 'ready';
-        errorPanel.hidden = true;
         setProgress(step);
         const heading = {
             verify: document.getElementById('verify-title'),
@@ -117,24 +119,16 @@
 
     function showInlineState(text, state = 'pending') {
         inlineState.dataset.state = state;
-        inlineState.hidden = false;
         inlineState.textContent = text;
+        if (state !== 'pending') F.notify(text, state);
     }
 
-    function showError(error, {retry = true} = {}) {
+    function showError(error) {
         const text = error?.message || translate(
             'verification_unavailable',
             'Unable to verify your account. Please try again.',
         );
         showInlineState(text, 'error');
-        if (activeStep === 'verify') {
-            errorPanel.hidden = true;
-            retryVerification.hidden = !retry;
-        } else {
-            errorText.textContent = text;
-            errorPanel.hidden = false;
-            retryOnboarding.hidden = !retry;
-        }
     }
 
     async function getVerifiedSession() {
@@ -202,8 +196,6 @@
         activeStep = 'verify';
         showStep('verify');
         showInlineState(translate('checking', 'Verifying your account…'), 'pending');
-        retryVerification.hidden = true;
-        errorPanel.hidden = true;
         const operationId = ++runId;
         try {
             const {user, emailConfirmed} = await getVerifiedSession();
@@ -220,6 +212,11 @@
             if (!lastNameInput.value) lastNameInput.value = user.last_name || nameParts.slice(1).join(' ');
             if (user.phone && phoneInput.value.trim() === '+235') phoneInput.value = user.phone;
             updatePhoneFlag();
+            if (savedProfileDetails(user)) {
+                showStep('pin');
+                document.getElementById('account-pin').focus();
+                return;
+            }
             window.setTimeout(() => {
                 if (operationId === runId) showStep('profile');
             }, 550);
@@ -235,7 +232,6 @@
         backButton.disabled = true;
         const operationId = ++runId;
         setBusy(button, true);
-        errorPanel.hidden = true;
         try {
             await operation(operationId);
         } catch (error) {
@@ -272,62 +268,60 @@
         );
         if (!form.reportValidity()) return;
         if (!firstName || firstName.length > 80) {
-            showError(new Error(translate('first_name_required', 'Enter a valid first name.')), {retry: false});
+            showError(new Error(translate('first_name_required', 'Enter a valid first name.')));
             firstNameInput.focus();
             return;
         }
         if (!lastName || lastName.length > 80) {
-            showError(new Error(translate('last_name_required', 'Enter a valid last name.')), {retry: false});
+            showError(new Error(translate('last_name_required', 'Enter a valid last name.')));
             lastNameInput.focus();
             return;
         }
         if (!parsedPhone?.isValid()) {
-            showError(new Error(translate('phone_invalid', 'Enter a valid international phone number, including its country code.')), {retry: false});
+            showError(new Error(translate('phone_invalid', 'Enter a valid international phone number, including its country code.')));
             phoneInput.focus();
             return;
         }
-        lastOperation = () => {
-            showStep('profile');
-            run(button, async () => {
-                await getVerifiedSession();
-                const submittedFirstName = firstNameInput.value.trim();
-                const submittedLastName = lastNameInput.value.trim();
-                const submittedPhone = phoneLibrary.parsePhoneNumberFromString(
-                    internationalPhone(phoneInput.value),
+        showStep('profile');
+        run(button, async () => {
+            await getVerifiedSession();
+            const submittedFirstName = firstNameInput.value.trim();
+            const submittedLastName = lastNameInput.value.trim();
+            const submittedPhone = phoneLibrary.parsePhoneNumberFromString(
+                internationalPhone(phoneInput.value),
+            );
+            if (!submittedFirstName || submittedFirstName.length > 80)
+                throw new Error(translate('first_name_required', 'Enter a valid first name.'));
+            if (!submittedLastName || submittedLastName.length > 80)
+                throw new Error(translate('last_name_required', 'Enter a valid last name.'));
+            if (!submittedPhone?.isValid())
+                throw new Error(translate('phone_invalid', 'Enter a valid international phone number, including its country code.'));
+            try {
+                await withTimeout(
+                    F.api('/profile', {
+                        method: 'PUT',
+                        body: {
+                            firstName: submittedFirstName,
+                            lastName: submittedLastName,
+                            phone: submittedPhone.number,
+                        },
+                    }),
+                    translate('timeout', 'This is taking longer than expected. Please retry.'),
                 );
-                if (!submittedFirstName || submittedFirstName.length > 80)
+            } catch (error) {
+                if (error.field === 'firstName')
                     throw new Error(translate('first_name_required', 'Enter a valid first name.'));
-                if (!submittedLastName || submittedLastName.length > 80)
+                if (error.field === 'lastName')
                     throw new Error(translate('last_name_required', 'Enter a valid last name.'));
-                if (!submittedPhone?.isValid())
+                if (error.field === 'phone')
                     throw new Error(translate('phone_invalid', 'Enter a valid international phone number, including its country code.'));
-                try {
-                    await withTimeout(
-                        F.api('/profile', {
-                            method: 'PUT',
-                            body: {
-                                firstName: submittedFirstName,
-                                lastName: submittedLastName,
-                                phone: submittedPhone.number,
-                            },
-                        }),
-                        translate('timeout', 'This is taking longer than expected. Please retry.'),
-                    );
-                } catch (error) {
-                    if (error.field === 'firstName')
-                        throw new Error(translate('first_name_required', 'Enter a valid first name.'));
-                    if (error.field === 'lastName')
-                        throw new Error(translate('last_name_required', 'Enter a valid last name.'));
-                    if (error.field === 'phone')
-                        throw new Error(translate('phone_invalid', 'Enter a valid international phone number, including its country code.'));
-                    throw error;
-                }
-                await getVerifiedSession();
-                showStep('pin');
-                document.getElementById('account-pin').focus();
-            });
-        };
-        lastOperation();
+                throw error;
+            }
+            await getVerifiedSession();
+            showStep('pin');
+            F.notify(translate('profile_saved', 'Personal details saved.'), 'success');
+            document.getElementById('account-pin').focus();
+        });
     });
 
     document.getElementById('pin-form').addEventListener('submit', event => {
@@ -338,62 +332,42 @@
         const confirmation = document.getElementById('confirm-pin').value;
         if (!form.reportValidity()) return;
         if (!/^\d{6}$/.test(pin)) {
-            showError(new Error(authError('pin_format', 'PIN must contain exactly six digits.')), {retry: false});
+            showError(new Error(authError('pin_format', 'PIN must contain exactly six digits.')));
             return;
         }
         if (pin !== confirmation) {
-            showError(new Error(authError('pin_mismatch', 'PIN entries do not match.')), {retry: false});
+            showError(new Error(authError('pin_mismatch', 'PIN entries do not match.')));
             return;
         }
 
-        lastOperation = () => {
-            showStep('pin');
-            const retryPin = document.getElementById('account-pin').value;
-            const retryConfirmation = document.getElementById('confirm-pin').value;
-            if (!/^\d{6}$/.test(retryPin) || retryPin !== retryConfirmation) {
-                showError(new Error(translate(
-                    'pin_retry',
-                    'Re-enter and confirm your secure PIN, then try again.',
-                )), {retry: false});
-                document.getElementById('account-pin').focus();
-                return;
-            }
-            run(button, async () => {
+        const retryPin = pin;
+        run(button, async () => {
+            await getVerifiedSession();
+            let result;
+            try {
+                result = await withTimeout(
+                    F.api('/auth/pin', {method: 'POST', body: {pin: retryPin}}),
+                    translate('timeout', 'This is taking longer than expected. Please retry.'),
+                );
+            } catch (error) {
                 await getVerifiedSession();
-                let result;
-                try {
-                    result = await withTimeout(
-                        F.api('/auth/pin', {method: 'POST', body: {pin: retryPin}}),
-                        translate('timeout', 'This is taking longer than expected. Please retry.'),
-                    );
-                } catch (error) {
-                    await getVerifiedSession();
-                    if (F.user.onboarding_complete) {
-                        form.reset();
-                        showStep('ready');
-                        return;
-                    }
-                    throw error;
+                if (F.user.onboarding_complete) {
+                    form.reset();
+                    showStep('ready');
+                    F.notify(translate('pin_saved', 'Secure PIN saved.'), 'success');
+                    return;
                 }
-                if (result?.onboarding_complete !== true)
-                    throw new Error(authError('onboarding_failed', 'Account setup could not be completed. Please try again.'));
-                await getVerifiedSession();
-                if (!F.user.onboarding_complete)
-                    throw new Error(authError('onboarding_unconfirmed', 'Account setup could not be confirmed. Please try again.'));
-                form.reset();
-                showStep('ready');
-            });
-        };
-        lastOperation();
-    });
-
-    document.getElementById('retry-verification').addEventListener('click', () => {
-        lastOperation = verifyAccount;
-        verifyAccount();
-    });
-
-    document.getElementById('retry-onboarding').addEventListener('click', () => {
-        if (lastOperation) lastOperation();
+                throw error;
+            }
+            if (result?.onboarding_complete !== true)
+                throw new Error(authError('onboarding_failed', 'Account setup could not be completed. Please try again.'));
+            await getVerifiedSession();
+            if (!F.user.onboarding_complete)
+                throw new Error(authError('onboarding_unconfirmed', 'Account setup could not be confirmed. Please try again.'));
+            form.reset();
+            showStep('ready');
+            F.notify(translate('pin_saved', 'Secure PIN saved.'), 'success');
+        });
     });
 
     document.getElementById('open-home').addEventListener('click', () => {

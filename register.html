@@ -63,7 +63,6 @@
 
                 <section id="firebase-auth" class="social-auth" aria-label="Email or phone authentication">
                     <p class="auth-intro" data-i18n="auth.subtitle">Your next delicious moment starts here.</p>
-                    <p id="firebase-status" role="status" aria-live="polite"></p>
                     <form id="phone-form">
                         <div class="auth-method-options" role="group" aria-label="Choose sign-in method">
                             <button id="auth-use-email" type="button" data-auth-method="email" aria-pressed="true" data-i18n="auth.use_email">Email</button>
@@ -82,7 +81,6 @@
                         <p id="password-feedback" class="auth-password-feedback" aria-live="polite">Use at least 8 characters.</p>
                         <label class="auth-consent"><input id="auth-terms" type="checkbox" required> <span><span data-i18n="auth.agree_terms">I agree to the</span> <a href="terms.html" target="_blank" rel="noopener noreferrer" data-i18n="footer.terms">Terms of Service</a> <span data-i18n="auth.and">and</span> <a href="privacy.html" target="_blank" rel="noopener noreferrer" data-i18n="footer.privacy">Privacy Policy</a>.</span></label>
                         <p id="auth-phone-notice" class="sms-notice" data-auth-phone-notice hidden data-i18n="auth.sms_notice">A verification SMS may be sent to your phone.</p>
-                        <p id="already-registered" class="auth-existing" role="status" hidden><span data-i18n="auth.already_registered">This phone number is already registered.</span> <a href="login.html" data-i18n="auth.login_here">Login here</a></p>
                         <button type="submit" class="submit-btn" data-i18n="auth.register_title">Create Account</button>
                     </form>
                     <form id="phone-code-form" hidden>

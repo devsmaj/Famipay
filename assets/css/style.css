@@ -1471,7 +1471,6 @@ body.dark-mode .notification {
 .provider-button:disabled { opacity: .6; cursor: wait; }
 .social-auth form { margin-top: 1rem; }
 .social-auth [hidden] { display: none !important; }
-.social-auth #firebase-status { min-height: 1.5em; overflow-wrap: anywhere; }
 .social-auth .sms-notice { font-size: .85rem; margin-bottom: 1rem; }
 #recaptcha-container { margin-bottom: 1rem; }
 

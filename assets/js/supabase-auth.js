@@ -14,7 +14,6 @@
   const passwordInput = document.getElementById('auth-password');
   const confirmation = document.getElementById('auth-confirm-password');
   const terms = document.getElementById('auth-terms');
-  const existing = document.getElementById('already-registered');
   const resetButton = document.getElementById('reset-password');
   const resetForm = document.getElementById('password-reset-form');
   const codeInput = document.getElementById('auth-code');
@@ -227,7 +226,6 @@
       const password = passwordInput.value;
       if (isRegistration) {
         recovery = false;
-        if (existing) existing.hidden = true;
         const options = {
           data: { terms_accepted_at: new Date().toISOString(), terms_version: '2026-10' }
         };
@@ -236,13 +234,19 @@
           : await F.client.auth.signUp({ phone, password, options });
         if (error) {
           if (['user_already_exists','phone_exists'].includes(error.code) || /already registered|already exists/i.test(error.message || '')) {
-            if (existing) existing.hidden = false;
+            F.notify(label(
+              'account_exists',
+              'This account is already registered. Please sign in instead.',
+            ), 'info');
             return;
           }
           throw error;
         }
         if (Array.isArray(data?.user?.identities) && data.user.identities.length === 0) {
-          if (existing) existing.hidden = false;
+          F.notify(label(
+            'account_exists',
+            'This account is already registered. Please sign in instead.',
+          ), 'info');
           return;
         }
         passwordInput.value = '';

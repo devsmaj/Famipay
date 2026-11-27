@@ -148,6 +148,7 @@
     "agree_terms": "J’accepte les",
     "and": "et la",
     "already_registered": "Cette adresse e-mail ou ce numéro de téléphone est déjà enregistré.",
+    "account_exists": "Ce compte est déjà enregistré. Veuillez vous connecter.",
     "reset_password": "Créer ou réinitialiser le mot de passe",
     "save_password": "Enregistrer le mot de passe et continuer",
     "show_password": "Afficher le mot de passe",

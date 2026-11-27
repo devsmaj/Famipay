@@ -210,33 +210,13 @@
     line-height: 1.25;
 }
 
-.fp-onboarding-inline-state {
-    display: flex;
-    min-height: 42px;
-    align-items: center;
-    margin: 0 0 14px;
-    padding: 9px 12px;
-    border: 1px solid var(--ob-line);
-    border-radius: 11px;
-    background: #f8fbf9;
-    color: var(--ob-muted);
-    font-size: 13px;
-}
-
-.fp-onboarding-inline-state[hidden] {
-    display: none;
-}
-
-.fp-onboarding-inline-state[data-state="success"] {
-    border-color: #b7d8ca;
-    background: #edf8f1;
-    color: #075e46;
-}
-
-.fp-onboarding-inline-state[data-state="error"] {
-    border-color: #f0c5bf;
-    background: #fff5f3;
-    color: #9e332b;
+.fp-onboarding-live-region {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
 }
 
 .fp-onboarding-label {
@@ -369,23 +349,6 @@
     border-inline-end-color: transparent;
     border-radius: 50%;
     animation: fp-onboarding-spin .7s linear infinite;
-}
-
-.fp-onboarding-error {
-    margin-top: 12px;
-    padding: 12px;
-    border: 1px solid #f0c5bf;
-    border-radius: 12px;
-    background: #fff5f3;
-    color: #9e332b;
-}
-
-.fp-onboarding-error p {
-    margin: 0 0 10px;
-}
-
-.fp-onboarding-error .fp-onboarding-button {
-    width: 100%;
 }
 
 :dir(rtl) .fp-onboarding-back svg {

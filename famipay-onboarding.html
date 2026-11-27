@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="assets/css/famipay-app.css">
     <link rel="stylesheet" href="assets/css/famipay-loading.css">
     <link rel="stylesheet" href="assets/css/famipay-onboarding.css">
+    <link rel="stylesheet" href="assets/css/notifications.css">
 </head>
 <body class="fp-app fp-onboarding-page">
     <main class="fp-onboarding-shell">
@@ -51,11 +52,8 @@
                     </svg>
                 </div>
                 <h2 id="verify-title" data-i18n="onboarding.verify_title">Verify your account</h2>
-                <div id="verification-state" class="fp-onboarding-inline-state" role="status" aria-live="polite" hidden>
+                <div id="verification-state" class="fp-onboarding-live-region" role="status" aria-live="polite">
                     <span data-i18n="onboarding.checking">Verifying your account…</span>
-                </div>
-                <div class="fp-onboarding-actions">
-                    <button id="retry-verification" class="fp-onboarding-button fp-onboarding-button-secondary" type="button" data-i18n="onboarding.retry" hidden>Retry</button>
                 </div>
             </section>
 
@@ -112,10 +110,6 @@
                 <button id="open-home" class="fp-onboarding-button" type="button" data-i18n="onboarding.home">Open FAMIPAY</button>
             </section>
 
-            <div id="onboarding-error" class="fp-onboarding-error" role="alert" hidden>
-                <p id="onboarding-error-text"></p>
-                <button id="retry-onboarding" class="fp-onboarding-button fp-onboarding-button-secondary" type="button" data-i18n="onboarding.retry">Retry</button>
-            </div>
         </section>
     </main>
     <script src="assets/js/loading.js"></script>

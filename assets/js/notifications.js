@@ -1,5 +1,5 @@
 (function () {
-    const duration = 5000;
+    const duration = 4000;
     const active = new Map();
     let stack;
     const translate = text => window.i18n ? window.i18n.translateText(String(text)) : String(text);
@@ -11,8 +11,8 @@
             stack.className = 'toast-stack';
             document.body.append(stack);
         }
-        if (active.has(key)) { active.get(key).restart(); return; }
-        if (active.size >= 4) active.values().next().value.close();
+        if (active.has(key)) return;
+        if (active.size >= 3) active.values().next().value.close();
         const toast = document.createElement('div');
         toast.className = `toast toast-${type}`;
         toast.setAttribute('role', type === 'error' ? 'alert' : 'status');
@@ -39,11 +39,6 @@
             restart() { clearTimeout(timer); timer = setTimeout(entry.close, duration); }
         };
         dismiss.addEventListener('click', entry.close);
-        // Give keyboard and pointer users time to read or dismiss the notification.
-        toast.addEventListener('pointerenter', () => clearTimeout(timer));
-        toast.addEventListener('pointerleave', entry.restart);
-        toast.addEventListener('focusin', () => clearTimeout(timer));
-        toast.addEventListener('focusout', entry.restart);
         active.set(key, entry);
         entry.restart();
     }

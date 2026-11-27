@@ -109,27 +109,12 @@
 }
 
 .fp-verification-status {
-    min-height: 48px;
-    margin: 15px 0 0;
-    padding: 12px 13px;
-    border: 1px solid #dce9e4;
-    border-radius: 10px;
-    background: #f7faf8;
-    color: #516a5d;
-    font-size: 13px;
-    line-height: 1.5;
-}
-
-.fp-verification-status[data-state="success"] {
-    border-color: #b7d8ca;
-    background: #eaf6ef;
-    color: #075e46;
-}
-
-.fp-verification-status[data-state="error"] {
-    border-color: #f0c5bf;
-    background: #fff5f3;
-    color: #9e332b;
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
 }
 
 .fp-verification-countdown {

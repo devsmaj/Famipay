@@ -62,11 +62,11 @@ function boot({
   hangSession = false,
   pinFailures = 0,
   profileErrorField = null,
+  savedProfile = null,
 } = {}) {
   const ids = [
     'onboarding-back', 'verify-step', 'profile-step', 'pin-step', 'ready-step',
-    'onboarding-progress-bar', 'verification-state', 'onboarding-error',
-    'onboarding-error-text', 'retry-verification', 'retry-onboarding',
+    'onboarding-progress-bar', 'verification-state',
     'verify-title', 'profile-title', 'pin-title', 'ready-title',
     'profile-form', 'profile-first-name', 'profile-last-name',
     'profile-phone', 'profile-phone-flag', 'profile-phone-help',
@@ -86,6 +86,7 @@ function boot({
   });
   const requests = [];
   const redirects = [];
+  const notifications = [];
   const rawUser = {
     id: 'user-1',
     email: 'user@example.com',
@@ -103,7 +104,8 @@ function boot({
         ? ({data: {user: {...rawUser, id: authUserId}}, error: null})
         : ({data: {user: null}, error: new Error('Invalid session token')}),
     }},
-    user: null,
+    user: savedProfile ? {id: 'user-1', ...savedProfile} : null,
+    notify: (message, type) => notifications.push({message, type}),
     refreshUser: async () => {
       if (refreshError) throw refreshError;
       F.user = {
@@ -167,7 +169,7 @@ function boot({
     setImmediate,
   };
   vm.runInNewContext(source, context);
-  return {elements, progress, requests, redirects, assignments, F, timers};
+  return {elements, progress, requests, redirects, assignments, notifications, F, timers};
 }
 
 async function settle() {
@@ -238,7 +240,8 @@ test('invalid international phone numbers do not save profile details', async ()
   });
   await settle();
   assert.equal(app.requests.some(request => request.route === '/profile'), false);
-  assert.match(app.elements['onboarding-error-text'].textContent, /valid international phone number/i);
+  assert.match(app.notifications.at(-1).message, /valid international phone number/i);
+  assert.equal(app.notifications.at(-1).type, 'error');
 });
 
 test('backend field errors become specific localized onboarding messages', async () => {
@@ -254,7 +257,7 @@ test('backend field errors become specific localized onboarding messages', async
     currentTarget: app.elements['profile-form'],
   });
   await settle();
-  assert.equal(app.elements['onboarding-error-text'].textContent,
+  assert.equal(app.notifications.at(-1).message,
     'Enter a valid international phone number, including its country code.');
 });
 
@@ -283,7 +286,10 @@ test('PIN retry resubmits retained fields after a failed request', async () => {
   assert.equal(app.elements['account-pin'].value, '123456');
   assert.equal(app.elements['confirm-pin'].value, '123456');
 
-  app.elements['retry-onboarding'].listeners.click();
+  await app.elements['pin-form'].listeners.submit({
+    preventDefault() {},
+    currentTarget: app.elements['pin-form'],
+  });
   await settle();
   const pinRequests = app.requests.filter(request => request.route === '/auth/pin');
   assert.equal(pinRequests.length, 2);
@@ -292,11 +298,11 @@ test('PIN retry resubmits retained fields after a failed request', async () => {
   assert.equal(app.elements['account-pin'].value, '');
 });
 
-test('unverified Supabase session is not marked verified and exposes retry', async () => {
+test('unverified Supabase session is not marked verified and shows an error toast', async () => {
   const app = boot({confirmed: false});
   await settle();
   assert.equal(app.elements['verification-state'].dataset.state, 'error');
-  assert.equal(app.elements['retry-verification'].hidden, false);
+  assert.equal(app.notifications.at(-1).type, 'error');
   assert.equal(app.elements['profile-step'].hidden, true);
   assert.equal(app.requests.length, 0);
   assert.deepEqual(app.redirects, []);
@@ -326,6 +332,22 @@ test('a verified Auth session can reach profile entry while account details refr
   assert.equal(app.F.user.email_verified, true);
 });
 
+test('returning verified users with saved details continue directly to Secure PIN', async () => {
+  const app = boot({
+    savedProfile: {
+      first_name: 'Ada',
+      last_name: 'Customer',
+      name: 'Ada Customer',
+      phone: '+23566123456',
+      onboarding_complete: false,
+    },
+  });
+  await settle();
+  assert.equal(app.elements['profile-step'].hidden, true);
+  assert.equal(app.elements['pin-step'].hidden, false);
+  assert.equal(app.requests.some(request => request.route === '/profile'), false);
+});
+
 test('onboarding rejects an Auth user whose ID does not match the session', async () => {
   const app = boot({confirmed: true, authUserId: 'user-2'});
   await settle();
@@ -337,7 +359,7 @@ test('user-editable metadata cannot bypass Supabase email confirmation', async (
   const app = boot({confirmed: false, metadataVerified: true});
   await settle();
   assert.equal(app.elements['verification-state'].dataset.state, 'error');
-  assert.equal(app.elements['retry-verification'].hidden, false);
+  assert.equal(app.notifications.at(-1).type, 'error');
   assert.equal(app.elements['profile-step'].hidden, true);
 });
 
@@ -355,7 +377,7 @@ test('header back arrow returns to the preceding step and then to email verifica
   assert.deepEqual(app.assignments, ['verify-email.html']);
 });
 
-test('a verification timeout shows an actionable retry instead of an endless pending state', async () => {
+test('a verification timeout reports an error without an inline retry box', async () => {
   const app = boot({hangSession: true});
   await settle();
   const timeout = [...app.timers.values()].find(timer => timer.ms === 12_000);
@@ -363,13 +385,14 @@ test('a verification timeout shows an actionable retry instead of an endless pen
   timeout.callback();
   await settle();
   assert.equal(app.elements['verification-state'].dataset.state, 'error');
-  assert.equal(app.elements['retry-verification'].hidden, false);
+  assert.equal(app.notifications.at(-1).type, 'error');
 });
 
 test('onboarding keeps the official logo, compact progress, and Android safe-area spacing', () => {
   assert.match(markup, /id="onboarding-back"/);
   assert.match(markup, /assets\/branding\/famipay-logo\.svg/);
   assert.match(markup, /data-onboarding-step="ready"/);
+  assert.doesNotMatch(markup, /onboarding-error|retry-onboarding|retry-verification/);
   assert.doesNotMatch(markup, /fp-onboarding-footer|onboarding\.secure_note|onboarding\.need_help/);
   assert.match(styles, /min-height:\s*100svh/);
   assert.match(styles, /env\(safe-area-inset-bottom/);

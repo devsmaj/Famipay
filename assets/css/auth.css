@@ -19,8 +19,6 @@
 .auth-card .social-auth > .provider-button { min-height: 54px; border-radius: 9px; font-size: .95rem; padding: 12px 15px; margin: 12px 0; font-weight: 600; }
 .auth-card #phone-continue { background: #0d6c4d; }
 .auth-card #phone-continue:hover { background: #0d6c4d; }
-.auth-card .social-auth #firebase-status { min-height: 0; color: #9d321d; font-size: .88rem; margin: 12px 0; line-height: 1.5; }
-.auth-card .social-auth #firebase-status:empty { display: none; }
 .auth-trust { display: flex; gap: 8px; align-items: start; color: #717669; font-size: .77rem; line-height: 1.6; margin: 24px 0; padding-bottom: 24px; border-bottom: 1px solid #deded4; }
 .auth-trust svg { flex-shrink: 0; margin-top: 2px; }
 .auth-card .auth-switch { font-size: .88rem; color: #64685f; text-align: center; line-height: 1.8; }
