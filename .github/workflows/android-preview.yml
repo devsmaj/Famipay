@@ -100,6 +100,8 @@ jobs:
           cd ../dist && sha256sum FAMIPAY.apk > SHA256SUMS.txt
       - name: Install existing APK and confirm the update on Android
         uses: reactivecircus/android-emulator-runner@v2
+        env:
+          ANDROID_I_WANT_MY_TCG: "yes"
         with:
           api-level: 36
           target: google_apis
