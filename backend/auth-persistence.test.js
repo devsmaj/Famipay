@@ -7,16 +7,16 @@ const source = fs.readFileSync(path.join(__dirname,'../assets/js/platform.js'),'
 const loadingSource = fs.readFileSync(path.join(__dirname,'../assets/js/loading.js'),'utf8');
 const tick = () => new Promise(setImmediate);
 function boot({status=200,signedIn=true,initialEvent=false,hold=false,hangSession=false,emitOnGet=false}={}) {
-  const state={status,session:signedIn?{access_token:'TEST_SESSION',user:{id:'customer'}}:null,saved:null,clears:0,calls:0,creates:0,updates:0,getCalls:0,events:{},timers:new Map(),listener:null};
+  const state={status,session:signedIn?{access_token:'TEST_SESSION',user:{id:'customer'}}:null,saved:null,clears:0,calls:0,creates:0,updates:0,getCalls:0,events:{},timers:new Map(),listener:null,requestUrls:[]};
   let timerId=0, release;
   const gate = new Promise(resolve=>release=resolve);state.release=release;
   const auth={getSession:async()=>{state.getCalls++;if(hangSession)return new Promise(()=>{});if(emitOnGet)state.listener?.('SIGNED_IN',state.session);return {data:{session:state.session}};},onAuthStateChange:fn=>{state.listener=fn;if(initialEvent)queueMicrotask(()=>fn('INITIAL_SESSION',state.session));}};
   const win={FAMINA_API_BASE:'https://api.invalid',supabase:{createClient:(url,key,options)=>{state.creates++;state.options=options;return {auth}}},
     FaminaSession:{clear:()=>{state.clears++;state.saved=null},save:(token,user)=>{state.saved={token,user}}},
     addEventListener:(name,fn)=>state.events[name]=fn,dispatchEvent:event=>{if(event.type==='famina-auth-updated')state.updates++;},FaminaNotifications:{show(){}}};
-  const context={window:win,document:{addEventListener(){}},AbortSignal,Event,queueMicrotask,
+  const context={window:win,document:{addEventListener(){}},AbortSignal,Event,URL,queueMicrotask,
     setTimeout:(fn,ms)=>{const id=++timerId;state.timers.set(id,{fn,ms});return id;},clearTimeout:id=>state.timers.delete(id),
-    fetch:async url=>{if(url.endsWith('/auth/me')){state.calls++;if(hold)await gate;}const status=url.endsWith('/config')||url.endsWith('/menu')?200:state.status;return {ok:status===200,status,json:async()=>url.endsWith('/config')?{configured:true,supabaseUrl:'https://test.invalid',supabaseAnonKey:'PUBLIC'}:url.endsWith('/auth/me')?{user:{id:'customer',role:'customer',name:'TEST'},message:'TEST failure'}:[]};}};
+    fetch:async url=>{url=String(url);state.requestUrls.push(url);if(url.endsWith('/auth/me')){state.calls++;if(hold)await gate;}const status=url.endsWith('/config')||url.endsWith('/menu')?200:state.status;return {ok:status===200,status,json:async()=>url.endsWith('/config')?{configured:true,supabaseUrl:'https://test.invalid',supabaseAnonKey:'PUBLIC'}:url.endsWith('/auth/me')?{user:{id:'customer',role:'customer',name:'TEST'},message:'TEST failure'}:[]};}};
   vm.createContext(context);vm.runInContext(source,context);state.context=context;state.F=win.Famina;
   state.flush=async()=>{for(const [id,timer] of [...state.timers])if(timer.ms===0){state.timers.delete(id);timer.fn();}await tick();};
   return state;
@@ -63,6 +63,12 @@ test('foreground platform requests balance loader state and background requests 
   assert.equal(started,1);assert.equal(finished,1);
   a.status=503;await assert.rejects(a.F.api('/cart'));
   assert.equal(started,2);assert.equal(finished,2);
+});
+test('API requests normalize a trailing slash in the configured base URL',async()=>{
+  const a=boot();await a.F.ready;
+  a.context.window.FAMINA_API_BASE='https://api.invalid/api/';
+  await a.F.api('/auth/pin',{method:'POST',body:{pin:'123456'}});
+  assert.equal(a.requestUrls.at(-1),'https://api.invalid/api/auth/pin');
 });
 test('shared loader avoids quick flashes and remains visible until overlapping requests finish',()=>{
   const timers=new Map();let nextTimer=0;

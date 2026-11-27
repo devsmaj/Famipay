@@ -298,7 +298,7 @@
                     throw new Error(authError('onboarding_unconfirmed', 'Account setup could not be confirmed. Please try again.'));
                 form.reset();
                 showStep('ready');
-            }).finally(() => form.reset());
+            });
         };
         lastOperation();
     });

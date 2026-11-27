@@ -53,6 +53,7 @@ function boot({
   authUserId = 'user-1',
   refreshError = null,
   hangSession = false,
+  pinFailures = 0,
 } = {}) {
   const ids = [
     'onboarding-back', 'verify-step', 'profile-step', 'pin-step', 'ready-step',
@@ -63,6 +64,10 @@ function boot({
     'pin-form', 'account-pin', 'confirm-pin', 'open-home',
   ];
   const elements = Object.fromEntries(ids.map(id => [id, node()]));
+  elements['pin-form'].reset = () => {
+    elements['account-pin'].value = '';
+    elements['confirm-pin'].value = '';
+  };
   const progress = ['verify', 'profile', 'pin', 'ready'].map(step => {
     const item = node();
     item.dataset.onboardingStep = step;
@@ -107,6 +112,8 @@ function boot({
         return {ok: true};
       }
       if (route === '/auth/pin') {
+        if (requests.filter(request => request.route === '/auth/pin').length <= pinFailures)
+          throw new Error('Temporary service error.');
         F.user.onboarding_complete = true;
         return {onboarding_complete: true};
       }
@@ -180,6 +187,38 @@ test('verified Supabase user can complete profile, secure PIN and reach the dash
 
   app.elements['open-home'].listeners.click();
   assert.deepEqual(app.redirects, ['famipay-app.html']);
+});
+
+test('PIN retry resubmits retained fields after a failed request', async () => {
+  const app = boot({pinFailures: 1});
+  await settle();
+  [...app.timers.values()].find(timer => timer.ms === 550)?.callback();
+  await settle();
+  app.elements['profile-name'].value = 'Ada Customer';
+  await app.elements['profile-form'].listeners.submit({
+    preventDefault() {},
+    currentTarget: app.elements['profile-form'],
+  });
+  await settle();
+
+  app.elements['account-pin'].value = '123456';
+  app.elements['confirm-pin'].value = '123456';
+  await app.elements['pin-form'].listeners.submit({
+    preventDefault() {},
+    currentTarget: app.elements['pin-form'],
+  });
+  await settle();
+  assert.equal(app.requests.filter(request => request.route === '/auth/pin').length, 1);
+  assert.equal(app.elements['account-pin'].value, '123456');
+  assert.equal(app.elements['confirm-pin'].value, '123456');
+
+  app.elements['retry-onboarding'].listeners.click();
+  await settle();
+  const pinRequests = app.requests.filter(request => request.route === '/auth/pin');
+  assert.equal(pinRequests.length, 2);
+  assert.equal(pinRequests[1].options.body.pin, '123456');
+  assert.equal(app.elements['ready-step'].hidden, false);
+  assert.equal(app.elements['account-pin'].value, '');
 });
 
 test('unverified Supabase session is not marked verified and exposes retry', async () => {

@@ -204,6 +204,12 @@ test("secure PIN onboarding requires verification and stores only a server hash"
     assert.notEqual(calls[0][1].p_pin_hash, "123456");
     assert.equal(calls[0][2], null);
     assert.equal(calls[0][3], true);
+
+    user = { ...user, onboarding_complete: true };
+    const retry = await postPin("123456");
+    assert.equal(retry.status, 200);
+    assert.deepEqual(await retry.json(), { onboarding_complete: true });
+    assert.equal(calls.length, 1);
   } finally {
     await new Promise((resolve) => server.close(resolve));
   }

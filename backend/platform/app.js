@@ -191,8 +191,10 @@ function createApp({
     run(async (req, res) => {
       if (!req.user.email_verified && !req.user.phone_verified)
         throw new ApiError(403, "Verify your email address or phone number first.");
-      if (req.user.onboarding_complete)
-        throw new ApiError(409, "Account setup is already complete.");
+      if (req.user.onboarding_complete) {
+        res.json({ onboarding_complete: true });
+        return;
+      }
       if (typeof req.body.pin !== "string" || !/^\d{6}$/.test(req.body.pin))
         throw new ApiError(400, "PIN must contain exactly six digits.");
       if (typeof env.FAMINA_PIN_PEPPER !== "string" || Buffer.byteLength(env.FAMINA_PIN_PEPPER) < 32)

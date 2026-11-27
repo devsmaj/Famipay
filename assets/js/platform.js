@@ -30,12 +30,17 @@
       new Promise((resolve, reject) => { timer = setTimeout(() => reject(Error("Service unavailable. Please try again.")), 15000); })
     ]).finally(() => clearTimeout(timer));
   }
+  function apiUrl(path) {
+    const base = new URL(window.FAMINA_API_BASE);
+    base.pathname = base.pathname.replace(/\/+$/, "") + "/";
+    return new URL(String(path).replace(/^\/+/, ""), base);
+  }
   async function request(path, options = {}, token, foreground = true) {
     const finished = foreground
       ? window.FaminaLoading?.request?.() || (() => {})
       : () => {};
     try {
-      const response = await fetch(window.FAMINA_API_BASE + path, {
+      const response = await fetch(apiUrl(path), {
         ...options,
         headers: {
           "Content-Type": "application/json",
