@@ -33,6 +33,10 @@ const server=http.createServer((request,response)=>{
   const errors=[];
   page.on('pageerror',error=>errors.push(error.message));
   const origin='http://127.0.0.1:'+server.address().port;
+  await page.route('**/*',route=>{
+   if(route.request().url().startsWith(origin+'/'))return route.continue();
+   return route.abort();
+  });
   await page.route('**/assets/js/platform.js',route=>route.fulfill({
    contentType:'text/javascript',
    body:`const role=new URL(location.href).searchParams.get('role')||'customer';
@@ -44,14 +48,10 @@ const server=http.createServer((request,response)=>{
       api:async()=>[],client:{auth:{getSession:async()=>({data:{session:null},error:null}),
         signOut:async()=>({error:null})}}};`,
   }));
-  await page.route('**/*',route=>{
-   if(route.request().url().startsWith(origin+'/'))return route.continue();
-   return route.abort();
-  });
 
   for(const role of ['customer','restaurant_owner','seller','rider','admin']){
    await page.goto(`${origin}/famipay-app.html?role=${role}`);
-   await page.waitForFunction(()=>window.FAMIPAY_AUTH_ROLE!==undefined);
+   await page.locator('#app header').waitFor({state:'attached'});
    assert(await page.locator('#app header').count(),`missing app header for ${role}`);
    assert(await page.locator('#app main').count(),`missing private content for ${role}`);
    assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
