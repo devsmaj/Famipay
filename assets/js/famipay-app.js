@@ -88,6 +88,7 @@
         : [role[0].toUpperCase() + role.slice(1), 'Account'];
     const visible = screens.filter(screen => groups.includes(screen.group));
     const byId = Object.fromEntries(visible.map(screen => [screen.id, screen]));
+    let previousPrivateRoute = 'home';
     const app = document.getElementById('app');
     const shell = element('div', null, 'app');
     const side = element('aside', null, 'side');
@@ -246,11 +247,13 @@
     }
 
     function navigate(id) {
+        const current = decodeURIComponent(location.hash.slice(1) || 'home');
+        if (current !== id) previousPrivateRoute = current;
         location.hash = id;
     }
 
     function addSideNavigation() {
-        side.append(element('div', 'FAMIPAY', 'brand'), element('small', 'PRIVATE FRONTEND · DESIGN PROTOTYPE'));
+        side.append(element('div', 'FAMIPAY', 'brand'));
         for (const group of groups) {
             side.append(element('h3', group));
             for (const screen of visible.filter(item => item.group === group)) {
@@ -290,71 +293,331 @@
         return grid;
     }
 
+    function translateText(value) {
+        return window.i18n?.translateText ? window.i18n.translateText(value) : value;
+    }
+
+    function backIcon() {
+        const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        svg.setAttribute('viewBox', '0 0 24 24');
+        svg.setAttribute('aria-hidden', 'true');
+        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        path.setAttribute('d', 'M15 18l-6-6 6-6');
+        svg.append(path);
+        return svg;
+    }
+
+    function historyDestination(screenId) {
+        if (byId[screenId]?.group === 'Account') return 'notifications';
+        if (screenId === 'wallet') return 'transaction-history';
+        if (['restaurants', 'agriculture', 'online-shop', 'my-orders'].includes(screenId))
+            return 'my-orders';
+        return 'transaction-history';
+    }
+
+    function buildServiceHeader(screen) {
+        const header = element('header', null, 'fp-service-header');
+        const back = element('button', null, 'fp-service-back');
+        back.type = 'button';
+        back.setAttribute('aria-label', translateText('Back'));
+        back.append(backIcon());
+        back.onclick = () => {
+            navigate(previousPrivateRoute || tabRoutes[0] || 'home');
+        };
+        const title = element('h1', translateText(screen.title), 'fp-service-header-title');
+        const historyAction = element('button', translateText('History'), 'fp-service-history');
+        historyAction.type = 'button';
+        historyAction.onclick = () => navigate(historyDestination(screen.id));
+        header.append(back, title, historyAction);
+        return header;
+    }
+
+    function openBottomSheet(title, rows) {
+        const old = document.querySelector('.fp-bottom-sheet-backdrop');
+        if (old) old.remove();
+        const backdrop = element('div', null, 'fp-bottom-sheet-backdrop');
+        backdrop.setAttribute('aria-label', translateText('Close'));
+        const sheet = element('section', null, 'fp-bottom-sheet');
+        sheet.addEventListener('click', event => event.stopPropagation());
+        sheet.append(element('div', null, 'fp-sheet-grip'));
+        sheet.append(element('h2', translateText(title)));
+        rows.forEach(([label, value]) => {
+            const row = element('div', null, 'fp-sheet-row');
+            row.append(element('span', translateText(label)), element('span', String(value)));
+            sheet.append(row);
+        });
+        backdrop.append(sheet);
+        backdrop.onclick = () => backdrop.remove();
+        document.body.append(backdrop);
+        sheet.querySelector('h2').tabIndex = -1;
+        sheet.querySelector('h2').focus();
+        return sheet;
+    }
+
+    function showSheetStatus(message, state = 'error') {
+        const status = document.querySelector('.fp-sheet-status');
+        if (!status) return;
+        status.textContent = translateText(message);
+        status.className = `fp-inline-status ${state}`;
+    }
+
+    function providerNames(screenId) {
+        if (screenId === 'mobile-money') return ['Airtel Money', 'Moov Money'];
+        if (screenId === 'bank-transfer') return ['Bank account'];
+        if (screenId === 'pay-bills') return ['Water', 'Electricity', 'Internet'];
+        if (screenId === 'airtime' || screenId === 'mobile-data') return ['Airtel', 'Moov'];
+        return [];
+    }
+
+    function nativeProviderCard(screen) {
+        const providers = providerNames(screen.id);
+        if (!providers.length) return null;
+        const cardNode = element('section', null, 'fp-native-card');
+        cardNode.append(element('h2', translateText('Choose provider')));
+        const list = element('div', null, 'fp-provider-list');
+        let selected = '';
+        providers.forEach(provider => {
+            const button = element('button', provider, 'fp-provider-option');
+            button.type = 'button';
+            button.setAttribute('aria-pressed', 'false');
+            button.onclick = () => {
+                selected = provider;
+                list.querySelectorAll('button').forEach(item => item.setAttribute('aria-pressed', String(item === button)));
+                cardNode.dispatchEvent(new CustomEvent('providerchange', {detail: provider}));
+            };
+            list.append(button);
+        });
+        cardNode.append(list);
+        cardNode.getSelected = () => selected;
+        return cardNode;
+    }
+
+    function nativeServiceForm(screen) {
+        const formCard = element('section', null, 'fp-native-card');
+        const form = element('form');
+        form.noValidate = true;
+        formCard.append(form);
+
+        const providerCard = nativeProviderCard(screen);
+        if (providerCard) formCard.insertAdjacentElement ? formCard.prepend(providerCard) : formCard.append(providerCard);
+
+        const amountIds = ['send-money', 'add-money', 'withdraw', 'mobile-money', 'airtime', 'mobile-data', 'pay-bills'];
+        if (amountIds.includes(screen.id)) {
+            const amountCard = element('div', null, 'fp-native-card');
+            amountCard.append(element('h2', translateText('Amount')));
+            const amounts = element('div', null, 'fp-amount-grid');
+            let chosenAmount = '';
+            [1000, 2500, 5000, 10000].forEach(amount => {
+                const button = element('button', amount.toLocaleString() + ' FCFA', 'fp-amount-option');
+                button.type = 'button';
+                button.setAttribute('aria-pressed', 'false');
+                button.onclick = () => {
+                    chosenAmount = String(amount);
+                    amounts.querySelectorAll('button').forEach(item => item.setAttribute('aria-pressed', String(item === button)));
+                    customInput.value = chosenAmount;
+                    validate();
+                };
+                amounts.append(button);
+            });
+            amountCard.append(amounts);
+            const customInput = document.createElement('input');
+            customInput.type = 'number';
+            customInput.inputMode = 'numeric';
+            customInput.min = '100';
+            customInput.step = '100';
+            customInput.name = 'amount';
+            customInput.placeholder = translateText('Enter amount (FCFA)');
+            customInput.className = 'fp-custom-amount';
+            customInput.style.marginTop = '10px';
+            customInput.style.width = '100%';
+            customInput.style.minHeight = '48px';
+            customInput.style.padding = '12px';
+            customInput.style.border = '1px solid #cad9d3';
+            customInput.style.borderRadius = '10px';
+            customInput.addEventListener('input', () => {
+                chosenAmount = customInput.value;
+                amounts.querySelectorAll('button').forEach(item => item.setAttribute('aria-pressed', 'false'));
+                validate();
+            });
+            amountCard.append(customInput);
+            form.append(amountCard);
+            amountCard.getAmount = () => chosenAmount;
+        }
+
+        (fields[screen.title] || fields.default).forEach((name, index) => {
+            const label = element('label', translateText(name), 'field');
+            const input = document.createElement('input');
+            input.required = true;
+            input.name = 'f' + index;
+            input.placeholder = translateText(name);
+            if (/phone/i.test(name)) {
+                input.type = 'tel';
+                input.inputMode = 'tel';
+                input.autocomplete = 'tel';
+            }
+            label.append(input);
+            form.append(label);
+            input.addEventListener('input', validate);
+        });
+
+        const status = element('p', '', 'fp-inline-status');
+        status.setAttribute('role', 'status');
+        status.setAttribute('aria-live', 'polite');
+        const submit = element('button', translateText('Continue'), 'fp-native-primary');
+        submit.type = 'submit';
+        submit.disabled = true;
+        form.append(status, submit);
+
+        function validate() {
+            const providerValid = !providerCard || Boolean(providerCard.getSelected());
+            const amountValid = !amountIds.includes(screen.id) ||
+                (Number(form.elements.amount?.value || 0) >= 100);
+            const requiredValid = [...form.querySelectorAll('input[required]')]
+                .every(input => input.value.trim().length > 0);
+            submit.disabled = !(providerValid && amountValid && requiredValid);
+        }
+        validate();
+
+        form.addEventListener('submit', event => {
+            event.preventDefault();
+            if (submit.disabled) return;
+            const rows = [];
+            [...form.querySelectorAll('input')].forEach(input => {
+                if (input.name) rows.push([input.placeholder || input.name, input.value]);
+            });
+            if (providerCard?.getSelected()) rows.unshift(['Provider', providerCard.getSelected()]);
+            openBottomSheet(screen.title + ' preview', rows);
+        });
+
+        return formCard;
+    }
+
+    function renderWalletStatus(container) {
+        const card = element('section', null, 'fp-native-card');
+        card.append(
+            element('h2', translateText('Wallet')),
+            element('p', translateText('No wallet or balance provider is connected to this account.')),
+        );
+        container.append(card);
+    }
+
+    function renderNotifications(container) {
+        const loading = element('div', translateText('Loading notifications…'), 'fp-empty-state');
+        container.append(loading);
+        if (!window.Famina?.api) {
+            loading.textContent = translateText('Notifications are unavailable.');
+            return;
+        }
+        window.Famina.api('/notifications', {background: true}).then(items => {
+            loading.remove();
+            if (!Array.isArray(items) || !items.length) {
+                container.append(element('div', translateText('No notifications'), 'fp-empty-state'));
+                return;
+            }
+            items.forEach(item => {
+                const row = element('article', null, 'fp-list-row');
+                row.append(
+                    element('strong', translateText(item.title || item.type || 'Notification')),
+                    element('span', translateText(item.message || item.body || '')),
+                );
+                container.append(row);
+            });
+        }).catch(() => {
+            loading.textContent = translateText('Notifications could not be loaded.');
+        });
+    }
+
+    function renderOrders(container) {
+        const loading = element('div', translateText('Loading orders…'), 'fp-empty-state');
+        container.append(loading);
+        if (!window.Famina?.api) {
+            loading.textContent = translateText('Orders are unavailable.');
+            return;
+        }
+        window.Famina.api('/orders', {background: true}).then(items => {
+            loading.remove();
+            if (!Array.isArray(items) || !items.length) {
+                container.append(element('div', translateText('No orders'), 'fp-empty-state'));
+                return;
+            }
+            items.forEach(order => {
+                const row = element('article', null, 'fp-list-row');
+                row.append(
+                    element('strong', translateText(order.status || 'Order')),
+                    element('span', order.id ? '#' + order.id : ''),
+                );
+                container.append(row);
+            });
+        }).catch(() => {
+            loading.textContent = translateText('Orders could not be loaded.');
+        });
+    }
+
     function render() {
-        main.replaceChildren(buildHeader());
         const id = decodeURIComponent(location.hash.slice(1) || 'home');
-        const screenId = byId[id] || id === 'home' ? id : 'home';
+        const screenId = byId[id] ? id : (id === 'home' ? 'home' : 'home');
+        const isPrimary = screenId === 'home' || tabRoutes.includes(screenId);
+        shell.classList.toggle('fp-service-focused', !isPrimary);
+        bottom.hidden = !isPrimary;
+        main.replaceChildren();
+
         if (screenId === 'home') {
-            main.append(element('div', 'Available balance · DEMO ONLY', 'fp-balance-label'));
+            main.append(buildHeader());
+            main.append(element('div', translateText('Wallet balance'), 'fp-balance-label'));
             const hero = element('div', null, 'hero');
-            hero.append(element('h2', '125,000 FCFA'), element('p', 'No real wallet or financial provider is connected.'));
+            hero.append(
+                element('h2', translateText('Balance unavailable')),
+                element('p', translateText('No wallet provider is connected.')),
+            );
             main.append(hero);
             for (const group of groups.filter(item => !['Getting started', 'Account'].includes(item))) {
-                main.append(element('h2', group, 'fp-section-title'));
+                main.append(element('h2', translateText(group), 'fp-section-title'));
                 const grid = cards(visible.filter(item => item.group === group));
                 grid.classList.add('fp-service-grid');
                 main.append(grid);
             }
-            main.append(element('div', 'Financial actions and commerce orders are not connected to live services.', 'warning'));
-        } else {
+            main.append(element('div', translateText('Financial actions require an authorized provider or existing backend service.'), 'warning'));
+        } else if (isPrimary) {
+            main.append(buildHeader());
             const screen = byId[screenId];
-            main.append(element('small', screen.group.toUpperCase()), element('h1', screen.title));
-            const back = element('button', '← Dashboard', 'btn alt');
-            back.onclick = () => navigate('home');
-            main.append(back);
-            const process = element('section', null, 'panel');
-            process.append(element('h2', 'Step-by-step process'));
-            const steps = element('div', null, 'steps');
-            ['Open ' + screen.title, 'Enter or choose details', 'Validate input', 'Review full amount and fees', 'Authorize via approved backend', 'Show verified status or error']
-                .forEach((text, index) => steps.append(element('span', `${index + 1}. ${text}`)));
-            process.append(steps);
-            main.append(process);
-            const form = element('form', null, 'panel');
-            form.append(element('h2', screen.title + ' details'));
-            (fields[screen.title] || fields.default).forEach((name, index) => {
-                const label = element('label', name, 'field');
-                const input = document.createElement('input');
-                input.required = true;
-                input.name = 'f' + index;
-                input.placeholder = name;
-                label.append(input);
-                form.append(label);
-            });
-            const submit = element('button', 'Review (demo)', 'btn');
-            submit.type = 'submit';
-            form.append(submit);
-            const result = element('p', null, 'warning');
-            result.hidden = true;
-            result.setAttribute('role', 'status');
-            form.append(result);
-            form.addEventListener('submit', event => {
-                event.preventDefault();
-                if (!form.reportValidity()) return;
-                result.textContent = 'DEMO REVIEW ONLY. No payment, order, account change or database request has been submitted.';
-                result.hidden = false;
-            });
-            main.append(form);
-            const related = element('section', null, 'panel');
-            related.append(element('h2', 'Related pages'), cards(visible.filter(item => item.group === screen.group && item.id !== screenId).slice(0, 8)));
-            main.append(related, element('div', 'Prototype only: no backend writes, authorization or financial processing are implemented here.', 'warning'));
-            if (screenId === 'settings') {
+            main.append(element('h1', translateText(screen?.title || 'Service')));
+            if (screenId === 'notifications') {
+                renderNotifications(main);
+            } else if (screenId === 'my-orders' || screenId === 'merchant-orders') {
+                renderOrders(main);
+            } else if (screenId === 'wallet' || screenId === 'transaction-history') {
+                renderWalletStatus(main);
+            } else if (screenId === 'settings') {
                 const preferences = element('section', null, 'panel');
-                preferences.append(element('h2', 'Language preferences'));
+                preferences.append(element('h2', translateText('Language preferences')));
                 const languageSettings = element('div');
                 languageSettings.dataset.fpLanguageSettings = '';
                 preferences.append(languageSettings);
                 main.append(preferences);
+            } else {
+                main.append(nativeServiceForm(screen || byId['wallet']));
             }
+        } else {
+            const screen = byId[screenId];
+            main.append(buildServiceHeader(screen));
+            const scroll = element('div', null, 'fp-service-scroll');
+            if (screenId === 'notifications') {
+                renderNotifications(scroll);
+            } else if (screenId === 'my-orders' || screenId === 'merchant-orders') {
+                renderOrders(scroll);
+            } else if (screenId === 'wallet' || screenId === 'transaction-history') {
+                renderWalletStatus(scroll);
+            } else if (screenId === 'settings') {
+                const preferences = element('section', null, 'fp-native-card');
+                preferences.append(element('h2', translateText('Language preferences')));
+                const languageSettings = element('div');
+                languageSettings.dataset.fpLanguageSettings = '';
+                preferences.append(languageSettings);
+                scroll.append(preferences);
+            } else {
+                scroll.append(nativeServiceForm(screen));
+            }
+            main.append(scroll);
         }
         side.querySelectorAll('a').forEach(link => link.classList.toggle('active', link.hash === `#${screenId}`));
         bottom.querySelectorAll('a').forEach(link => {
