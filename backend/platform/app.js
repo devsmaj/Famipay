@@ -157,11 +157,13 @@ function createApp({
       ) {
         const firstName = profileText(req.body.firstName, "firstName", "First name", 80);
         const lastName = profileText(req.body.lastName, "lastName", "Last name", 80);
-        const phone = profileText(req.body.phone, "phone", "Phone number", 16);
+        // Normalize harmless formatting before enforcing the canonical E.164 value.
+        const enteredPhone = profileText(req.body.phone, "phone", "Phone number", 32);
+        const phone = enteredPhone.replace(/[\\s().-]/g, "");
         if (!/^\+[1-9]\d{7,14}$/.test(phone))
           throw new ApiError(
             400,
-            "Enter a valid international phone number, including its country code.",
+            "Enter a valid phone number with country code (for Chad: +235 followed by 8 digits).",
             "phone",
           );
         res.json(
