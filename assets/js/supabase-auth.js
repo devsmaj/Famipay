@@ -5,6 +5,14 @@
   const phoneForm = document.getElementById('phone-form');
   const codeForm = document.getElementById('phone-code-form');
   const phoneInput = document.getElementById('auth-phone');
+  const emailInput = document.getElementById('auth-email');
+  const emailGroup = document.getElementById('auth-email-group');
+  const phoneGroup = document.getElementById('auth-phone-group');
+  const emailMethodButton = document.getElementById('auth-use-email');
+  const phoneMethodButton = document.getElementById('auth-use-phone');
+  const phoneNotice = document.getElementById('auth-phone-notice');
+  const emailPending = document.getElementById('email-pending');
+  const sentEmail = document.getElementById('sent-email');
   const passwordInput = document.getElementById('auth-password');
   const confirmation = document.getElementById('auth-confirm-password');
   const terms = document.getElementById('auth-terms');
@@ -15,8 +23,29 @@
   const resend = document.getElementById('resend-code');
   const changePhone = document.getElementById('change-phone');
   let sentPhone = '', resendAt = 0, busy = false, leaving = false, recovery = false, releaseAction = () => {};
+  let authMethod = 'email';
   const message = (key, fallback) => window.i18n?.t('auth.errors.' + key, fallback) || fallback;
   const label = (key, fallback) => window.i18n?.t('auth.' + key, fallback) || fallback;
+  const emailRecovery = /(?:\?|&)recovery=1(?:&|$)/.test(location.search || '');
+  function setAuthMethod(method) {
+    authMethod = method === 'phone' ? 'phone' : 'email';
+    const useEmail = authMethod === 'email';
+    emailGroup.hidden = !useEmail;
+    phoneGroup.hidden = useEmail;
+    emailInput.required = useEmail;
+    phoneInput.required = !useEmail;
+    emailMethodButton.setAttribute('aria-pressed', String(useEmail));
+    phoneMethodButton.setAttribute('aria-pressed', String(!useEmail));
+    if (phoneNotice) phoneNotice.hidden = useEmail;
+  }
+  emailMethodButton.addEventListener('click', () => setAuthMethod('email'));
+  phoneMethodButton.addEventListener('click', () => setAuthMethod('phone'));
+  setAuthMethod('email');
+  if (emailRecovery) {
+    phoneForm.hidden = true;
+    codeForm.hidden = true;
+    if (resetForm) resetForm.hidden = false;
+  }
   phoneInput.addEventListener('input', () => {
     if (/^\s*\+235/.test(phoneInput.value)) phoneInput.value = phoneInput.value.replace(/^\s*\+235\s*/, '');
   });
@@ -93,6 +122,17 @@
     if (/^\+235\d{8}$/.test(compact)) return compact;
     throw Error(message('phone', 'Enter a valid Chad phone number.'));
   }
+  function normaliseEmail(value) {
+    const email = value.trim();
+    if (email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      throw Error(message('email', 'Enter a valid email address.'));
+    }
+    return email;
+  }
+  function appUrl(path) {
+    const base = location.href || ((location.origin || 'http://localhost') + '/');
+    return new URL(path, base).href;
+  }
   async function finish(session) {
     if (!session) throw Error(message('failed', 'Sign-in failed. Please try again.'));
     await F.refreshUser(session);
@@ -109,19 +149,28 @@
     setStep(true);
     F.notify(message('sent', 'Verification code sent.'));
   }
+  function showEmailConfirmation(email) {
+    if (!emailPending || !sentEmail) throw Error(message('failed', 'Sign-in failed. Please try again.'));
+    phoneForm.hidden = true;
+    emailPending.hidden = false;
+    sentEmail.textContent = email;
+  }
   phoneForm.addEventListener('submit', e => {
     e.preventDefault();
-    let phone;
+    let phone, email;
     try {
-      phone = normalisePhone(phoneInput.value);
+      if (authMethod === 'email') email = normaliseEmail(emailInput.value);
+      else phone = normalisePhone(phoneInput.value);
       if (passwordInput.value.length < 8) throw Error(message('password_length', 'Use at least 8 characters for your password.'));
       if (document.body.dataset.authPage === 'register') {
         if (!terms?.checked) throw Error(message('terms_required', 'Please agree to the terms and privacy policy.'));
         if (passwordInput.value !== confirmation?.value) throw Error(message('password_mismatch', 'Passwords do not match.'));
       }
     } catch (error) {
-      const field = !/^\+235\d{8}$/.test((phoneInput.value || '').trim().replace(/[\s().-]/g, '').replace(/^(\d{8})$/, '+235$1'))
-        ? phoneInput : passwordInput.value.length < 8 ? passwordInput : !terms?.checked ? terms : confirmation;
+      const field = authMethod === 'email'
+        ? !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailInput.value.trim()) ? emailInput : passwordInput.value.length < 8 ? passwordInput : !terms?.checked ? terms : confirmation
+        : !/^\+235\d{8}$/.test((phoneInput.value || '').trim().replace(/[\s().-]/g, '').replace(/^(\d{8})$/, '+235$1'))
+          ? phoneInput : passwordInput.value.length < 8 ? passwordInput : !terms?.checked ? terms : confirmation;
       field?.setAttribute('aria-invalid', 'true');
       field?.focus();
       F.notify(error.message, 'error'); return;
@@ -131,7 +180,12 @@
       if (document.body.dataset.authPage === 'register') {
         recovery = false;
         if (existing) existing.hidden = true;
-        const { data, error } = await F.client.auth.signUp({ phone, password, options: { data: { terms_accepted_at: new Date().toISOString(), terms_version: '2026-10' } } });
+        const options = {
+          data: { terms_accepted_at: new Date().toISOString(), terms_version: '2026-10' }
+        };
+        const { data, error } = authMethod === 'email'
+          ? await F.client.auth.signUp({ email, password, options: { ...options, emailRedirectTo: appUrl('login.html') } })
+          : await F.client.auth.signUp({ phone, password, options });
         if (error) {
           if (['user_already_exists','phone_exists'].includes(error.code) || /already registered|already exists/i.test(error.message || '')) {
             if (existing) existing.hidden = false;
@@ -146,10 +200,13 @@
         passwordInput.value = '';
         if (confirmation) confirmation.value = '';
         if (data?.session) await finish(data.session);
+        else if (data?.user && authMethod === 'email') showEmailConfirmation(email);
         else if (data?.user) showVerification(phone);
         else throw Error(message('failed', 'Sign-in failed. Please try again.'));
       } else {
-        const { data, error } = await F.client.auth.signInWithPassword({ phone, password });
+        const { data, error } = authMethod === 'email'
+          ? await F.client.auth.signInWithPassword({ email, password })
+          : await F.client.auth.signInWithPassword({ phone, password });
         if (error) throw error;
         passwordInput.value = '';
         await finish(data?.session);
@@ -157,6 +214,13 @@
     }, e.submitter || phoneForm.querySelector('[type=submit]'));
   });
   resetButton?.addEventListener('click', e => action(async () => {
+    if (authMethod === 'email') {
+      const email = normaliseEmail(emailInput.value);
+      const { error } = await F.client.auth.resetPasswordForEmail(email, { redirectTo: appUrl('login.html?recovery=1') });
+      if (error) throw error;
+      F.notify(label('password_reset_email_sent', 'Password reset email sent.'), 'success');
+      return;
+    }
     const phone = normalisePhone(phoneInput.value);
     const { error } = await F.client.auth.signInWithOtp({ phone, options: { shouldCreateUser: false } });
     if (error) throw error;
@@ -206,5 +270,5 @@
       await finish(data?.session);
     }, e.submitter || resetForm.querySelector('[type=submit]'));
   });
-  F.ready.then(() => { if (F.user && !busy) location.href = 'famipay-app.html'; });
+  F.ready.then(() => { if (F.user && !busy && !emailRecovery) location.href = 'famipay-app.html'; });
 })();
