@@ -4,6 +4,7 @@ const root=path.resolve(__dirname,'../..'),mobile=path.join(root,'mobile'),out=p
 const api=process.env.FAMIPAY_MOBILE_API_URL||'https://faminaexpress.onrender.com/api',parsed=new URL(api);
 if(parsed.protocol!=='https:'||parsed.username||parsed.password)throw Error('A public HTTPS API URL is required');
 const code=Number(process.env.ANDROID_VERSION_CODE||1);
+const preview=process.env.FAMIPAY_MOBILE_PREVIEW==='true';
 if(!Number.isSafeInteger(code)||code<1||code>2100000000)throw Error('Invalid Android version code');
 const terms=process.env.FAMIPAY_MOBILE_TERMS_URL,privacy=process.env.FAMIPAY_MOBILE_PRIVACY_URL;
 for(const url of [terms,privacy].filter(Boolean)){const value=new URL(url);if(value.protocol!=='https:'||value.username||value.password)throw Error('Policy URLs must use HTTPS');}
@@ -43,8 +44,9 @@ for(const language of ['en','fr-TD','ar-TD']){
 write('assets/locales/catalog.js','window.FAMINA_TRANSLATIONS='+JSON.stringify(catalogs)+';');
 const head='<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>FAMIPAY</title><link rel="stylesheet" href="assets/css/famipay-app.css"><link rel="stylesheet" href="assets/css/notifications.css"><link rel="stylesheet" href="assets/css/loading.css"><link rel="stylesheet" href="native.css"><script src="native-config.js"></script><script src="native.js" defer></script>';
 const common=['loading','session','notifications'].map(name=>`<script src="assets/js/${name}.js"></script>`).join('')+'<script src="assets/vendor/supabase.js"></script><script src="assets/js/platform.js"></script>';
+const previewCommon=['loading','session','notifications'].map(name=>`<script src="assets/js/${name}.js"></script>`).join('')+'<script src="preview-service.js"></script>';
 write('legal.html',`<!doctype html><html lang="fr"><head>${head}</head><body class="mobile-auth"><main><a href="register.html">← FAMIPAY</a><h1 id="terms">Terms / Conditions / الشروط</h1><p>Financial service terms have not been published. Registration is unavailable until the financial account terms and privacy policy are configured.</p><p>Les conditions des services financiers ne sont pas publiées. L’inscription reste indisponible jusqu’à la configuration des conditions et de la politique de confidentialité.</p><p lang="ar" dir="rtl">لم يتم نشر شروط الخدمات المالية. التسجيل غير متاح حتى إعداد شروط الحساب وسياسة الخصوصية.</p><h2 id="privacy">Privacy / Confidentialité / الخصوصية</h2></main></body></html>`);
-write('famipay-app.html',`<!doctype html><html lang="fr"><head>${head}</head><body><div id="app"></div>${common}<script src="assets/js/famipay-translations.js"></script><script src="app.js"></script></body></html>`);
+write('famipay-app.html',`<!doctype html><html lang="fr"><head>${head}</head><body><div id="app"></div>${preview?previewCommon:common}<script src="assets/js/famipay-translations.js"></script><script src="app.js"></script></body></html>`);
 write('index.html','<!doctype html><html><head><meta charset="utf-8"><title>FAMIPAY</title></head><body><script>location.replace("famipay-app.html")</script><a href="famipay-app.html">FAMIPAY</a></body></html>');
 for(const page of ['login','register']){
  const source=fs.readFileSync(path.join(root,page+'.html'),'utf8');
@@ -58,6 +60,11 @@ for(const page of ['login','register']){
 }
 const authFile=path.join(out,'assets/js/supabase-auth.js');
 write('assets/js/supabase-auth.js',fs.readFileSync(authFile,'utf8').replace('function appUrl(path) {','function appUrl(path) { if (window.Capacitor?.isNativePlatform()) return "famipay://auth/login" + (path.includes("recovery=1") ? "?recovery=1" : "");').replace('    await F.Cart?.merge();',''));
-write('native-config.js',`window.FAMINA_API_BASE=${JSON.stringify(api)};window.FAMIPAY_MOBILE_BUILD=${JSON.stringify({version:process.env.ANDROID_VERSION_NAME||require('../package.json').version,code,push:process.env.FAMIPAY_MOBILE_PUSH_ENABLED==='true',releases:'https://github.com/devsmaj/Famipay/releases/latest'})};`);
+if(preview){
+ for(const page of ['login','register'])write(page+'.html',`<!doctype html><html lang="en"><head>${head}</head><body class="mobile-auth"><main><h1>FAMIPAY Preview</h1><p>No sign-in needed / Sans connexion / بدون تسجيل دخول</p><a class="auth-link" href="famipay-app.html">Open preview / Ouvrir / فتح المعاينة</a></main></body></html>`);
+ // An inspection APK includes no hosted authentication controller or account SDK.
+ for(const file of ['assets/js/platform.js','assets/js/supabase-auth.js','assets/vendor/supabase.js'])fs.rmSync(path.join(out,file));
+}
+write('native-config.js',`window.FAMINA_API_BASE=${JSON.stringify(api)};window.FAMIPAY_MOBILE_BUILD=${JSON.stringify({version:process.env.ANDROID_VERSION_NAME||require('../package.json').version,code,preview,push:!preview&&process.env.FAMIPAY_MOBILE_PUSH_ENABLED==='true',releases:'https://github.com/devsmaj/Famipay/releases/tag/famipay-preview'})};`);
 write('native.css',fs.readFileSync(path.join(mobile,'src/native.css')));
-build({absWorkingDir:mobile,tsconfigRaw:{},entryPoints:['src/native.js','src/app.js'],bundle:true,outdir:out,target:'chrome110',format:'iife'}).catch(error=>{console.error(error);process.exitCode=1;});
+build({absWorkingDir:mobile,tsconfigRaw:{},entryPoints:['src/native.js','src/app.js',...(preview?['src/preview-service.js']:[])],bundle:true,outdir:out,target:'chrome110',format:'iife'}).catch(error=>{console.error(error);process.exitCode=1;});

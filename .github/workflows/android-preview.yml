@@ -1,0 +1,97 @@
+name: FAMIPAY Android preview APK
+
+on:
+  push:
+    branches: [mobile/android-preview]
+    paths: [mobile/**, .github/workflows/android-preview.yml]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: famipay-android-preview
+  cancel-in-progress: false
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      FAMIPAY_MOBILE_PREVIEW: 'true'
+      FAMIPAY_MOBILE_PUSH_ENABLED: 'false'
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: actions/setup-node@v7.1.0
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: mobile/package-lock.json
+      - uses: actions/setup-java@v6.3.0
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Allocate an increasing Android version
+        run: |
+          echo "ANDROID_VERSION_CODE=$(($(date +%s) - 1577836800))" >> "$GITHUB_ENV"
+          echo "ANDROID_VERSION_NAME=1.0.${GITHUB_RUN_NUMBER}" >> "$GITHUB_ENV"
+      - name: Install mobile dependencies
+        run: npm ci --prefix mobile
+      - name: Bundle, check and sync the financial preview
+        run: |
+          npm run sync --prefix mobile
+          npm test --prefix mobile
+      - name: Install Android build platform
+        run: |
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-36" "build-tools;36.0.0"
+      - name: Restore the preview-only signing key
+        env:
+          GH_REPO: ${{ github.repository }}
+        run: |
+          if gh release view famipay-preview >/dev/null 2>&1; then
+            gh release download famipay-preview --pattern preview-signing.keystore --dir "$RUNNER_TEMP"
+          else
+            keytool -genkeypair -keystore "$RUNNER_TEMP/preview-signing.keystore" -storepass android -keypass android -alias androiddebugkey -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=FAMIPAY Preview, O=Android Debug, C=US" -noprompt
+          fi
+          echo "FAMIPAY_PREVIEW_KEYSTORE=$RUNNER_TEMP/preview-signing.keystore" >> "$GITHUB_ENV"
+      - name: Build the installable APK
+        working-directory: mobile/android
+        run: |
+          chmod +x gradlew
+          ./gradlew --no-daemon assembleDebug
+      - name: Verify package and signature
+        run: |
+          mkdir -p mobile/dist
+          cp mobile/android/app/build/outputs/apk/debug/app-debug.apk mobile/dist/FAMIPAY-preview.apk
+          "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --verbose mobile/dist/FAMIPAY-preview.apk
+          "$ANDROID_HOME/build-tools/36.0.0/aapt" dump badging mobile/dist/FAMIPAY-preview.apk | tee mobile/dist/apk-info.txt
+          grep -q "name='com.famipay.app.preview'" mobile/dist/apk-info.txt
+          cd mobile/dist && sha256sum FAMIPAY-preview.apk > SHA256SUMS.txt
+      - uses: actions/upload-artifact@v7.0.2
+        with:
+          name: FAMIPAY-preview-apk
+          path: mobile/dist/
+          retention-days: 30
+      - name: Publish the APK download
+        env:
+          GH_REPO: ${{ github.repository }}
+        run: |
+          cat > "$RUNNER_TEMP/preview-notes.md" <<'NOTES'
+          Install **FAMIPAY-preview.apk** on an Android phone (Android 7+ with an updated WebView).
+
+          This financial-only Capacitor preview opens offline without a domain, Firebase or an account. It contains Home, Wallet, Services, Transactions, profile and settings in English, French and Arabic. Profile edits are stored only on your phone.
+
+          **Inspection build: no real money, real transfers, live financial backend, or push notifications.** The preview backend rejects financial writes. No food delivery, restaurants, shopping or agriculture screens are packaged.
+
+          Package: `com.famipay.app.preview`. The public `preview-signing.keystore` is a disposable test key, used only to keep preview APK updates compatible. It is never a production signing key. Financial production accounts are not used by this build.
+          NOTES
+          printf '\nVersion: %s (%s)\nCommit: %s\n' "$ANDROID_VERSION_NAME" "$ANDROID_VERSION_CODE" "$GITHUB_SHA" >> "$RUNNER_TEMP/preview-notes.md"
+          if gh release view famipay-preview >/dev/null 2>&1; then
+            gh api --method PATCH "repos/$GITHUB_REPOSITORY/git/refs/tags/famipay-preview" -f sha="$GITHUB_SHA" -F force=true
+            gh release edit famipay-preview --title "FAMIPAY Android Preview $ANDROID_VERSION_NAME" --notes-file "$RUNNER_TEMP/preview-notes.md" --prerelease
+          else
+            gh release create famipay-preview --target "$GITHUB_SHA" --title "FAMIPAY Android Preview $ANDROID_VERSION_NAME" --notes-file "$RUNNER_TEMP/preview-notes.md" --prerelease
+          fi
+          gh release upload famipay-preview mobile/dist/FAMIPAY-preview.apk mobile/dist/SHA256SUMS.txt mobile/dist/apk-info.txt "$RUNNER_TEMP/preview-signing.keystore" --clobber
+          echo "Download: https://github.com/$GITHUB_REPOSITORY/releases/download/famipay-preview/FAMIPAY-preview.apk" >> "$GITHUB_STEP_SUMMARY"

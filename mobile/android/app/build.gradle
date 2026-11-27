@@ -27,12 +27,23 @@ android {
         }
     }
     buildTypes {
+        debug {
+            applicationIdSuffix ".preview"
+            versionNameSuffix "-preview"
+        }
         release {
             signingConfig signingConfigs.release
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+}
+
+if (System.getenv('FAMIPAY_PREVIEW_KEYSTORE')) {
+    android.signingConfigs.debug.storeFile = file(System.getenv('FAMIPAY_PREVIEW_KEYSTORE'))
+    android.signingConfigs.debug.storePassword = 'android'
+    android.signingConfigs.debug.keyAlias = 'androiddebugkey'
+    android.signingConfigs.debug.keyPassword = 'android'
 }
 
 tasks.configureEach { task ->

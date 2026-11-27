@@ -1,6 +1,7 @@
 node_modules/
 .npm-cache/
 mobile/www/
+mobile/dist/
 mobile/preview*.png
 mobile/android/.gradle/
 mobile/android/**/build/

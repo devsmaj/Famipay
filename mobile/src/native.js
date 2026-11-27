@@ -67,6 +67,11 @@ async function authCallback(url) {
 }
 async function boot() {
   document.body.classList.add('native-app');
+  if(window.FAMIPAY_MOBILE_BUILD.preview){
+    const banner=document.createElement('div');banner.id='preview-banner';banner.setAttribute('role','status');
+    const label=()=>{banner.textContent={en:'Preview · No real money',fr:'Aperçu · Aucun argent réel',ar:'معاينة · بدون أموال حقيقية'}[lang()]||'Preview · No real money';};
+    label();document.body.prepend(banner);new MutationObserver(label).observe(document.documentElement,{attributes:true,attributeFilter:['lang']});
+  }
   const tools=document.createElement('aside');tools.id='native-tools';
   const select=document.createElement('select');select.setAttribute('aria-label','Language / Langue / اللغة');
   for(const [value,label] of [['en','English'],['fr','Français'],['ar','العربية']]) select.add(new Option(label,value));
@@ -77,6 +82,7 @@ async function boot() {
     localStorage.setItem('famipay-private-language',select.value);location.reload();
   };
   const notifications=document.createElement('button');notifications.textContent=t('notifications');
+  notifications.hidden=Boolean(window.FAMIPAY_MOBILE_BUILD.preview);
   notifications.onclick=()=>enablePush().catch(()=>notice('error'));
   const updates=document.createElement('button');updates.textContent=t('updates');
   updates.onclick=()=>{

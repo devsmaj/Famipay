@@ -1,5 +1,13 @@
 # FAMIPAY Capacitor Android application
 
+## Install an inspection APK
+
+The `mobile/android-preview` branch builds an offline inspection APK through `.github/workflows/android-preview.yml`. Download **FAMIPAY-preview.apk** from the [FAMIPAY preview release](https://github.com/devsmaj/Famipay/releases/tag/famipay-preview).
+
+This build needs no domain, Firebase or sign-in. A visible preview banner identifies it. Its internal local service stores profile edits on the phone, returns empty financial history, and rejects money movement. It never connects to production accounts. Financial providers, real transfers, live backend operations and push remain outside this inspection build.
+
+Build locally with `FAMIPAY_MOBILE_PREVIEW=true` and run `npm run sync --prefix mobile`. The debug package is `com.famipay.app.preview` and installs separately from a future production app. Each workflow run receives an increasing timestamp-based Android version code. A reusable public **preview-only test key** in the preview release keeps subsequent preview APKs update-compatible; do not use it for production.
+
 This directory is the separate **financial-only** mobile application. It uses the web app's green FAMIPAY branding, account authentication and profile API. Its navigation is Home, Wallet, Services, Transactions and Me. The packaged output excludes restaurants, menus, carts, food orders, agriculture and shopping. The website and existing backend remain unchanged.
 
 ## Start
