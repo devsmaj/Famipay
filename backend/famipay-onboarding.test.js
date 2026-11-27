@@ -61,6 +61,7 @@ function boot({
   refreshError = null,
   hangSession = false,
   pinFailures = 0,
+  profileErrorField = null,
 } = {}) {
   const ids = [
     'onboarding-back', 'verify-step', 'profile-step', 'pin-step', 'ready-step',
@@ -118,6 +119,11 @@ function boot({
     api: async (route, options) => {
       requests.push({route, options});
       if (route === '/profile') {
+        if (profileErrorField)
+          throw Object.assign(
+            new Error('Required information is missing or too long.'),
+            {field: profileErrorField, status: 400},
+          );
         F.user.first_name = options.body.firstName;
         F.user.last_name = options.body.lastName;
         F.user.phone = options.body.phone;
@@ -233,6 +239,23 @@ test('invalid international phone numbers do not save profile details', async ()
   await settle();
   assert.equal(app.requests.some(request => request.route === '/profile'), false);
   assert.match(app.elements['onboarding-error-text'].textContent, /valid international phone number/i);
+});
+
+test('backend field errors become specific localized onboarding messages', async () => {
+  const app = boot({profileErrorField: 'phone'});
+  await settle();
+  [...app.timers.values()].find(timer => timer.ms === 550)?.callback();
+  await settle();
+  app.elements['profile-first-name'].value = 'Ada';
+  app.elements['profile-last-name'].value = 'Customer';
+  app.elements['profile-phone'].value = '+23566123456';
+  await app.elements['profile-form'].listeners.submit({
+    preventDefault() {},
+    currentTarget: app.elements['profile-form'],
+  });
+  await settle();
+  assert.equal(app.elements['onboarding-error-text'].textContent,
+    'Enter a valid international phone number, including its country code.');
 });
 
 test('PIN retry resubmits retained fields after a failed request', async () => {
