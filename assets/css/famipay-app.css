@@ -1485,3 +1485,20 @@ body.fp-app .app.fp-service-focused:has(.fp-qr-screen) .main>.fp-qr-screen .fp-q
 .fp-qr-notice{margin:12px 16px;padding:12px;font-size:13px;}
 .fp-qr-amount-sheet{max-height:92dvh;overflow-y:auto;}
 @media(max-height:700px){.fp-qr-pay-card{margin-top:8px;padding:14px 14px 12px;}.fp-qr-code-box{width:min(100%,230px);}.fp-qr-pay-number{margin:6px 0 10px;}.fp-qr-top{padding-bottom:8px!important;}}
+
+/* Reference-matched QR scanner: live camera fills the entire screen, with no colored panel. */
+.fp-qr-screen.fp-qr-scan-mode{background:#111!important;}
+.fp-qr-scan-mode .fp-qr-top{position:relative;z-index:5;background:transparent!important;}
+.fp-qr-scan-mode .fp-qr-tabs{background:#202b29a8!important;backdrop-filter:blur(8px);width:min(52vw,230px);}
+.fp-qr-scan-mode .fp-qr-camera{inset:calc(-86px - env(safe-area-inset-top,0px)) 0 0!important;background:#161b19!important;}
+.fp-qr-scan-mode .fp-qr-guide{top:29%!important;left:14%!important;width:72%!important;}
+.fp-qr-scan-mode .fp-qr-scan-line{animation:fp-qr-sweep 2.6s ease-in-out infinite alternate;top:10%;left:13%;right:13%;box-shadow:0 0 12px #15edb2,0 0 24px #15edb280;}
+@keyframes fp-qr-sweep{from{top:12%}to{top:88%}}
+@media(prefers-reduced-motion:reduce){.fp-qr-scan-mode .fp-qr-scan-line{animation:none;top:50%;}}
+.fp-qr-scan-mode .fp-qr-torch-wrap{position:absolute;z-index:3;left:0;right:0;bottom:24%;display:flex;justify-content:center;pointer-events:none;}
+.fp-qr-scan-mode .fp-qr-torch-button{pointer-events:auto;display:flex;flex-direction:column;align-items:center;gap:8px;background:transparent!important;border:0!important;color:#fff;font:inherit;font-size:14px;text-shadow:0 1px 5px #000a;}
+.fp-qr-scan-mode .fp-qr-torch-icon{font-size:35px;line-height:1.1;}
+.fp-qr-scan-mode .fp-qr-camera-actions{display:flex!important;justify-content:space-between!important;align-items:flex-end!important;padding:0 24px calc(28px + env(safe-area-inset-bottom,0px))!important;gap:12px!important;}
+.fp-qr-scan-mode .fp-qr-camera-actions button{display:flex;flex-direction:column;align-items:center;gap:8px;min-width:78px!important;background:transparent!important;border:0!important;color:#fff;font:inherit;font-size:14px!important;}
+.fp-qr-scan-mode .fp-qr-action-symbol{width:58px;height:58px;border-radius:50%;background:#101b1aa8;display:grid;place-items:center;font-size:27px;}
+.fp-qr-scan-mode .fp-qr-scan-status{position:absolute;bottom:calc(110px + env(safe-area-inset-bottom,0px));left:12%;right:12%;margin:0!important;z-index:3;pointer-events:none;}
