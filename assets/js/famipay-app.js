@@ -1912,10 +1912,23 @@
             const profileButton = element('button', null, 'fp-classic-header-avatar');
             profileButton.type='button';profileButton.setAttribute('aria-label','Open my profile');
             profileButton.onclick=()=>navigate('my-profile');
-            const profileImage=document.createElement('img');
-            profileImage.alt='';profileImage.src=avatarUrl||'assets/branding/famipay-mark.svg';
-            profileImage.onerror=()=>{profileImage.onerror=null;profileImage.src='assets/branding/famipay-mark.svg';};
-            profileButton.append(profileImage);
+            // Never flash the application logo in the personal avatar slot.
+            // Show an initial immediately; replace it only after a real photo loads.
+            const initial=element('span',firstName().slice(0,1).toUpperCase()||'U','fp-classic-avatar-initial');
+            profileButton.append(initial);
+            const showAvatar=(url)=>{
+                const safe=safePhoto(url||'');if(!safe||!profileButton.isConnected)return;
+                const photo=new Image();photo.alt='Profile photo';photo.referrerPolicy='no-referrer';
+                photo.onload=()=>{if(profileButton.isConnected)profileButton.replaceChildren(photo);};
+                photo.onerror=()=>{if(profileButton.isConnected)profileButton.replaceChildren(initial);};
+                photo.src=safe;
+            };
+            showAvatar(avatarUrl||window.Famina?.user?.user_metadata?.avatar_url||window.Famina?.user?.user_metadata?.picture);
+            window.Famina?.client?.auth?.getUser?.().then(({data})=>{
+                if(!profileButton.isConnected)return;
+                const meta=data?.user?.user_metadata||{};
+                showAvatar(meta.avatar_url||meta.picture);
+            }).catch(()=>{});
             heading.append(profileButton,element('strong','Hi, '+firstName(),'fp-classic-header-hi'));
             const notifications = linkButton(notificationsPath, 'Notifications', 'bell');
             notifications.classList.add('fp-notification-action');
