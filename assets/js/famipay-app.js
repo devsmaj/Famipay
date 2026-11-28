@@ -971,9 +971,48 @@
         card.append(portrait,element('strong',user.nickname || firstName()));
         const account=element('div',null,'fp-me-account-info');
         const phone=user.phone || '';
+        // The local Chad number is a wallet alias only after Supabase confirms ownership.
+        // Never treat an unverified phone or an arbitrary metadata flag as a wallet account.
+        const localChadPhone = value => {
+            const digits=String(value || '').replace(/[^0-9]/g,'');
+            if (/^235[0-9]{8}$/.test(digits)) return digits.slice(3);
+            if (/^[0-9]{8}$/.test(digits)) return digits;
+            return '';
+        };
         const accountRow=element('div',null,'fp-me-field');
-        accountRow.append(element('span',translateText('FAMIPAY Account')),element('span',phone || translateText('Not connected')));
+        const accountValue=element('span',translateText('Verify phone to activate'));
+        const accountActions=element('span',null,'fp-me-account-actions');
+        accountActions.append(accountValue);
+        accountRow.append(element('span',translateText('FAMIPAY Account')),accountActions);
         account.append(accountRow);
+        const authClient=window.Famina?.client;
+        if (authClient?.auth?.getUser) {
+            authClient.auth.getUser().then(({data,error})=>{
+                if(error || !page.isConnected) return;
+                const verified=data?.user;
+                const local=localChadPhone(verified?.phone);
+                if(!verified?.phone_confirmed_at || !local) return;
+                accountValue.textContent=local;
+                const copy=document.createElement('button');
+                copy.type='button';
+                copy.className='fp-me-copy-icon';
+                copy.setAttribute('aria-label','Copy FAMIPAY account number');
+                copy.title='Copy account number';
+                copy.innerHTML='<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg>';
+                copy.onclick=async()=>{
+                    try {
+                        if(navigator.clipboard?.writeText) await navigator.clipboard.writeText(local);
+                        else {
+                            const field=document.createElement('textarea');field.value=local;field.style.position='fixed';field.style.opacity='0';document.body.append(field);field.select();
+                            const ok=document.execCommand('copy');field.remove();if(!ok) throw new Error('Copy unavailable');
+                        }
+                        copy.setAttribute('aria-label','Account number copied');
+                        copy.title='Copied';
+                    } catch (_) { copy.title='Unable to copy. Please select the number.'; }
+                };
+                accountActions.append(copy);
+            }).catch(()=>{});
+        }
         const level=element('div',null,'fp-me-field');
         const tierButton=element('button',translateText('View Account Limits')+' ›','fp-me-tier-link');tierButton.type='button';tierButton.onclick=()=>navigate('account-limits');level.append(element('span',translateText('Account Level')),tierButton);
         account.append(level);card.append(account);page.append(card);
@@ -981,7 +1020,7 @@
         const metadata = user.user_metadata || {};
         const values=[
             ['Full Name',user.name || metadata.full_name || '',null],
-            ['Mobile Number',phone,null],
+            ['Mobile Number',localChadPhone(phone) || phone,null],
             ['Nickname',metadata.nickname || user.nickname || '', 'nickname'],
             ['Gender',metadata.gender || '', 'gender'],
             ['Date of Birth',metadata.date_of_birth || '', 'date_of_birth'],
