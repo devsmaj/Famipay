@@ -1502,3 +1502,12 @@ body.fp-app .app.fp-service-focused:has(.fp-qr-screen) .main>.fp-qr-screen .fp-q
 .fp-qr-scan-mode .fp-qr-camera-actions button{display:flex;flex-direction:column;align-items:center;gap:8px;min-width:78px!important;background:transparent!important;border:0!important;color:#fff;font:inherit;font-size:14px!important;}
 .fp-qr-scan-mode .fp-qr-action-symbol{width:58px;height:58px;border-radius:50%;background:#101b1aa8;display:grid;place-items:center;font-size:27px;}
 .fp-qr-scan-mode .fp-qr-scan-status{position:absolute;bottom:calc(110px + env(safe-area-inset-bottom,0px));left:12%;right:12%;margin:0!important;z-index:3;pointer-events:none;}
+
+/* Camera-first QR scanner: moving beam and clean, reference-aligned controls. */
+@keyframes fp-qr-live-sweep{0%{top:10%;opacity:.55}50%{opacity:1}100%{top:90%;opacity:.55}}
+.fp-qr-scan-mode .fp-qr-guide{pointer-events:none!important;}
+.fp-qr-scan-mode .fp-qr-scan-line{position:absolute!important;left:13%!important;right:13%!important;height:3px!important;top:10%;background:#1af0ac!important;box-shadow:0 0 10px #00e6a0,0 0 24px #00e6a080!important;animation:fp-qr-live-sweep 2.8s ease-in-out infinite alternate;will-change:top;}
+@media(prefers-reduced-motion:reduce){.fp-qr-scan-mode .fp-qr-scan-line{animation:none;top:50%;}}
+.fp-qr-scan-mode .fp-qr-torch-wrap{pointer-events:auto;z-index:4;}
+.fp-qr-scan-mode .fp-qr-camera-actions{grid-template-columns:1fr 1fr!important;justify-content:space-between!important;}
+.fp-qr-scan-mode .fp-qr-camera-actions button{min-width:78px!important;}
