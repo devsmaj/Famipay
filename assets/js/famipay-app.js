@@ -763,24 +763,27 @@
     function renderMePage(page) {
         page.classList.add('fp-me-page');
         const user = window.Famina?.user || {};
-        const heading = element('div', null, 'fp-me-top');
+        // Profile identity and both header actions share a single horizontal row.
+        const heading = element('header', null, 'fp-me-header');
+        const hero = element('button', null, 'fp-me-identity');
+        hero.type = 'button';
+        hero.append(profileAvatar());
+        const person = element('span',null,'fp-me-identity-copy');
+        person.append(element('strong',user.nickname || user.name?.trim().split(/\\s+/)[0] || firstName()));
+        const tier = element('small','Account','fp-me-tier');
+        person.append(tier);
+        hero.append(person,element('span','›','fp-me-arrow'));
+        hero.onclick = () => navigate('profile-details');
+        const actions = element('div',null,'fp-me-header-actions');
         const help = element('button', null, 'fp-me-top-icon');
         help.type = 'button'; help.setAttribute('aria-label', 'Help Center');
         help.append(svgIcon('help')); help.onclick = () => navigate('help-center');
         const settings = element('button', null, 'fp-me-top-icon');
         settings.type = 'button'; settings.setAttribute('aria-label', 'Settings');
         settings.append(svgIcon('gear')); settings.onclick = () => navigate('settings');
-        heading.append(help,settings);
+        actions.append(help,settings);
+        heading.append(hero,actions);
         page.append(heading);
-        const hero = element('button', null, 'fp-me-identity');
-        hero.type = 'button';
-        hero.append(profileAvatar());
-        const person = element('span',null,'fp-me-identity-copy');
-        person.append(element('strong',user.nickname || user.name?.trim().split(/\\s+/)[0] || firstName()));
-        const tier=element('small','Account','fp-me-tier');person.append(tier);
-        hero.append(person,element('span','›','fp-me-arrow'));
-        hero.onclick = () => navigate('profile-details');
-        page.append(hero);
         const balance = element('section',null,'fp-me-balance');
         const balanceLine = element('div',null,'fp-me-balance-line');
         balanceLine.append(element('span',translateText('Total Balance')));
@@ -803,7 +806,9 @@
         });
         page.append(shortcuts);
         const menu=element('section',null,'fp-me-menu');
+        meRow(menu,'My Loan','loans','wallet');
         meRow(menu,'Bank Card / Account','my-cards','cards');
+        meRow(menu,'Pay MF','merchant','store');
         meRow(menu,'Notifications','notifications','bell');
         meRow(menu,'FAMIPAY USSD','famipay-ussd','phone');
         page.append(menu);
