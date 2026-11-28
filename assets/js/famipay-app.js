@@ -572,6 +572,193 @@
         });
     }
 
+    // Customer's primary tabs use a dedicated, compact mobile layout.
+    function premiumTitle(container, title, subtitle) {
+        const heading = element('div', null, 'fp-premium-heading');
+        heading.append(element('h1', translateText(title)), element('p', translateText(subtitle)));
+        container.append(heading);
+    }
+
+    function premiumAction(container, label, destination, symbol, subtitle = '') {
+        if (!byId[destination]) return;
+        const button = element('button', null, 'fp-premium-action');
+        button.type = 'button';
+        const icon = element('span', null, 'fp-premium-action-icon');
+        if (iconPaths[symbol]) icon.append(svgIcon(symbol));
+        else icon.textContent = symbol;
+        const content = element('span', null, 'fp-premium-action-copy');
+        content.append(element('strong', translateText(label)));
+        if (subtitle) content.append(element('small', translateText(subtitle)));
+        button.append(icon, content, element('span', '›', 'fp-premium-chevron'));
+        button.onclick = () => navigate(destination);
+        container.append(button);
+    }
+
+    function premiumService(container, id, label) {
+        if (!byId[id]) return;
+        const button = element('button', null, 'fp-premium-service');
+        button.type = 'button';
+        const symbol = element('span', null, 'fp-premium-service-icon');
+        if (iconPaths[id]) symbol.append(svgIcon(id));
+        else symbol.textContent = screenSymbols[id] || '•';
+        button.append(symbol, element('span', translateText(label || byId[id].title)));
+        button.onclick = () => navigate(id);
+        container.append(button);
+    }
+
+    function premiumCustomerPage(screenId) {
+        const page = element('div', null, 'fp-premium-page');
+        if (screenId === 'wallet') {
+            premiumTitle(page, 'My Wallet', 'Your money, in one place');
+            const hero = element('section', null, 'fp-premium-wallet-hero');
+            hero.append(element('p', translateText('Available Balance')));
+            const amount = element('strong', '******', 'fp-premium-wallet-amount');
+            const toggle = element('button', null, 'fp-premium-visibility');
+            toggle.type = 'button';
+            const update = () => {
+                amount.textContent = balanceHidden ? '******' : translateText('Wallet not connected');
+                toggle.replaceChildren(svgIcon(balanceHidden ? 'eye-off' : 'eye'));
+                toggle.setAttribute('aria-label', translateText(balanceHidden ? 'Show balance' : 'Hide balance'));
+            };
+            toggle.onclick = () => { balanceHidden = !balanceHidden; update(); };
+            update();
+            const balanceRow = element('div', null, 'fp-premium-balance-row');
+            balanceRow.append(amount, toggle);
+            hero.append(balanceRow, element('span', translateText('FCFA · FAMIPAY Wallet'), 'fp-premium-wallet-caption'));
+            const actions = element('div', null, 'fp-premium-wallet-buttons');
+            [['Add Money','add-money'], ['Transfer','send-money'], ['Withdraw','withdraw']].forEach(([label,id]) => {
+                const button = element('button', translateText(label));
+                button.type = 'button';
+                button.onclick = () => navigate(id);
+                actions.append(button);
+            });
+            hero.append(actions);
+            page.append(hero);
+            page.append(element('h2', translateText('Recent Activity'), 'fp-premium-section-title'));
+            const empty = element('div', null, 'fp-premium-empty');
+            empty.append(element('strong', translateText('No transactions yet')), element('p', translateText('Your wallet activity will appear here when a provider is connected.')));
+            page.append(empty);
+            const links = element('section', null, 'fp-premium-list');
+            premiumAction(links, 'Transaction History', 'transaction-history', 'wallet', 'View your wallet activity');
+            premiumAction(links, 'Bank Transfer', 'bank-transfer', 'send-money', 'Transfer to a bank account');
+            page.append(links);
+        } else if (screenId === 'express-home') {
+            premiumTitle(page, 'Services', 'Everything you need, in one place');
+            const search = document.createElement('input');
+            search.type = 'search';
+            search.className = 'fp-premium-search';
+            search.placeholder = translateText('Search services');
+            search.setAttribute('aria-label', translateText('Search services'));
+            page.append(search);
+            const catalog = element('div', null, 'fp-premium-catalog');
+            const sections = [
+                ['Money & Transfers', [['send-money','Send Money'],['receive-money','Receive Money'],['mobile-money','Mobile Money'],['bank-transfer','Bank Transfer'],['withdraw','Withdraw'],['qr-payment','QR Payment']]],
+                ['Bills & Payments', [['airtime','Airtime'],['mobile-data','Mobile Data'],['pay-bills','Pay Bills']]],
+                ['Shopping & Lifestyle', [['restaurants','Food Delivery'],['online-shop','Online Shop'],['agriculture','Agriculture']]],
+            ];
+            const tabs = element('div', null, 'fp-premium-filters');
+            const filters = ['All','Money','Payments','Lifestyle'];
+            let activeFilter = 'All';
+            const updateCatalog = () => {
+                catalog.replaceChildren();
+                sections.forEach(([title,items],index) => {
+                    if (activeFilter !== 'All' && ['Money','Payments','Lifestyle'][index] !== activeFilter) return;
+                    const filtered = items.filter(([id,label]) => (label + ' ' + byId[id]?.title).toLowerCase().includes(search.value.trim().toLowerCase()));
+                    if (!filtered.length) return;
+                    catalog.append(element('h2', translateText(title), 'fp-premium-section-title'));
+                    const grid = element('div', null, 'fp-premium-service-grid');
+                    filtered.forEach(([id,label]) => premiumService(grid,id,label));
+                    catalog.append(grid);
+                });
+                if (!catalog.childElementCount) catalog.append(element('p', translateText('No matching services.'), 'fp-premium-empty'));
+                [...tabs.children].forEach(button => button.classList.toggle('selected', button.dataset.filter === activeFilter));
+            };
+            filters.forEach(label => {
+                const button = element('button', translateText(label));
+                button.type = 'button';
+                button.dataset.filter = label;
+                button.onclick = () => { activeFilter = label; updateCatalog(); };
+                tabs.append(button);
+            });
+            search.addEventListener('input', updateCatalog);
+            page.append(tabs,catalog);
+            updateCatalog();
+        } else if (screenId === 'my-orders') {
+            premiumTitle(page, 'My Orders', 'Track your deliveries and purchases');
+            const tabs = element('div', null, 'fp-premium-filters');
+            const content = element('div', null, 'fp-premium-orders');
+            const filters = ['All','Active','Completed'];
+            let selected = 'All';
+            let orders = null;
+            const paint = () => {
+                content.replaceChildren();
+                const filtered = (orders || []).filter(order => {
+                    const status = String(order.status || '').toLowerCase();
+                    const completed = ['delivered','completed','cancelled','canceled','refunded'].includes(status);
+                    return selected === 'All' || (selected === 'Completed' ? completed : !completed);
+                });
+                if (!orders) {
+                    content.append(element('p', translateText('Loading orders…'), 'fp-premium-empty'));
+                } else if (!filtered.length) {
+                    const empty = element('section', null, 'fp-premium-empty fp-premium-orders-empty');
+                    empty.append(element('span', '◇', 'fp-premium-empty-icon'), element('strong', translateText(selected === 'All' ? 'No orders yet' : 'No ' + selected.toLowerCase() + ' orders')), element('p', translateText('Your food, shopping and delivery orders will appear here.')));
+                    const browse = element('button', translateText('Explore Services'), 'fp-premium-cta');
+                    browse.onclick = () => navigate('express-home');
+                    empty.append(browse);
+                    content.append(empty);
+                } else {
+                    filtered.forEach(order => {
+                        const card = element('article', null, 'fp-premium-order-card');
+                        const head = element('div', null, 'fp-premium-order-head');
+                        head.append(element('strong', translateText('Order') + (order.id ? ' #' + String(order.id).slice(0,8) : '')), element('span', translateText(order.status || 'Pending'), 'fp-premium-order-status'));
+                        card.append(head);
+                        if (order.created_at) card.append(element('small', new Date(order.created_at).toLocaleDateString(), 'fp-premium-order-date'));
+                        content.append(card);
+                    });
+                }
+            };
+            filters.forEach(label => {
+                const button = element('button', translateText(label));
+                button.type = 'button';
+                button.dataset.filter = label;
+                button.onclick = () => { selected = label; paint(); [...tabs.children].forEach(item => item.classList.toggle('selected',item === button)); };
+                if (label === 'All') button.classList.add('selected');
+                tabs.append(button);
+            });
+            page.append(tabs,content);
+            paint();
+            if (window.Famina?.api) window.Famina.api('/orders', {background:true}).then(data => {
+                if (!page.isConnected) return;
+                orders = Array.isArray(data) ? data : Array.isArray(data?.orders) ? data.orders : [];
+                paint();
+            }).catch(() => {
+                if (!page.isConnected) return;
+                content.replaceChildren(element('p', translateText('Orders could not be loaded. Please try again.'), 'fp-premium-empty'));
+            });
+            else { orders = []; paint(); }
+        } else if (screenId === 'my-profile') {
+            premiumTitle(page, 'My Account', 'Your personal FAMIPAY space');
+            const user = window.Famina?.user || {};
+            const profile = element('section', null, 'fp-premium-profile');
+            const avatar = element('span', String(user.name || user.email || 'F').trim().charAt(0).toUpperCase(), 'fp-premium-profile-avatar');
+            const info = element('div', null, 'fp-premium-profile-info');
+            info.append(element('strong', user.name || translateText('FAMIPAY User')), element('small', user.email || user.phone || translateText('Personal Account')));
+            profile.append(avatar, info);
+            page.append(profile);
+            page.append(element('h2', translateText('Account & Security'), 'fp-premium-section-title'));
+            const account = element('section', null, 'fp-premium-list');
+            premiumAction(account,'My Profile','my-profile','profile','Your personal information');
+            premiumAction(account,'Settings & Language','settings','services','Preferences and languages');
+            premiumAction(account,'Notifications','notifications','bell','Alerts and updates');
+            page.append(account);
+            page.append(element('h2', translateText('Support'), 'fp-premium-section-title'));
+            const support = element('section', null, 'fp-premium-list');
+            premiumAction(support,'Help Center','help-center','help','Get assistance');
+            page.append(support);
+        }
+        main.append(page);
+    }
+
     function render() {
         const id = decodeURIComponent(location.hash.slice(1) || 'home');
         const screenId = byId[id] ? id : (id === 'home' ? 'home' : 'home');
@@ -654,6 +841,8 @@
                 main.append(grid);
             }
             main.append(element('div', translateText('Financial actions require an authorized provider or existing backend service.'), 'warning'));
+        } else if (isPrimary && role === 'customer' && ['wallet','express-home','my-orders','my-profile'].includes(screenId)) {
+            premiumCustomerPage(screenId);
         } else if (isPrimary) {
             main.append(buildHeader());
             const screen = byId[screenId];
