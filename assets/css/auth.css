@@ -179,3 +179,26 @@ html[dir="rtl"] .header .language-picker .language-menu [lang="ar-TD"] {
 .auth-card .auth-phone-field{display:flex;align-items:center;min-height:52px;border:1px solid #cbded4;border-radius:10px;background:#fff;overflow:hidden}.auth-card .auth-phone-field:focus-within{outline:2px solid #16895b;outline-offset:2px}.auth-card .auth-phone-prefix{display:flex;align-items:center;gap:8px;flex:none;padding:0 12px;color:#263b32;font-weight:700;border-right:1px solid #dce9e1;white-space:nowrap}.auth-card .auth-phone-prefix svg{width:24px;height:16px;border-radius:2px;box-shadow:0 0 0 1px #0002}.auth-card .auth-phone-field input{min-width:0;flex:1;width:100%;margin:0;padding:12px;border:0;background:transparent;outline:none}.auth-card .auth-phone-field input:focus{outline:none}.auth-card .auth-password-field{position:relative}.auth-card .auth-password-field input{padding-inline-end:55px}.auth-card .auth-password-toggle{position:absolute;inset-inline-end:6px;top:50%;transform:translateY(-50%);display:grid;place-items:center;width:44px;height:44px;padding:0;border:0;border-radius:8px;background:transparent;color:#4d6e60;cursor:pointer}.auth-card .auth-password-toggle:hover,.auth-card .auth-password-toggle[aria-pressed=true]{background:#e9f5ee;color:#08774e}.auth-card .auth-password-toggle:focus-visible{outline:2px solid #08774e;outline-offset:1px}.auth-card .auth-password-toggle svg{width:21px;height:21px}.auth-card .auth-password-feedback{margin:-4px 0 12px;color:#526e60;font-size:.8rem;line-height:1.5}
 .auth-card .auth-password-toggle .eye-slash{display:none}.auth-card .auth-password-toggle[aria-pressed=true] .eye-slash{display:block}
 .auth-card .auth-method-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:18px 0}.auth-card .auth-method-options button{min-height:44px;border:1px solid #cbded4;border-radius:10px;background:#fff;color:#526e60;font:inherit;font-weight:700;cursor:pointer}.auth-card .auth-method-options button[aria-pressed=true]{border-color:#08774e;background:#e9f5ee;color:#08774e}.auth-card .auth-method-options button:focus-visible{outline:2px solid #08774e;outline-offset:2px}.auth-card .auth-email-pending{padding:14px;border:1px solid #b8d8c6;border-radius:10px;background:#e9f5ee;color:#263e31;font-size:.9rem;line-height:1.6}.auth-card .auth-email-pending a{color:#08774e;font-weight:700}
+
+/* Compact registration screen — preserve existing auth IDs and validation. */
+body.auth-page[data-auth-page="register"]{background:#eef4f1}
+body.auth-page[data-auth-page="register"] .auth-scene{min-height:calc(100svh - 64px);padding:22px 16px 32px;display:flex;align-items:flex-start;justify-content:center;overflow:visible;background:#eef4f1}
+body.auth-page[data-auth-page="register"] .auth-video,body.auth-page[data-auth-page="register"] .auth-shade{display:none}
+body.auth-page[data-auth-page="register"] .auth-layout{display:block;width:100%;max-width:440px;margin:0 auto}
+body.auth-page[data-auth-page="register"] .auth-card.form-section{width:100%;max-width:none;margin:0;padding:22px 20px 18px;border:1px solid #e0eee6;border-radius:18px;background:#fff;box-shadow:0 8px 28px #063e2510;backdrop-filter:none}
+body.auth-page[data-auth-page="register"] .auth-card h2{font-size:1.55rem;line-height:1.2;margin:0 0 5px;color:#183c30}
+body.auth-page[data-auth-page="register"] .auth-intro{font-size:.84rem;line-height:1.35;margin:0 0 12px;color:#6b7d74}
+body.auth-page[data-auth-page="register"] .auth-card #phone-form,body.auth-page[data-auth-page="register"] .auth-card #phone-code-form{margin-top:0}
+body.auth-page[data-auth-page="register"] .auth-card .auth-method-options{gap:8px;margin:10px 0 15px}
+body.auth-page[data-auth-page="register"] .auth-card .auth-method-options button{min-height:40px;border-radius:9px;font-size:.9rem}
+body.auth-page[data-auth-page="register"] .auth-card .form-group{margin-bottom:12px}
+body.auth-page[data-auth-page="register"] .auth-card .form-group label{display:block;margin-bottom:5px;font-size:.86rem;font-weight:650;color:#26473c}
+body.auth-page[data-auth-page="register"] .auth-card input:not([type="checkbox"]){min-height:44px;height:44px;border-radius:9px;font-size:16px}
+body.auth-page[data-auth-page="register"] .auth-card .auth-phone-field{min-height:44px}
+body.auth-page[data-auth-page="register"] .auth-card .auth-password-toggle{width:40px;height:40px}
+body.auth-page[data-auth-page="register"] .auth-card .auth-password-feedback{margin:0 0 8px;font-size:.75rem}
+body.auth-page[data-auth-page="register"] .auth-card .auth-consent{margin:10px 0 14px;font-size:.76rem;line-height:1.4}
+body.auth-page[data-auth-page="register"] .auth-card .submit-btn{min-height:46px;border-radius:10px;font-size:.95rem}
+body.auth-page[data-auth-page="register"] .auth-card .auth-trust{margin:12px 0 8px;padding-bottom:8px;font-size:.72rem;line-height:1.35}
+body.auth-page[data-auth-page="register"] .auth-card .auth-switch{font-size:.8rem;line-height:1.5}
+@media(max-width:600px){body.auth-page[data-auth-page="register"] .auth-scene{padding:14px 12px 26px}body.auth-page[data-auth-page="register"] .auth-card.form-section{padding:18px 17px 16px}}
