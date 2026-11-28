@@ -785,6 +785,132 @@
         main.append(page);
     }
 
+
+    // Purpose-built service screens. Preserve the existing visual language and route shell.
+    function renderServiceContent(screen, container) {
+        const id = screen.id;
+        const section = (title, description) => {
+            const card = element('section', null, 'fp-native-card');
+            card.append(element('h2', translateText(title)));
+            if (description) card.append(element('p', translateText(description)));
+            container.append(card);
+            return card;
+        };
+        const action = (card, label, destination) => {
+            if (!byId[destination]) return;
+            const button = element('button', translateText(label), 'fp-native-primary');
+            button.type = 'button';
+            button.onclick = () => navigate(destination);
+            card.append(button);
+        };
+        const info = (title, description, links = []) => {
+            const card = section(title, description);
+            links.forEach(([label, destination]) => action(card, label, destination));
+        };
+        const listings = {
+            restaurants: ['/restaurants', 'Restaurants', 'restaurant-menu'],
+            'restaurant-menu': ['/restaurants', 'Restaurant menu', 'food-cart'],
+            agriculture: ['/products?category=agriculture', 'Agricultural products', 'farm-product'],
+            'farm-product': ['/products?category=agriculture', 'Product details', 'shop-checkout'],
+            'online-shop': ['/products', 'Shop products', 'product-details'],
+            'product-details': ['/products', 'Product details', 'shop-checkout'],
+            'catalog-management': ['/products', 'Catalog', 'product-details'],
+        };
+        if (listings[id]) {
+            const [endpoint, title, next] = listings[id];
+            const card = section(title, 'Available items are loaded from the connected service.');
+            const status = element('p', translateText('Loading available items…'), 'fp-inline-status');
+            card.append(status);
+            if (!window.Famina?.api) {
+                status.textContent = translateText('Service connection unavailable.');
+                return;
+            }
+            window.Famina.api(endpoint, {background: true}).then(result => {
+                if (!card.isConnected) return;
+                const items = Array.isArray(result) ? result :
+                    (Array.isArray(result?.items) ? result.items :
+                    (Array.isArray(result?.products) ? result.products :
+                    (Array.isArray(result?.restaurants) ? result.restaurants : [])));
+                status.textContent = items.length ? '' : translateText('No published items available.');
+                items.slice(0, 60).forEach(item => {
+                    const row = element('article', null, 'fp-list-row');
+                    const name = String(item.name || item.title || item.restaurant_name || 'Item');
+                    row.append(element('strong', name));
+                    if (item.price != null) row.append(element('span', String(item.price) + ' FCFA'));
+                    if (item.description) row.append(element('p', String(item.description).slice(0, 180)));
+                    // Detail routes require an item identifier; do not open an unrelated item.
+                    if (item.id && byId[next]) {
+                        const button = element('button', translateText('View details'), 'fp-native-primary');
+                        button.type = 'button';
+                        button.onclick = () => {
+                            sessionStorage.setItem('famipay-selected-item', JSON.stringify({id:item.id,name,price:item.price ?? null}));
+                            navigate(next);
+                        };
+                        row.append(button);
+                    }
+                    card.append(row);
+                });
+            }).catch(() => {
+                if (card.isConnected) status.textContent = translateText('Could not load available items. Please try again.');
+            });
+            return;
+        }
+        if (['food-cart','food-checkout','track-food-order','shop-checkout','delivery-details','delivery-proof'].includes(id)) {
+            const selected = (() => { try { return JSON.parse(sessionStorage.getItem('famipay-selected-item') || 'null'); } catch { return null; } })();
+            if (id === 'track-food-order' || id === 'delivery-details') {
+                info('Delivery tracking', 'Your verified order status and delivery information appear in My Orders.', [['View My Orders','my-orders']]);
+            } else if (id === 'delivery-proof') {
+                info('Delivery confirmation', 'Delivery proof is available only for an assigned, verified delivery.');
+            } else if (id === 'food-cart') {
+                info('Your food cart', 'Your selected restaurant items appear here. No items have been added.', [['Browse restaurants','restaurants']]);
+            } else if (id === 'food-checkout' || id === 'shop-checkout') {
+                info('Checkout', selected ? 'Selected: ' + selected.name + '. Checkout requires a verified cart, delivery address and payment integration.' :
+                    'Select an available product before checkout.', [[id === 'food-checkout' ? 'Browse restaurants' : 'Browse shop',id === 'food-checkout' ? 'restaurants' : 'online-shop']]);
+            }
+            return;
+        }
+        if (['transaction-history','transaction-receipt','review-payment','bill-details'].includes(id)) {
+            info(screen.title, 'Verified payment details will appear here after a successful transaction. No payment has been recorded.');
+            return;
+        }
+        if (id === 'receive-money') {
+            info('Receive money', 'Your verified receiving account and QR code will appear when your wallet provider is connected.', [['QR Payment','qr-payment']]);
+            return;
+        }
+        if (id === 'help-center') {
+            info('Help Center', 'For assistance with your account, orders or payments, use the official FAMIPAY support contact. Never share your password or verification code.');
+            return;
+        }
+        if (id === 'my-profile') {
+            const user = window.Famina?.user || {};
+            const card = section('Account information', 'Your verified account details.');
+            [['Name',user.name],['Email',user.email],['Phone',user.phone],['Role',user.role]].forEach(([label,value]) => {
+                if (value) card.append(element('p', translateText(label) + ': ' + String(value)));
+            });
+            action(card, 'Settings', 'settings');
+            return;
+        }
+        if (['merchant-dashboard','agent-dashboard','rider-dashboard','admin-dashboard'].includes(id)) {
+            const destinations = {
+                'merchant-dashboard': [['Orders','merchant-orders'],['Catalog','catalog-management'],['Merchant QR','merchant-qr'],['Refunds','refunds']],
+                'agent-dashboard': [['Agent Float','agent-float'],['Find Agent','find-agent']],
+                'rider-dashboard': [['Delivery Details','delivery-details'],['Delivery Proof','delivery-proof']],
+                'admin-dashboard': [['User Management','user-management'],['KYC Review','kyc-review'],['Payment Exceptions','payment-exceptions'],['Disputes and Fraud','disputes-and-fraud'],['Service Configuration','service-configuration'],['Audit Log','audit-log']],
+            };
+            info(screen.title, 'Manage your assigned operations.', destinations[id]);
+            return;
+        }
+        if (['merchant-orders','refunds','agent-float','user-management','kyc-review','payment-exceptions','disputes-and-fraud','audit-log'].includes(id)) {
+            info(screen.title, 'Records will appear when they are available from your authorized account service.');
+            return;
+        }
+        if (['language-selection','onboarding','create-account','verify-phone','identity-verification','login-and-pin'].includes(id)) {
+            info(screen.title, 'Account registration and verification are managed by the secure sign-in and onboarding flow.');
+            return;
+        }
+        container.append(nativeServiceForm(screen));
+    }
+
     function render() {
         const id = decodeURIComponent(location.hash.slice(1) || 'home');
         const screenId = byId[id] ? id : (id === 'home' ? 'home' : 'home');
@@ -887,7 +1013,7 @@
                 preferences.append(languageSettings);
                 main.append(preferences);
             } else {
-                main.append(nativeServiceForm(screen || byId['wallet']));
+                renderServiceContent(screen || byId['wallet'], main);
             }
         } else {
             const screen = byId[screenId];
@@ -907,7 +1033,7 @@
                 preferences.append(languageSettings);
                 scroll.append(preferences);
             } else {
-                scroll.append(nativeServiceForm(screen));
+                renderServiceContent(screen, scroll);
             }
             main.append(scroll);
         }
