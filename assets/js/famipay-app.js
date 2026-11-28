@@ -1669,9 +1669,9 @@
                     const ctx=qrCanvas.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,600,600);
                     ctx.drawImage(original,30,30,540,540);
                     // Small central mark remains within the QR high-error-correction area.
+                    const brand=await new Promise((resolve,reject)=>{const img=new Image();img.onload=()=>resolve(img);img.onerror=reject;img.src='assets/branding/famipay-mark.svg';});
                     ctx.fillStyle='#fff';ctx.beginPath();ctx.roundRect(262,262,76,76,16);ctx.fill();
-                    ctx.fillStyle='#00b87b';ctx.beginPath();ctx.roundRect(269,269,62,62,13);ctx.fill();
-                    ctx.fillStyle='#fff';ctx.font='bold 48px system-ui';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('F',300,302);
+                    ctx.drawImage(brand,269,269,62,62);
                     const image=document.createElement('img');image.src=qrCanvas.toDataURL('image/png');image.alt='Your FAMIPAY receive QR code';
                     qrBox.replaceChildren(image);
                 }catch(e){qrBox.textContent=e?.message||'QR unavailable.';}
@@ -1884,11 +1884,15 @@
         } else if (screenId === 'home' && role === 'customer') {
             const dashboard = element('section', null, 'fp-classic-dashboard');
             const masthead = element('div', null, 'fp-classic-masthead');
-            const heading = element('div');
-            heading.append(
-                element('p', greeting() + ',', 'fp-classic-greeting'),
-                element('h1', firstName(), 'fp-classic-name'),
-            );
+            const heading = element('div', null, 'fp-classic-identity');
+            const profileButton = element('button', null, 'fp-classic-header-avatar');
+            profileButton.type='button';profileButton.setAttribute('aria-label','Open my profile');
+            profileButton.onclick=()=>navigate('my-profile');
+            const profileImage=document.createElement('img');
+            profileImage.alt='';profileImage.src=avatarUrl||'assets/branding/famipay-mark.svg';
+            profileImage.onerror=()=>{profileImage.onerror=null;profileImage.src='assets/branding/famipay-mark.svg';};
+            profileButton.append(profileImage);
+            heading.append(profileButton,element('strong','Hi, '+firstName(),'fp-classic-header-hi'));
             const notifications = linkButton(notificationsPath, 'Notifications', 'bell');
             notifications.classList.add('fp-notification-action');
             const badge = element('span', '', 'fp-notification-badge');
