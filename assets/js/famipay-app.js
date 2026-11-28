@@ -1068,7 +1068,50 @@
             return '';
         };
         const accountRow=element('div',null,'fp-me-field');
-        const accountValue=element('span',translateText('Verify phone to activate'));
+        const accountValue=element('button',translateText('Verify phone to activate'),'fp-me-verify-phone');
+        accountValue.type='button';
+        accountValue.onclick=()=>{
+            const client=window.Famina?.client;
+            const overlay=element('div',null,'fp-phone-overlay');
+            const panel=element('section',null,'fp-phone-panel');
+            panel.setAttribute('role','dialog');panel.setAttribute('aria-modal','true');panel.setAttribute('aria-label','Verify phone number');
+            const heading=element('h2','Verify your phone');
+            const info=element('p','Enter your Chad mobile number to receive a verification code by SMS. SMS delivery must be enabled in Supabase.');
+            const number=document.createElement('input');number.type='tel';number.inputMode='tel';number.autocomplete='tel';number.placeholder='8-digit phone number';number.value=localChadPhone(phone);
+            number.setAttribute('aria-label','Chad mobile number');
+            const code=document.createElement('input');code.type='text';code.inputMode='numeric';code.autocomplete='one-time-code';code.placeholder='SMS verification code';code.setAttribute('aria-label','SMS verification code');code.hidden=true;
+            const status=element('p',null,'fp-phone-status');status.setAttribute('role','status');
+            const send=element('button','Send verification code','fp-phone-submit');
+            const confirm=element('button','Verify code','fp-phone-submit');confirm.hidden=true;
+            const cancel=element('button','Cancel','fp-phone-cancel');
+            const close=()=>overlay.remove();cancel.onclick=close;
+            overlay.onclick=e=>{if(e.target===overlay)close();};
+            const busy=(button,on)=>{button.disabled=on;button.replaceChildren();if(on){const spinner=element('span',null,'fp-button-spinner');button.append(spinner);}else button.textContent=button===send?'Send verification code':'Verify code';};
+            send.onclick=async()=>{
+                const local=localChadPhone(number.value);
+                if(!local){status.textContent='Enter a valid 8-digit Chad mobile number.';return;}
+                if(!client?.auth?.updateUser){status.textContent='Phone verification is not available. Please try again later.';return;}
+                busy(send,true);status.textContent='';
+                try{
+                    const {error}=await client.auth.updateUser({phone:'+235'+local});
+                    if(error)throw error;
+                    number.disabled=true;send.hidden=true;code.hidden=false;confirm.hidden=false;
+                    status.textContent='Code requested. Enter the SMS code to verify your number.';
+                }catch(e){status.textContent=e?.message||'Unable to send verification SMS.';}
+                finally{busy(send,false);}
+            };
+            confirm.onclick=async()=>{
+                if(!code.value.trim()){status.textContent='Enter the code from your SMS.';return;}
+                busy(confirm,true);status.textContent='';
+                try{
+                    const {error}=await client.auth.verifyOtp({phone:'+235'+localChadPhone(number.value),token:code.value.trim(),type:'phone_change'});
+                    if(error)throw error;
+                    close();navigate('profile-info');
+                }catch(e){status.textContent=e?.message||'Phone verification failed.';}
+                finally{busy(confirm,false);}
+            };
+            panel.append(heading,info,number,code,status,send,confirm,cancel);overlay.append(panel);document.body.append(overlay);number.focus();
+        };
         const accountActions=element('span',null,'fp-me-account-actions');
         accountActions.append(accountValue);
         accountRow.append(element('span',translateText('FAMIPAY Account')),accountActions);
