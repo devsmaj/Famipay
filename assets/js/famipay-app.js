@@ -1045,16 +1045,65 @@
         const status=element('p','','fp-language-status');status.setAttribute('role','status');page.append(status);
         update();
     }
+    function renderPaymentSecurityForm(page, title) {
+        const isChange = title === 'Change Payment PIN';
+        const isReset = title === 'Forgot Payment PIN';
+        const isBio = title === 'Pay with Fingerprint' || title === 'Log in with Fingerprint';
+        if (!isChange && !isReset && !isBio) return false;
+        page.classList.add('fp-me-details','fp-settings-page','fp-security-flow');
+        profileBackHeader(page,title);
+        const panel=element('section',null,'fp-settings-card fp-security-panel');
+        const symbol=element('div',null,'fp-security-symbol');
+        symbol.append(svgIcon(isBio?'fingerprint':isReset?'shield':'lock'));
+        panel.append(symbol,element('h2',translateText(isBio?'Fingerprint Security':isReset?'Recover your payment PIN':'Update your payment PIN')));
+        panel.append(element('p',translateText(isBio?'Your fingerprint remains on your device. Device authentication and server registration are required.':isReset?'Verify your account before setting a new PIN.':'Enter your current PIN and choose a new four-digit PIN.'),'fp-settings-note'));
+        const status=element('p',null,'fp-security-status');status.setAttribute('role','status');
+        const fields={};
+        if(!isBio && !isReset) {
+            [['current','Current PIN'],['next','New PIN'],['confirm','Confirm new PIN']].forEach(([key,label])=>{
+                const wrap=element('label',null,'fp-security-field');
+                wrap.append(element('span',translateText(label)));
+                const input=document.createElement('input');
+                input.type='password';input.inputMode='numeric';input.pattern='[0-9]{4}';input.maxLength=4;input.autocomplete='off';input.placeholder='••••';input.required=true;
+                wrap.append(input);panel.append(wrap);fields[key]=input;
+            });
+        }
+        const button=element('button',translateText(isBio?'Set Up Fingerprint':isReset?'Start Verification':'Change Payment PIN'),'fp-premium-cta fp-security-submit');
+        button.type='button';
+        button.onclick=async()=>{
+            status.textContent='';
+            if(isChange && (!Object.values(fields).every(input=>/^\\d{4}$/.test(input.value)) || fields.next.value!==fields.confirm.value || fields.next.value===fields.current.value)){
+                status.textContent='Enter your current PIN and a different matching four-digit new PIN.';return;
+            }
+            if(isBio && !window.PublicKeyCredential){status.textContent='This device or browser does not support secure biometric credentials.';return;}
+            if(!window.Famina?.api){status.textContent='Secure account service is unavailable. No changes were made.';return;}
+            button.disabled=true;
+            try{
+                // PINs must only be handled by the authenticated server; never save them in browser storage.
+                const endpoint=isBio?'/security/biometrics/enrollment':isReset?'/security/payment-pin/reset/start':'/security/payment-pin/change';
+                const options={method:'POST',body:JSON.stringify(isChange?{current_pin:fields.current.value,new_pin:fields.next.value}:{})};
+                const response=await window.Famina.api(endpoint,options);
+                status.textContent=response?.message || (isChange?'PIN updated securely.':isReset?'Follow the verification instructions sent to your registered contact.':'Follow the secure device enrollment instructions.');
+                if(isChange)Object.values(fields).forEach(input=>input.value='');
+            }catch(e){
+                status.textContent='Unable to complete securely: '+(e?.message||'service not available')+'. No changes were confirmed.';
+            }finally{button.disabled=false;}
+        };
+        panel.append(button,status);page.append(panel);
+        return true;
+    }
+
     function renderSettingsDetail(page,title){
         page.classList.add('fp-me-details','fp-settings-page');
         profileBackHeader(page,title);
+        if(renderPaymentSecurityForm(page,title)) return;
         const sections=settingsSections[title];
         if(sections){
             sections.forEach(([heading,...items])=>{
                 page.append(element('h3',translateText(heading),'fp-settings-heading'));
                 const card=element('section',null,'fp-settings-card');
                 items.forEach(item=>{
-                    if(['Pay with Fingerprint','Log in with Fingerprint','Clipboard Access'].includes(item)){
+                    if(['Clipboard Access'].includes(item)){
                         const line=element('div',null,'fp-settings-row');line.append(element('span',translateText(item)));
                         line.append(element('small',translateText('Unavailable until device security is connected')));card.append(line);
                     }else settingsRow(card,item);
@@ -1737,7 +1786,7 @@
                     content.append(element('p', translateText('Loading orders…'), 'fp-premium-empty'));
                 } else if (!filtered.length) {
                     const empty = element('section', null, 'fp-premium-empty fp-premium-orders-empty');
-                    empty.append(element('span', '◇', 'fp-premium-empty-icon'), element('strong', translateText(selected === 'All' ? 'No orders yet' : 'No ' + selected.toLowerCase() + ' orders')), element('p', translateText('Your food, shopping and delivery orders will appear here.')));
+                    empty.append(element('span', '◇', 'fp-premium-empty-icon'), element('strong', translateText('Coming Soon')), element('p', translateText('Your FAMIPAY orders experience is on the way.')));
                     const browse = element('button', translateText('Explore Services'), 'fp-premium-cta');
                     browse.onclick = () => navigate('express-home');
                     empty.append(browse);
