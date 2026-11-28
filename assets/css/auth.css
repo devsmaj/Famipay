@@ -202,3 +202,31 @@ body.auth-page[data-auth-page="register"] .auth-card .submit-btn{min-height:46px
 body.auth-page[data-auth-page="register"] .auth-card .auth-trust{margin:12px 0 8px;padding-bottom:8px;font-size:.72rem;line-height:1.35}
 body.auth-page[data-auth-page="register"] .auth-card .auth-switch{font-size:.8rem;line-height:1.5}
 @media(max-width:600px){body.auth-page[data-auth-page="register"] .auth-scene{padding:14px 12px 26px}body.auth-page[data-auth-page="register"] .auth-card.form-section{padding:18px 17px 16px}}
+
+/* Registration: restore native document scrolling on mobile, even when the public header is hidden. */
+html:has(body.auth-page[data-auth-page="register"]),
+body.auth-page[data-auth-page="register"] {
+  height: auto !important;
+  min-height: 100% !important;
+  max-height: none !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  overscroll-behavior-y: auto;
+}
+body.auth-page[data-auth-page="register"] main.auth-scene {
+  height: auto !important;
+  max-height: none !important;
+  min-height: 100svh;
+  overflow: visible !important;
+  padding-top: 24px !important;
+  padding-bottom: max(36px, env(safe-area-inset-bottom)) !important;
+}
+body.auth-page[data-auth-page="register"] .auth-layout,
+body.auth-page[data-auth-page="register"] .auth-card.form-section {
+  height: auto !important;
+  max-height: none !important;
+  overflow: visible !important;
+}
+@media(max-width:600px) {
+  body.auth-page[data-auth-page="register"] main.auth-scene { padding-top: 16px !important; }
+}
