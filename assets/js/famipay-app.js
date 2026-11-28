@@ -38,6 +38,36 @@
         {group:'Account',title:'Edit Address',id:'profile-address'},
         {group:'Account',title:'Account Limits',id:'account-limits'},
         {group:'Account',title:'Settings',id:'settings'},
+        {group:'Account',title:"Payment Settings",id:'settings-payment-settings'},
+        {group:'Account',title:"Login Settings",id:'settings-login-settings'},
+        {group:'Account',title:"Savings Settings",id:'settings-savings-settings'},
+        {group:'Account',title:"Homepage Settings",id:'settings-homepage-settings'},
+        {group:'Account',title:"Security Questions",id:'settings-security-questions'},
+        {group:'Account',title:"SMS Alert Settings",id:'settings-sms-alert-settings'},
+        {group:'Account',title:"Security Plus",id:'settings-security-plus'},
+        {group:'Account',title:"Access to Clipboard",id:'settings-access-to-clipboard'},
+        {group:'Account',title:"Themes",id:'settings-themes'},
+        {group:'Account',title:"Security Center",id:'settings-security-center'},
+        {group:'Account',title:"Feedback and Suggestions",id:'settings-feedback-and-suggestions'},
+        {group:'Account',title:"Close Account",id:'settings-close-account'},
+        {group:'Account',title:"About",id:'settings-about'},
+        {group:'Account',title:"Change Payment PIN",id:'settings-change-payment-pin'},
+        {group:'Account',title:"Forgot Payment PIN",id:'settings-forgot-payment-pin'},
+        {group:'Account',title:"Manage Virtual Card PIN",id:'settings-manage-virtual-card-pin'},
+        {group:'Account',title:"Change Password",id:'settings-change-password'},
+        {group:'Account',title:"Forgot Password",id:'settings-forgot-password'},
+        {group:'Account',title:"Auto-logout Setting",id:'settings-auto-logout-setting'},
+        {group:'Account',title:"Set Up Pattern",id:'settings-set-up-pattern'},
+        {group:'Account',title:"Trusted Devices",id:'settings-trusted-devices'},
+        {group:'Account',title:"Login Activity",id:'settings-login-activity'},
+        {group:'Account',title:"Home Shortcuts",id:'settings-home-shortcuts'},
+        {group:'Account',title:"Dashboard Layout",id:'settings-dashboard-layout'},
+        {group:'Account',title:"Savings Preferences",id:'settings-savings-preferences'},
+        {group:'Account',title:"Savings History",id:'settings-savings-history'},
+        {group:'Account',title:"Terms & Conditions",id:'settings-terms-conditions'},
+        {group:'Account',title:"Privacy Policy",id:'settings-privacy-policy'},
+        {group:'Account',title:"Version Information",id:'settings-version-information'},
+        {group:'Account',title:"Request Account Closure",id:'settings-request-account-closure'},
         {group:'Account',title:'Invitation',id:'invitation'},
         {group:'Account',title:'Support Topic',id:'support-topic'},
         {group:'Account',title:'Help Center',id:'help-center'},
@@ -807,11 +837,117 @@
         };
         actions.append(no,yes);dialog.append(actions,feedback);dialog.addEventListener('close',()=>dialog.remove());document.body.append(dialog);dialog.showModal();
     }
+    const settingsGroups = [
+        [['My Profile','profile-details','profile'],['Payment Settings','settings-payment-settings','shield'],['Login Settings','settings-login-settings','gear'],['Savings Settings','settings-savings-settings','wallet']],
+        [['Homepage Settings','settings-homepage-settings','home'],['Security Questions','settings-security-questions','shield'],['SMS Alert Settings','settings-sms-alert-settings','bell'],['Security Plus','settings-security-plus','shield'],['Access to Clipboard','settings-access-to-clipboard','receipt'],['Themes','settings-themes','gear']],
+        [['Security Center','settings-security-center','shield'],['Feedback and Suggestions','settings-feedback-and-suggestions','receipt']],
+        [['Close Account','settings-close-account','shield']],
+        [['About','settings-about','help']]
+    ];
+    const settingsSections = {
+        'Payment Settings':[['Payment PIN','Change Payment PIN','Forgot Payment PIN'],['Biometrics','Pay with Fingerprint'],['Card Payment','Manage Virtual Card PIN']],
+        'Login Settings':[['Password','Change Password','Forgot Password','Auto-logout Setting'],['Pattern','Set Up Pattern'],['Biometrics','Log in with Fingerprint']],
+        'Savings Settings':[['Savings','Savings Preferences','Savings History']],
+        'Homepage Settings':[['Homepage','Home Shortcuts','Dashboard Layout']],
+        'Security Center':[['Security','Security Questions','Login Settings','Payment Settings','Trusted Devices']],
+        'Security Plus':[['Protection','Trusted Devices','Login Activity']],
+        'Access to Clipboard':[['Privacy','Clipboard Access']],
+        'Close Account':[['Account','Request Account Closure']]
+    };
+    function settingsRow(container,label,target,icon){
+        const button=element('button',null,'fp-settings-row');
+        button.type='button';
+        if(icon && iconPaths[icon])button.append(svgIcon(icon));
+        button.append(element('span',translateText(label)),element('span','›','fp-settings-chevron'));
+        button.onclick=()=>navigate(target||'settings-'+label.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/-$/,''));
+        container.append(button);
+    }
+    function settingsCard(page,rows){
+        const card=element('section',null,'fp-settings-card');
+        rows.forEach(([label,target,icon])=>settingsRow(card,label,target,icon));
+        page.append(card);
+    }
     function renderMeSettings(page){
-        page.classList.add('fp-me-details');profileBackHeader(page,'Settings');
-        const group=element('section',null,'fp-me-menu');
-        meRow(group,'Profile Info','profile-details','profile');meRow(group,'Account Limits','account-limits','gauge');meRow(group,'Notifications','notifications','bell');meRow(group,'Help Center','help-center','help');page.append(group);
-        const preferences=element('section',null,'fp-me-menu');preferences.append(element('h3',translateText('Language preferences')));const language=element('div');language.dataset.fpLanguageSettings='';preferences.append(language);page.append(preferences);appendSignOut(page);
+        page.classList.add('fp-me-details','fp-settings-page');
+        profileBackHeader(page,'Settings');
+        settingsGroups.forEach(group=>settingsCard(page,group));
+        const signout=element('button',translateText('Sign Out'),'fp-settings-signout');
+        signout.type='button';
+        signout.onclick=()=>{ const overlay=element('div',null,'fp-settings-overlay');const dialog=element('div',null,'fp-settings-dialog');dialog.append(element('p',translateText('Are you sure you want to log out of FAMIPAY?')));const actions=element('div',null,'fp-settings-actions');const no=element('button',translateText('No'));const yes=element('button',translateText('Yes'));no.onclick=()=>overlay.remove();yes.onclick=async()=>{yes.disabled=true;try{const client=window.Famina?.client;if(!client?.auth?.signOut)throw Error('Sign out unavailable');const result=await client.auth.signOut();if(result?.error)throw result.error;location.replace('login.html');}catch(error){yes.disabled=false;dialog.append(element('p',error.message||'Unable to sign out'));}};actions.append(no,yes);dialog.append(actions);overlay.append(dialog);page.append(overlay);};
+        page.append(signout);
+    }
+    function renderSettingsDetail(page,title){
+        page.classList.add('fp-me-details','fp-settings-page');
+        profileBackHeader(page,title);
+        const sections=settingsSections[title];
+        if(sections){
+            sections.forEach(([heading,...items])=>{
+                page.append(element('h3',translateText(heading),'fp-settings-heading'));
+                const card=element('section',null,'fp-settings-card');
+                items.forEach(item=>{
+                    if(['Pay with Fingerprint','Log in with Fingerprint','Clipboard Access'].includes(item)){
+                        const line=element('div',null,'fp-settings-row');line.append(element('span',translateText(item)));
+                        line.append(element('small',translateText('Unavailable until device security is connected')));card.append(line);
+                    }else settingsRow(card,item);
+                });page.append(card);
+            });return;
+        }
+        if(title==='Themes'){
+            const current=localStorage.getItem('famipay-theme-preference')||'Light Mode';
+            ['Light Mode','Dark Mode','System Default'].forEach(option=>{
+                const button=element('button',null,'fp-settings-theme'+(current===option?' selected':''));
+                button.append(element('span',translateText(option)),element('span',current===option?'✓':'○'));
+                button.onclick=()=>{localStorage.setItem('famipay-theme-preference',option);render();};
+                page.append(button);
+            });return;
+        }
+        if(title==='SMS Alert Settings'){
+            page.append(element('p',translateText('Select subscription option(s). SMS alerts require an integrated provider and published charges.'),'fp-settings-note'));
+            ['Credit Alerts','Card Transaction Alerts','Transfer & Withdrawal Alerts','Other Alerts'].forEach(label=>{
+                const card=element('label',null,'fp-settings-theme');
+                card.append(element('span',translateText(label)));
+                const checkbox=document.createElement('input');checkbox.type='checkbox';card.append(checkbox);page.append(card);
+            });
+            page.append(element('p',translateText('Activation is unavailable until an SMS provider is connected.'),'fp-settings-note'));return;
+        }
+        if(title==='Security Questions'){
+            page.append(element('h2',translateText('Set up security questions')));
+            page.append(element('p',translateText('Protect your account from unauthorized access'),'fp-settings-note'));
+            const prompts=["What is your mother's first name?","When was your mother born?","What is the name of your primary school?"];
+            prompts.forEach((question,index)=>{
+                const card=element('section',null,'fp-settings-card fp-settings-question');
+                card.append(element('h3','Question '+(index+1)));
+                const select=document.createElement('select');
+                [question,'In what city were you born?','What was the name of your first teacher?'].forEach(q=>{const option=element('option',q);select.append(option);});
+                const input=document.createElement('input');input.type=index===1?'date':'password';input.placeholder='Enter answer';input.autocomplete='off';
+                card.append(select,input);page.append(card);
+            });
+            page.append(element('p',translateText('Secure enrollment is not yet available; answers are not stored.'),'fp-settings-note'));return;
+        }
+        if(title==='About'){
+            const brand=element('h2','FAMIPAY','fp-settings-brand');page.append(brand);
+            settingsCard(page,[['Terms & Conditions','settings-terms-conditions','receipt'],['Privacy Policy','settings-privacy-policy','shield']]);
+            settingsCard(page,[['Version Information','settings-version-information','help']]);return;
+        }
+        if(title==='Feedback and Suggestions'){
+            const card=element('section',null,'fp-settings-card fp-settings-question');
+            const input=document.createElement('textarea');input.placeholder='Tell us how we can improve FAMIPAY';input.rows=5;card.append(input);
+            card.append(element('p',translateText('Feedback submission is not connected yet.'),'fp-settings-note'));page.append(card);return;
+        }
+        if(title==='Auto-logout Setting'){
+            const card=element('section',null,'fp-settings-card fp-settings-question');
+            card.append(element('p',translateText('Choose an inactivity timeout')));
+            ['5 minutes','15 minutes','30 minutes'].forEach(label=>{const row=element('label',null,'fp-settings-row');const input=document.createElement('input');input.type='radio';input.name='fp-timeout';row.append(input,element('span',label));card.append(row);});
+            page.append(card);return;
+        }
+        if(title==='Terms & Conditions'||title==='Privacy Policy'){
+            const link=element('a',translateText('Open '+title),'fp-settings-document');
+            link.href=title==='Privacy Policy'?'privacy.html':'terms.html';page.append(link);return;
+        }
+        const panel=element('section',null,'fp-settings-card fp-settings-question');
+        panel.append(element('h3',translateText(title)));
+        panel.append(element('p',translateText('This feature requires a secure connected service before changes can be saved.'),'fp-settings-note'));
+        page.append(panel);
     }
 
     function profileBackHeader(page,title) {
@@ -1185,6 +1321,7 @@
         } else if (screenId === 'account-limits') {
             renderAccountLimits(page);
         } else if(screenId==='settings'){renderMeSettings(page);
+        } else if(screenId.startsWith('settings-')){renderSettingsDetail(page,byId[screenId]?.title||'Settings');
         } else if(screenId==='invitation'){profileBackHeader(page,'Invitation');const b=element('button',translateText('Share FAMIPAY'),'fp-me-signout');b.onclick=async()=>{const url=new URL('index.html',location.href).href;try{if(navigator.share)await navigator.share({title:'FAMIPAY',url});else {await navigator.clipboard.writeText(url);b.textContent=translateText('Link copied');}}catch(e){b.textContent=translateText('Unable to share. Try again.');}};page.append(b);
         } else if(screenId==='support-topic'){profileBackHeader(page,supportTopic||'Support');const card=element('section',null,'fp-me-menu');card.append(element('p',translateText('Contact support for assistance with this issue.')));meRow(card,'Help Center','help-center','help');page.append(card);
         }
