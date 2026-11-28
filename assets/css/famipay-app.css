@@ -1040,3 +1040,10 @@ body.fp-app .app .main:has(.fp-premium-page) {
         grid-row: auto;
     }
 }
+
+
+.fp-premium-account-details { padding: 15px 0; }
+.fp-premium-account-details strong { display: block; font-size: 13px; color: #214332; margin-bottom: 8px; }
+.fp-premium-account-details p { margin: 4px 0; font-size: 12px; color: #647d6f; overflow-wrap: anywhere; }
+body.fp-app button, body.fp-app a { -webkit-tap-highlight-color: transparent; }
+body.fp-app button:focus-visible, body.fp-app a:focus-visible, body.fp-app input:focus-visible { outline: 2px solid #00996c; outline-offset: 2px; }
