@@ -1157,3 +1157,62 @@ body.fp-app .fp-profile-photo-button{border:1px solid #00835f;background:#fff;co
 body.fp-app .fp-profile-photo-button:disabled{opacity:.55;cursor:wait;}
 body.fp-app .fp-profile-photo-feedback{color:#526c62;font-size:12px;line-height:1.4;}
 body.fp-app .fp-profile-photo-image{width:100%;height:100%;object-fit:cover;border-radius:inherit;}
+
+
+/* Me / My Profile / Photo: compact account experience, existing FAMIPAY colors */
+body.fp-app .fp-premium-page.fp-me-page,body.fp-app .fp-premium-page.fp-me-details,body.fp-app .fp-premium-page.fp-me-photo-page{background:#f3f4f7;min-height:100%;padding:16px 14px 34px;color:#183e30;}
+.fp-me-top{display:flex;justify-content:flex-end;gap:12px;min-height:36px;}
+.fp-me-top-icon{display:grid;place-items:center;border:0;background:transparent;color:#204338;width:36px;height:36px;cursor:pointer;}
+.fp-me-top-icon svg{width:23px;height:23px;}
+.fp-me-identity{display:flex;align-items:center;gap:14px;width:100%;padding:17px 9px 19px;background:transparent;border:0;text-align:left;cursor:pointer;}
+.fp-me-avatar{display:grid;place-items:center;flex:none;width:66px;height:66px;border-radius:50%;background:#d9f4e8;color:#007e59;font-size:26px;font-weight:800;overflow:hidden;}
+.fp-me-avatar img{width:100%;height:100%;object-fit:cover;}
+.fp-me-identity-copy{display:flex;flex:1;flex-direction:column;gap:5px;}
+.fp-me-identity-copy strong{font-size:20px;color:#233e33;}
+.fp-me-identity-copy small{font-size:12px;color:#668377;}
+.fp-me-arrow{color:#b6c1ba;font-size:23px;line-height:1;}
+.fp-me-balance,.fp-me-shortcuts,.fp-me-menu,.fp-me-details-card,.fp-me-fields{background:#fff;border-radius:19px;margin-bottom:14px;}
+.fp-me-balance{padding:20px 17px 13px;}
+.fp-me-balance-line{display:flex;align-items:center;gap:8px;}
+.fp-me-balance-line>span{flex:1;font-size:15px;}
+.fp-me-balance-line strong{font-size:15px;}
+.fp-me-eye{border:0;background:transparent;color:#758b7f;padding:3px;cursor:pointer;}
+.fp-me-eye svg{width:18px;height:18px;}
+.fp-me-balance>p{border-top:1px solid #f1f3f1;margin:17px 0 0;padding-top:13px;color:#7e9085;font-size:13px;}
+.fp-me-shortcuts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:3px;padding:18px 8px;}
+.fp-me-shortcut{display:flex;flex-direction:column;align-items:center;gap:10px;min-width:0;border:0;background:transparent;color:#31483d;font-size:12px;cursor:pointer;}
+.fp-me-shortcut-icon{display:grid;place-items:center;width:52px;height:52px;background:#e2f7ed;border-radius:15px;color:#00845f;}
+.fp-me-shortcut-icon svg{width:25px;height:25px;}
+.fp-me-menu{padding:7px 15px;}
+.fp-me-row{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;padding:17px 5px;border:0;border-bottom:1px solid #f0f2f1;background:transparent;color:#263e33;text-align:left;cursor:pointer;}
+.fp-me-row:last-child{border-bottom:0;}
+.fp-me-row-left{display:flex;align-items:center;gap:16px;font-size:15px;}
+.fp-me-row-left svg{width:21px;height:21px;}
+.fp-me-assistant{width:100%;border:0;border-radius:15px;padding:17px;background:#e0f8f0;color:#075a44;font-size:15px;font-weight:700;text-align:left;cursor:pointer;}
+.fp-me-subheader{display:flex;align-items:center;gap:12px;min-height:48px;margin-bottom:15px;font-size:19px;color:#4a5850;}
+.fp-me-back{border:0;background:transparent;font-size:32px;color:#344b3f;cursor:pointer;line-height:1;}
+.fp-me-details-card{display:flex;align-items:center;flex-direction:column;padding:25px 18px 0;}
+.fp-me-portrait{position:relative;border:0;background:transparent;cursor:pointer;padding:0;margin-bottom:13px;}
+.fp-me-avatar-large{width:96px;height:96px;font-size:34px;}
+.fp-me-camera{position:absolute;bottom:0;left:28px;right:28px;display:grid;place-items:center;background:#7f8d87;color:white;border-radius:10px 10px 25px 25px;height:27px;}
+.fp-me-camera svg{width:19px;height:19px;}
+.fp-me-details-card>strong{font-size:18px;margin-bottom:24px;}
+.fp-me-account-info{width:100%;}
+.fp-me-fields{padding:5px 16px;}
+.fp-me-field{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;min-height:62px;padding:14px 3px;border:0;border-bottom:1px solid #f4f5f4;background:transparent;text-align:left;font:inherit;color:#293e34;font-size:14px;}
+.fp-me-field:last-child{border-bottom:0;}
+.fp-me-field>span:nth-child(2){flex:1;min-width:0;text-align:right;color:#8b9890;overflow-wrap:anywhere;font-size:13px;}
+.fp-me-field-editable{cursor:pointer;}
+.fp-me-editor{position:relative;background:#fff;border:1px solid #dceae1;border-radius:16px;padding:17px;margin-top:14px;}
+.fp-me-editor-heading{display:flex;justify-content:space-between;align-items:center;gap:12px;}
+.fp-me-editor-heading h2{font-size:16px;margin:0 0 12px;}
+.fp-me-editor-heading button{border:0;background:transparent;font-size:24px;cursor:pointer;}
+.fp-me-editor input,.fp-me-editor select{width:100%;border:1px solid #dce5de;border-radius:10px;padding:12px;font:inherit;margin-bottom:12px;}
+.fp-me-save{background:#007e59;color:#fff;border:0;border-radius:11px;padding:12px 17px;font-weight:700;cursor:pointer;}
+.fp-me-save:disabled{opacity:.55;}
+.fp-me-editor-feedback,.fp-me-photo-feedback{font-size:12px;color:#657c6d;line-height:1.5;}
+.fp-me-photo-page{background:#fff!important;}
+.fp-me-photo-center{display:flex;align-items:center;justify-content:center;min-height:230px;}
+.fp-me-photo-preview{width:138px;height:138px;font-size:45px;}
+.fp-me-photo-controls{display:flex;flex-direction:column;gap:16px;padding:20px 10px;}
+.fp-me-photo-button{width:100%;background:#fff;border:1.5px solid #00a674;border-radius:30px;padding:15px;color:#00a674;font-size:16px;font-weight:600;cursor:pointer;}
