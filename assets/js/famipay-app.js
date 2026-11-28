@@ -210,6 +210,30 @@
         return hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
     }
 
+    const dashboardIconShapes = {
+    "send-money": "<rect x=\"5\" y=\"18\" width=\"38\" height=\"24\" rx=\"6\" fill=\"#008B60\"/><rect x=\"10\" y=\"23\" width=\"28\" height=\"14\" rx=\"3\" fill=\"#78DAB0\"/><circle cx=\"24\" cy=\"30\" r=\"5\" fill=\"#008B60\"/><path d=\"M24 19V4 M17 11L24 4L31 11\" stroke=\"#005C43\" stroke-width=\"4\" fill=\"none\"/>",
+    "receive-money": "<rect x=\"5\" y=\"18\" width=\"38\" height=\"24\" rx=\"6\" fill=\"#008B60\"/><rect x=\"10\" y=\"23\" width=\"28\" height=\"14\" rx=\"3\" fill=\"#78DAB0\"/><circle cx=\"24\" cy=\"30\" r=\"5\" fill=\"#008B60\"/><path d=\"M24 3V17 M17 10L24 17L31 10\" stroke=\"#005C43\" stroke-width=\"4\" fill=\"none\"/>",
+    "mobile-money": "<rect x=\"8\" y=\"3\" width=\"25\" height=\"42\" rx=\"6\" fill=\"#006B4E\"/><rect x=\"11\" y=\"8\" width=\"19\" height=\"29\" rx=\"3\" fill=\"#A4E8CA\"/><rect x=\"21\" y=\"20\" width=\"24\" height=\"17\" rx=\"4\" fill=\"#00A875\" stroke=\"#E7F7EF\" stroke-width=\"2\"/><rect x=\"34\" y=\"25\" width=\"11\" height=\"7\" rx=\"2\" fill=\"#005C43\"/><circle cx=\"37\" cy=\"28.5\" r=\"1.5\" fill=\"#F7CD68\"/>",
+    "airtime": "<rect x=\"8\" y=\"3\" width=\"28\" height=\"42\" rx=\"6\" fill=\"#006B4E\"/><rect x=\"12\" y=\"8\" width=\"20\" height=\"30\" rx=\"3\" fill=\"#A4E8CA\"/><path d=\"M16 31V27 M22 31V22 M28 31V17\" stroke=\"#008B60\" stroke-width=\"4\"/><circle cx=\"35\" cy=\"12\" r=\"10\" fill=\"#00A875\" stroke=\"#E7F7EF\" stroke-width=\"2\"/><path d=\"M35 7V17 M30 12H40\" stroke=\"white\" stroke-width=\"2.8\"/>",
+    "pay-bills": "<path d=\"M10 4H37V44L30 39L24 44L17 39L10 44Z\" fill=\"#008B60\"/><path d=\"M16 28H31 M16 34H26\" stroke=\"#B8EBD6\" stroke-width=\"3\"/><path d=\"M25 9L17 20H24L22 26L32 15H25Z\" fill=\"#FFE09A\"/>",
+    "qr-payment": "<path d=\"M4 15V5H14 M34 5H44V15 M44 34V44H34 M14 44H4V34\" stroke=\"#00A875\" stroke-width=\"3.5\" fill=\"none\"/><rect x=\"10\" y=\"10\" width=\"12\" height=\"12\" rx=\"2\" fill=\"#006B4E\"/><rect x=\"14\" y=\"14\" width=\"4\" height=\"4\" rx=\"1\" fill=\"#E7F7EF\"/><rect x=\"27\" y=\"10\" width=\"12\" height=\"12\" rx=\"2\" fill=\"#006B4E\"/><rect x=\"31\" y=\"14\" width=\"4\" height=\"4\" rx=\"1\" fill=\"#E7F7EF\"/><rect x=\"10\" y=\"27\" width=\"12\" height=\"12\" rx=\"2\" fill=\"#006B4E\"/><rect x=\"14\" y=\"31\" width=\"4\" height=\"4\" rx=\"1\" fill=\"#E7F7EF\"/><path d=\"M28 28H33V33H28Z M35 35H40V40H35Z M28 36H32V40H28Z M36 27H40V32H36Z\" fill=\"#006B4E\"/>",
+    "restaurants": "<path d=\"M7 5V16Q7 23 15 23Q23 23 23 16V5 M15 5V42\" fill=\"none\" stroke=\"#008B60\" stroke-width=\"4.5\"/><ellipse cx=\"34\" cy=\"14\" rx=\"9\" ry=\"11\" fill=\"#008B60\"/><path d=\"M34 24V42\" stroke=\"#008B60\" stroke-width=\"5\"/><path d=\"M15 31V42 M34 31V42\" stroke=\"#005C43\" stroke-width=\"5\"/>",
+    "online-shop": "<path d=\"M5 15H43L39 44H9Z\" fill=\"#008B60\"/><path d=\"M16 19V11A8 8 0 0 1 32 11V19\" fill=\"none\" stroke=\"#005C43\" stroke-width=\"4\"/><path d=\"M18 29L23 34L32 25\" fill=\"none\" stroke=\"#A4E8CA\" stroke-width=\"3.5\"/>",
+    "agriculture": "<path d=\"M24 39V19\" stroke=\"#006B4E\" stroke-width=\"4\"/><path d=\"M24 26Q5 28 4 8Q24 7 24 26Z\" fill=\"#00A875\"/><path d=\"M24 21Q23 3 44 3Q45 23 24 21Z\" fill=\"#008B60\"/><path d=\"M24 38L13 18 M24 27L35 12\" stroke=\"#A4E8CA\" stroke-width=\"2\"/><path d=\"M4 44Q24 26 44 44Z\" fill=\"#006B4E\"/>"
+};
+
+    function dashboardServiceIcon(id) {
+        const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        svg.setAttribute('viewBox', '0 0 48 48');
+        svg.setAttribute('aria-hidden', 'true');
+        svg.setAttribute('focusable', 'false');
+        svg.setAttribute('stroke-linecap', 'round');
+        svg.setAttribute('stroke-linejoin', 'round');
+        svg.classList.add('fp-dashboard-service-icon');
+        svg.innerHTML = dashboardIconShapes[id];
+        return svg;
+    }
+
     function svgIcon(name) {
         const icon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
         icon.setAttribute('viewBox', '0 0 24 24');
@@ -2091,7 +2115,7 @@
             main.append(moreGrid);
             for (const button of main.querySelectorAll('.fp-classic-grid .card')) {
                 const id = [...quick, ...more].find(id => byId[id]?.title === button.querySelector('strong').textContent);
-                if (id) button.firstChild.replaceChildren(svgIcon(id));
+                if (id) button.firstChild.replaceChildren(dashboardServiceIcon(id));
             }
         } else if (screenId === 'home') {
             main.append(buildHeader());
