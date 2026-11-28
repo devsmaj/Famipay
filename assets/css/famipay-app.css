@@ -1395,3 +1395,46 @@ body.fp-app .app:not(.fp-service-focused) .main > .fp-premium-page.fp-me-page{
 .fp-phone-panel .fp-phone-cancel{min-height:42px;background:#fff;border:1px solid #dce5df;border-radius:22px;color:#183a30;}
 .fp-phone-panel [hidden]{display:none!important;}
 .fp-phone-panel .fp-phone-status{color:#a33b2b;}
+
+/* QR Payment: full-bleed Scan / Pay Me design. */
+body.fp-app .app.fp-service-focused .main:has(.fp-qr-screen){padding:0!important;overflow:visible!important;}
+body.fp-app .app.fp-service-focused .main>.fp-qr-screen{min-height:100dvh;margin:0!important;padding:0!important;max-width:none!important;}
+.fp-qr-screen{min-height:100dvh;background:#00b879;color:#fff;display:flex;flex-direction:column;font-family:system-ui,sans-serif;}
+.fp-qr-top{display:flex;align-items:center;justify-content:center;position:relative;padding:24px 16px 20px;}
+.fp-qr-back{position:absolute;left:20px;top:24px;border:0;background:transparent;color:#fff;font-size:38px;line-height:1;cursor:pointer;}
+.fp-qr-tabs{display:flex;border-radius:40px;background:#00845d;padding:5px;width:210px;gap:3px;}
+.fp-qr-tab{flex:1;border:0;border-radius:32px;padding:10px 8px;background:transparent;color:#fff;font-size:16px;font-weight:650;cursor:pointer;}
+.fp-qr-tab.active{background:#fff;color:#192922;}
+.fp-qr-content{flex:1;display:flex;flex-direction:column;align-items:center;min-width:0;}
+.fp-qr-pay-card{background:#fff;color:#151515;width:calc(100% - 32px);max-width:450px;border-radius:16px;padding:26px 18px 22px;text-align:center;margin:12px auto 0;box-shadow:0 3px 12px #0000000d;}
+.fp-qr-pay-name{display:block;font-size:17px;font-weight:750;overflow-wrap:anywhere;}
+.fp-qr-pay-number{font-size:clamp(28px,8vw,45px);line-height:1.2;letter-spacing:1px;margin:12px 0 22px;}
+.fp-qr-code-box{width:min(100%,310px);min-height:220px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;color:#315248;font-size:14px;}
+.fp-qr-code-box img{width:100%;height:auto;display:block;image-rendering:auto;}
+.fp-qr-pay-actions{display:grid;grid-template-columns:1fr 1fr;gap:0;border-top:1px solid #e6e9e8;padding-top:14px;}
+.fp-qr-pay-actions button{background:#fff;border:0;color:#222;font:600 15px system-ui;min-height:42px;cursor:pointer;}
+.fp-qr-pay-actions button+button{border-left:1px solid #d9dedb;}
+.fp-qr-scan-shortcut{margin:auto auto 28px;background:#ffffff30;color:#fff;border:0;border-radius:50%;height:74px;width:74px;font-weight:700;cursor:pointer;}
+.fp-qr-scan-mode{background:#111;}
+.fp-qr-scan-mode .fp-qr-top{z-index:2;}
+.fp-qr-scan-mode .fp-qr-content{position:relative;justify-content:center;}
+.fp-qr-camera{position:absolute;inset:-85px 0 0;overflow:hidden;background:#141414;}
+.fp-qr-camera video{width:100%;height:100%;object-fit:cover;}
+.fp-qr-guide{position:absolute;left:14%;top:29%;width:72%;aspect-ratio:1;border:5px solid #fff;border-radius:30px;pointer-events:none;clip-path:polygon(0 0,25% 0,25% 8%,75% 8%,75% 0,100% 0,100% 25%,92% 25%,92% 75%,100% 75%,100% 100%,75% 100%,75% 92%,25% 92%,25% 100%,0 100%,0 75%,8% 75%,8% 25%,0 25%);}
+.fp-qr-scan-line{position:absolute;left:0;right:0;top:50%;height:3px;background:#00db94;box-shadow:0 0 12px #00db94;}
+.fp-qr-scan-status{z-index:1;position:relative;margin:auto 24px 0;text-align:center;color:#fff;text-shadow:0 1px 3px #000;font-size:14px;}
+.fp-qr-camera-actions{position:relative;z-index:1;display:flex;justify-content:space-around;width:100%;padding:30px 8px 40px;gap:10px;}
+.fp-qr-camera-actions button{background:#0009;border:1px solid #ffffff40;border-radius:30px;color:#fff;padding:14px 12px;min-width:85px;font-size:13px;}
+.fp-qr-notice{padding:12px 18px;margin:16px;background:#fff;color:#885323;border-radius:12px;max-width:450px;text-align:center;}
+.fp-qr-sheet-backdrop{position:fixed;inset:0;z-index:9999;background:#0009;display:flex;align-items:flex-end;}
+.fp-qr-amount-sheet{background:#fff;color:#202020;width:100%;padding:26px 20px calc(24px + env(safe-area-inset-bottom,0px));border-radius:22px 22px 0 0;display:flex;flex-direction:column;gap:22px;}
+.fp-qr-amount-sheet h2{font-size:19px;text-align:center;margin:0;position:relative;}
+.fp-qr-sheet-close{position:absolute;right:0;top:-8px;border:0;background:transparent;color:#888;font-size:30px;}
+.fp-qr-amount-sheet input{font-size:30px!important;border:0!important;border-bottom:2px solid #00b879!important;border-radius:0!important;padding:16px 4px!important;width:100%;}
+.fp-qr-presets{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;}
+.fp-qr-presets button{border:0;border-radius:12px;background:#f4f5f6;color:#4b4b4b;padding:16px 4px;font-size:13px;}
+.fp-qr-confirm{background:#00b879;color:#fff;border:0;border-radius:12px;padding:16px;font-size:17px;font-weight:700;}
+/* Dashboard: permit page-level scrolling without moving the fixed navigation. */
+html:has(body.fp-app .fp-dashboard-home),body.fp-app:has(.fp-dashboard-home),body.fp-app .app.fp-dashboard-home,body.fp-app .app.fp-dashboard-home .main{height:auto!important;max-height:none!important;overflow-y:visible!important;overscroll-behavior-y:auto!important;}
+body.fp-app .app.fp-dashboard-home .main{display:flex!important;flex-direction:column!important;min-height:0!important;padding-bottom:calc(86px + env(safe-area-inset-bottom,0px))!important;}
+body.fp-app .app.fp-dashboard-home .main>.fp-classic-grid{flex-shrink:0!important;}
