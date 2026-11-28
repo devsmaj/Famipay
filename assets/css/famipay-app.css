@@ -1511,3 +1511,20 @@ body.fp-app .app.fp-service-focused:has(.fp-qr-screen) .main>.fp-qr-screen .fp-q
 .fp-qr-scan-mode .fp-qr-torch-wrap{pointer-events:auto;z-index:4;}
 .fp-qr-scan-mode .fp-qr-camera-actions{grid-template-columns:1fr 1fr!important;justify-content:space-between!important;}
 .fp-qr-scan-mode .fp-qr-camera-actions button{min-width:78px!important;}
+
+/* Compact profile header and separate white cards based on requested reference. */
+body.fp-app .fp-premium-page.fp-me-page{background:#f1f2f6!important;padding:12px 12px 24px!important;}
+body.fp-app .fp-me-page .fp-me-top{height:38px;min-height:38px;align-items:center;gap:10px;}
+body.fp-app .fp-me-page .fp-me-top-icon{width:36px;height:36px;}
+body.fp-app .fp-me-page .fp-me-identity{padding:8px 12px 15px!important;gap:13px;min-height:96px;}
+body.fp-app .fp-me-page .fp-me-avatar{width:56px;height:56px;}
+body.fp-app .fp-me-page .fp-me-identity-copy{gap:8px;}
+body.fp-app .fp-me-page .fp-me-identity-copy strong{font-size:17px;font-weight:650;color:#1b2925;}
+body.fp-app .fp-me-page .fp-me-tier{align-self:flex-start;display:inline-flex;align-items:center;background:#c5edda;color:#145a40;border-radius:20px;padding:4px 12px;font-size:11px;font-weight:700;}
+body.fp-app .fp-me-page .fp-me-arrow{font-size:21px;}
+body.fp-app .fp-me-page .fp-me-balance{padding:18px 16px!important;margin-bottom:12px;border-radius:19px;}
+body.fp-app .fp-me-page .fp-me-balance>p{display:none!important;}
+body.fp-app .fp-me-page .fp-me-balance-line{min-height:36px;}
+body.fp-app .fp-me-page .fp-me-shortcuts{padding:18px 7px!important;margin-bottom:12px;border-radius:19px;}
+body.fp-app .fp-me-page .fp-me-shortcut{min-height:100px;}
+body.fp-app .fp-me-page .fp-me-menu{border-radius:19px;margin-bottom:12px;}
