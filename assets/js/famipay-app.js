@@ -1726,11 +1726,17 @@
             frame.append(video,guide);content.append(frame);
             const status=element('p','Point your camera at a FAMIPAY QR code.','fp-qr-scan-status');content.append(status);
             const actions=element('div',null,'fp-qr-camera-actions');
-            const torch=element('button','Flashlight');const album=element('button','Album');const myQr=element('button','My QR');
-            torch.prepend(element('span','♜','fp-qr-action-symbol'));album.prepend(element('span','▧','fp-qr-action-symbol'));myQr.prepend(element('span','▦','fp-qr-action-symbol'));
-            actions.append(torch,myQr,album);content.append(actions);
+            const torchWrap=element('div',null,'fp-qr-torch-wrap');
+            const torch=element('button',null,'fp-qr-torch-button');torch.type='button';torch.setAttribute('aria-label','Toggle flashlight');
+            torch.append(element('span','♜','fp-qr-torch-icon'),element('span','Tap to turn light on','fp-qr-torch-label'));
+            torchWrap.append(torch);content.append(torchWrap);
+            const album=element('button',null,'fp-qr-album-button');const myQr=element('button',null,'fp-qr-myqr-button');
+            album.type=myQr.type='button';
+            album.append(element('span','▧','fp-qr-action-symbol'),element('span','Album'));
+            myQr.append(element('span','▦','fp-qr-action-symbol'),element('span','My QR'));
+            actions.append(myQr,album);content.append(actions);
             myQr.onclick=()=>renderPay();
-            const input=document.createElement('input');input.type='file';input.accept='image/*';input.hidden=true;content.append(input);album.onclick=()=>input.click();
+            const input=document.createElement('input');input.type='file';input.accept='image/*';input.hidden=true;content.append(input);album.onclick=()=>{status.textContent='Select a QR image from your album.';input.click();};
             const process=raw=>{
                 try{
                     const payload=JSON.parse(raw);
@@ -1742,10 +1748,11 @@
             const detector=typeof BarcodeDetector!=='undefined'?new BarcodeDetector({formats:['qr_code']}):null;
             input.onchange=async()=>{
                 if(!input.files?.[0])return;
-                if(!detector){status.textContent='QR scanning is not supported by this browser.';return;}
-                try{const bitmap=await createImageBitmap(input.files[0]);const codes=await detector.detect(bitmap);bitmap.close();if(codes.length)process(codes[0].rawValue);else status.textContent='No QR code found in this image.';}catch(_){status.textContent='Unable to read this image.';}
+                if(!detector){status.textContent='QR scanning is not supported by this browser.';input.value='';return;}
+                status.textContent='Scanning selected image…';album.disabled=true;
+                try{const bitmap=await createImageBitmap(input.files[0]);try{const codes=await detector.detect(bitmap);if(codes.length)process(codes[0].rawValue);else status.textContent='No QR code found in this image.';}finally{bitmap.close();}}catch(_){status.textContent='Unable to read this image.';}finally{album.disabled=false;input.value='';}
             };
-            torch.onclick=async()=>{const track=qrCameraStream?.getVideoTracks()[0];if(!track?.getCapabilities?.().torch){status.textContent='Flashlight unavailable on this device.';return;}try{const enabled=torch.dataset.on!=='1';await track.applyConstraints({advanced:[{torch:enabled}]});torch.dataset.on=enabled?'1':'0';}catch(_){status.textContent='Unable to control flashlight.';}};
+            torch.onclick=async()=>{const track=qrCameraStream?.getVideoTracks()[0];if(!track?.getCapabilities?.().torch){status.textContent='Flashlight unavailable on this device.';return;}try{const enabled=torch.dataset.on!=='1';await track.applyConstraints({advanced:[{torch:enabled}]});torch.dataset.on=enabled?'1':'0';torch.querySelector('.fp-qr-torch-label').textContent=enabled?'Tap to turn light off':'Tap to turn light on';}catch(_){status.textContent='Unable to control flashlight.';}};
             if(!navigator.mediaDevices?.getUserMedia){status.textContent='Camera unavailable. Use a supported secure browser.';return;}
             navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'},audio:false}).then(stream=>{
                 if(!frame.isConnected){stream.getTracks().forEach(t=>t.stop());return;}
