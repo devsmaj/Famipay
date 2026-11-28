@@ -12,10 +12,13 @@
     <link rel="stylesheet" href="assets/css/notifications.css">
 </head>
 <body class="fp-app">
-    <div id="app" class="fp-bootstrap-shell">
-        <div class="fp-bootstrap">
-            <div class="fp-brand">FAMIPAY</div>
-            <p>Opening your account…</p>
+    <div id="app" class="fp-bootstrap-shell" aria-busy="true">
+        <div class="fp-redirect" role="status" aria-live="polite">
+            <div class="fp-redirect-mark" aria-hidden="true">F</div>
+            <span class="fp-redirect-spinner" aria-hidden="true"></span>
+            <strong class="fp-redirect-title">Opening FAMIPAY</strong>
+            <p class="fp-redirect-message">Checking your account securely…</p>
+            <button class="fp-redirect-retry" type="button" hidden>Try Again</button>
         </div>
     </div>
     <script src="assets/js/loading.js"></script>
@@ -37,6 +40,27 @@
                 agent: 'agent',
             })[role] || 'customer';
             let renderedRole = null;
+            const title = app.querySelector('.fp-redirect-title');
+            const message = app.querySelector('.fp-redirect-message');
+            const retry = app.querySelector('.fp-redirect-retry');
+            const spinner = app.querySelector('.fp-redirect-spinner');
+            const stopLoading = window.FaminaLoading?.start?.() || (() => {});
+            let finished = false;
+            const finish = () => { if (!finished) { finished = true; stopLoading(); } };
+            const setRedirect = destination => {
+                if (title) title.textContent = 'Taking you to your account';
+                if (message) message.textContent = 'Opening your next page…';
+                finish();
+                location.replace(destination);
+            };
+            const showError = text => {
+                finish();
+                if (title) title.textContent = 'Unable to connect';
+                if (message) message.textContent = text;
+                if (spinner) spinner.hidden = true;
+                if (retry) { retry.hidden = false; retry.onclick = () => location.reload(); }
+                app.removeAttribute('aria-busy');
+            };
 
             function renderApp(role) {
                 if (renderedRole === role) return Promise.resolve();
@@ -57,34 +81,25 @@
 
             // Render private content only after the server verifies the restored session.
             try {
-                await window.Famina.ready;
+                await Promise.race([
+                    window.Famina.ready,
+                    new Promise((_, reject) => setTimeout(() => reject(new Error('Account verification timed out. Check your connection and try again.')), 15000))
+                ]);
                 if (!window.Famina.user) {
-                    const shell = document.createElement('main');
-                    shell.className = 'fp-bootstrap';
-                    const brand = document.createElement('strong');
-                    brand.textContent = 'FAMIPAY';
-                    const message = document.createElement('p');
-                    message.textContent = 'Please sign in to access FAMIPAY.';
-                    const link = document.createElement('a');
-                    link.href = 'login.html';
-                    link.textContent = 'Login / Sign up';
-                    shell.append(brand, message, link);
-                    app.replaceChildren(shell);
+                    setRedirect('login.html');
                     return;
                 }
                 if (!window.Famina.user.onboarding_complete) {
-                    location.replace('famipay-onboarding.html');
+                    setRedirect('famipay-onboarding.html');
                     return;
                 }
 
                 const role = mapRole(window.Famina.user.role);
                 await renderApp(role);
+                finish();
+                app.removeAttribute('aria-busy');
             } catch (error) {
-                app.hidden = false;
-                const message = app.querySelector('.fp-bootstrap p');
-                if (message) message.textContent = error.message === 'Unable to load your account.'
-                    ? error.message
-                    : 'Unable to verify your session. Please try again.';
+                showError(error?.message || 'Unable to verify your session. Please try again.');
             }
         })();
     </script>
