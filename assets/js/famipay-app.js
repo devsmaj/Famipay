@@ -32,6 +32,7 @@
         {group:'FA-MINNA Express',title:'My Orders',id:'my-orders'},
         {group:'Account',title:'Notifications',id:'notifications'},
         {group:'Account',title:'My Profile',id:'my-profile'},
+        {group:'Account',title:'FAMIPAY USSD',id:'famipay-ussd'},
         {group:'Account',title:'Profile Details',id:'profile-details'},
         {group:'Account',title:'Profile Photo',id:'profile-photo'},
         {group:'Account',title:'Edit Profile Field',id:'profile-edit'},
@@ -804,6 +805,7 @@
         const menu=element('section',null,'fp-me-menu');
         meRow(menu,'Bank Card / Account','my-cards','cards');
         meRow(menu,'Notifications','notifications','bell');
+        meRow(menu,'FAMIPAY USSD','famipay-ussd','phone');
         page.append(menu);
         const assistant=element('section',null,'fp-me-assistant-card');
         const title=element('button',translateText('FAMIPAY Support Assistant')+' ›','fp-me-assistant');
@@ -1768,10 +1770,52 @@
         scanTab.onclick=renderScan;payTab.onclick=renderPay;renderScan();
     }
 
+
+    function renderUssdPage(container){
+        const page=element('div',null,'fp-ussd-page');
+        const intro=element('section',null,'fp-ussd-intro');
+        intro.append(element('h2','FAMIPAY USSD'));
+        intro.append(element('p','Quick payments and account services from your phone.'));
+        const code=element('strong','USSD code coming soon','fp-ussd-code');
+        intro.append(code);
+        intro.append(element('small','FAMIPAY does not yet have an assigned operator USSD code. Do not dial OPay codes for FAMIPAY.'));
+        page.append(intro);
+        const control=element('section',null,'fp-ussd-card');
+        const switchRow=element('label',null,'fp-ussd-switch-row');
+        const text=element('span',null);text.append(element('strong','Allow USSD transactions'),element('small','Enable this preference when the service launches'));
+        const toggle=document.createElement('input');toggle.type='checkbox';toggle.setAttribute('aria-label','Allow USSD transactions');
+        toggle.checked=localStorage.getItem('fp-ussd-enabled')==='true';
+        toggle.onchange=()=>{localStorage.setItem('fp-ussd-enabled',String(toggle.checked));};
+        switchRow.append(text,toggle);control.append(switchRow);
+        const services=[
+            ['Transfer to Bank Account','Requires operator and bank integration','bank'],
+            ['Transfer to FAMIPAY Account','Requires wallet and operator integration','wallet'],
+            ['Airtime for Self','Requires telecom airtime integration','phone'],
+            ['Airtime for Others','Requires telecom airtime integration','phone'],
+            ['Mobile Data','Requires data bundle integration','phone'],
+            ['Electricity','Requires biller integration','bolt'],
+            ['SMS Alerts','Requires operator SMS integration','bell'],
+            ['Get Verification Code','Use verified authentication channels','shield'],
+            ['Restrict Account','Contact FAMIPAY support','shield'],
+            ['Card Services','Requires card issuer integration','cards']
+        ];
+        services.forEach(([name,description,icon])=>{
+            const row=element('div',null,'fp-ussd-row');
+            const symbol=element('span',null,'fp-ussd-icon');if(iconPaths[icon])symbol.append(svgIcon(icon));else symbol.textContent='•';
+            const copy=element('span',null,'fp-ussd-copy');copy.append(element('strong',name),element('small',description));
+            const state=element('span','Soon','fp-ussd-pending');
+            row.append(symbol,copy,state);control.append(row);
+        });
+        page.append(control);
+        const note=element('p','No live dial code is published until an authorized provider confirms it. Turning on the preference does not activate a mobile-network service.','fp-ussd-note');
+        page.append(note);container.append(page);
+    }
+
     // Purpose-built service screens. Preserve the existing visual language and route shell.
     function renderServiceContent(screen, container) {
         const id = screen.id;
         if(id==='qr-payment'){renderQrPayment(container);return;}
+        if(id==='famipay-ussd'){renderUssdPage(container);return;}
         const section = (title, description) => {
             const card = element('section', null, 'fp-native-card');
             card.append(element('h2', translateText(title)));
