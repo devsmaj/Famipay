@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - mobile/**
+      - backend/**
       - .github/workflows/android-preview.yml
       - famipay-app.html
       - famipay-onboarding.html
