@@ -728,7 +728,7 @@
         help.append(svgIcon('help')); help.onclick = () => navigate('help-center');
         const settings = element('button', null, 'fp-me-top-icon');
         settings.type = 'button'; settings.setAttribute('aria-label', 'Settings');
-        settings.append(svgIcon('settings')); settings.onclick = () => navigate('settings');
+        settings.append(svgIcon('services')); settings.onclick = () => navigate('settings');
         heading.append(help,settings);
         page.append(heading);
         const hero = element('button', null, 'fp-me-identity');
@@ -788,7 +788,7 @@
         const portrait=element('button',null,'fp-me-portrait');
         portrait.type='button';portrait.setAttribute('aria-label','Change profile photo');
         portrait.append(profileAvatar('fp-me-avatar-large'));
-        const camera=element('span',null,'fp-me-camera');camera.append(svgIcon('camera'));
+        const camera=element('span',null,'fp-me-camera');camera.append(svgIcon('profile'));
         portrait.append(camera);portrait.onclick=()=>navigate('profile-photo');
         card.append(portrait,element('strong',user.nickname || firstName()));
         const account=element('div',null,'fp-me-account-info');
@@ -1261,7 +1261,7 @@
                 main.append(grid);
             }
             main.append(element('div', translateText('Financial actions require an authorized provider or existing backend service.'), 'warning'));
-        } else if (isPrimary && role === 'customer' && ['my-cards','express-home','my-orders','my-profile','profile-details','profile-photo'].includes(screenId)) {
+        } else if (role === 'customer' && ['my-cards','express-home','my-orders','my-profile','profile-details','profile-photo'].includes(screenId)) {
             premiumCustomerPage(screenId);
         } else if (isPrimary) {
             main.append(buildHeader());
