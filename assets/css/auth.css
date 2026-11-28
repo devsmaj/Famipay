@@ -240,3 +240,27 @@ body.auth-page[data-auth-page="register"] main.auth-scene {
   align-items: flex-start !important;
 }
 body.auth-page[data-auth-page="register"] .auth-card.form-section { margin-top: 0 !important; }
+
+/* Login: same compact, standalone mobile layout as registration. */
+html:has(body.auth-page[data-auth-page="login"]),body.auth-page[data-auth-page="login"]{height:auto!important;min-height:100%!important;max-height:none!important;overflow-x:hidden!important;overflow-y:auto!important}
+body.auth-page[data-auth-page="login"]{background:#eef4f1!important}
+body.auth-page[data-auth-page="login"] #header{display:none!important}
+body.auth-page[data-auth-page="login"] .auth-scene{height:auto!important;min-height:100svh!important;max-height:none!important;overflow:visible!important;display:flex!important;align-items:flex-start!important;justify-content:center!important;padding:20px 14px 32px!important;margin:0!important;background:#eef4f1!important}
+body.auth-page[data-auth-page="login"] .auth-video,body.auth-page[data-auth-page="login"] .auth-shade{display:none!important}
+body.auth-page[data-auth-page="login"] .auth-layout{display:block!important;width:100%!important;max-width:440px!important;height:auto!important;margin:0 auto!important;overflow:visible!important}
+body.auth-page[data-auth-page="login"] .auth-card.form-section{width:100%!important;max-width:none!important;height:auto!important;margin:0!important;padding:22px 20px 18px!important;border:1px solid #e0eee6!important;border-radius:18px!important;background:#fff!important;box-shadow:0 8px 28px #063e2510!important;backdrop-filter:none!important;overflow:visible!important}
+body.auth-page[data-auth-page="login"] .auth-card .container{width:100%!important;max-width:none!important;padding:0!important;margin:0!important}
+body.auth-page[data-auth-page="login"] .auth-card h2{font-size:1.55rem!important;line-height:1.2!important;margin:0 0 5px!important;color:#183c30!important}
+body.auth-page[data-auth-page="login"] .auth-intro{font-size:.84rem!important;line-height:1.35!important;margin:0 0 12px!important;color:#6b7d74!important}
+body.auth-page[data-auth-page="login"] .auth-card #phone-form,body.auth-page[data-auth-page="login"] .auth-card #phone-code-form{margin-top:0!important}
+body.auth-page[data-auth-page="login"] .auth-card .auth-method-options{gap:8px!important;margin:10px 0 15px!important}
+body.auth-page[data-auth-page="login"] .auth-card .auth-method-options button{min-height:40px!important;border-radius:9px!important;font-size:.9rem!important}
+body.auth-page[data-auth-page="login"] .auth-card .form-group{margin-bottom:12px!important}
+body.auth-page[data-auth-page="login"] .auth-card .form-group label{display:block!important;margin-bottom:5px!important;font-size:.86rem!important;font-weight:650!important}
+body.auth-page[data-auth-page="login"] .auth-card input:not([type="checkbox"]){min-height:44px!important;height:44px!important;border-radius:9px!important;font-size:16px!important}
+body.auth-page[data-auth-page="login"] .auth-card .auth-phone-field{min-height:44px!important}
+body.auth-page[data-auth-page="login"] .auth-card .auth-password-toggle{width:40px!important;height:40px!important}
+body.auth-page[data-auth-page="login"] .auth-card .submit-btn{min-height:46px!important;border-radius:10px!important;font-size:.95rem!important}
+body.auth-page[data-auth-page="login"] .auth-card .auth-trust{margin:12px 0 8px!important;padding-bottom:8px!important;font-size:.72rem!important;line-height:1.35!important}
+body.auth-page[data-auth-page="login"] .auth-card .auth-switch{font-size:.8rem!important;line-height:1.5!important}
+@media(max-width:600px){body.auth-page[data-auth-page="login"] .auth-scene{padding:14px 12px 26px!important}body.auth-page[data-auth-page="login"] .auth-card.form-section{padding:18px 17px 16px!important}}
