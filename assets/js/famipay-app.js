@@ -1879,7 +1879,9 @@
         bottom.hidden = !isPrimary;
         main.replaceChildren();
 
-        if (screenId === 'home' && role === 'customer') {
+        if (screenId === 'qr-payment') {
+            renderQrPayment(main);
+        } else if (screenId === 'home' && role === 'customer') {
             const dashboard = element('section', null, 'fp-classic-dashboard');
             const masthead = element('div', null, 'fp-classic-masthead');
             const heading = element('div');
