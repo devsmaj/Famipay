@@ -216,14 +216,25 @@
                 hash.has('error_code') || url.searchParams.has('error_code');
             await window.Famina.ready;
             if (!callback) {
+                // The public entry point must honor an already restored, backend-verified session.
+                // Famina.ready waits for Supabase session restoration and /auth/me verification.
+                const profile = window.Famina.user;
+                if (profile && (profile.email_verified || profile.phone_verified)) {
+                    const destination = profile.onboarding_complete
+                        ? 'famipay-app.html'
+                        : 'famipay-onboarding.html';
+                    location.replace(new URL(destination, location.href).href);
+                    return;
+                }
+                // Keep the existing registration confirmation flow for unverified accounts.
                 let pendingEmail = null;
                 let registrationSuccess = false;
                 try {
                     pendingEmail = sessionStorage.getItem('famina-pending-email-verification');
                     registrationSuccess = sessionStorage.getItem('famina-registration-success') === '1';
                 } catch (_) {}
-                if ((pendingEmail || registrationSuccess) && window.Famina.user?.email_verified) {
-                    const email = window.Famina.user.email || pendingEmail;
+                if ((pendingEmail || registrationSuccess) && profile?.email_verified) {
+                    const email = profile.email || pendingEmail;
                     if (email) {
                         try { sessionStorage.setItem('famina-pending-email-verification', email); } catch (_) {}
                     }
