@@ -129,7 +129,12 @@ jobs:
             adb exec-out screencap -p > mobile/dist/android-update.png
             test -s mobile/dist/android-update.png
             adb logcat -d -b crash > mobile/dist/android-crash-log.txt
-            test ! -s mobile/dist/android-crash-log.txt
+            # The emulator may report unrelated system-process crashes.
+            # Fail only when the installed FAMIPAY package is implicated.
+            if grep -E -A 12 'FATAL EXCEPTION:|Fatal signal [0-9]+' mobile/dist/android-crash-log.txt | grep -E -q 'Process: com\\.famipay\\.app\\.preview|>>> com\\.famipay\\.app\\.preview <<<|Cmdline: com\\.famipay\\.app\\.preview'; then
+              echo "::error::FAMIPAY crashed after launch; inspect android-crash-log.txt"
+              exit 1
+            fi
       - uses: actions/upload-artifact@v7.0.2
         with:
           name: FAMIPAY.apk
