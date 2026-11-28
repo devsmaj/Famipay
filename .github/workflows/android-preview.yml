@@ -1,21 +1,7 @@
 name: FAMIPAY Android APK
 
+# APK builds are paused on commits; start manually from GitHub Actions when needed.
 on:
-  push:
-    branches: [main]
-    paths:
-      - mobile/**
-      - backend/**
-      - .github/workflows/android-preview.yml
-      - famipay-app.html
-      - famipay-onboarding.html
-      - login.html
-      - register.html
-      - verify-email.html
-      - terms.html
-      - privacy.html
-      - contact.html
-      - assets/**
   workflow_dispatch:
 
 permissions:
