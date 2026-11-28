@@ -1645,7 +1645,7 @@
             const setAmount=element('button','Set Amount');const save=element('button','Save QR');
             setAmount.type=save.type='button';footer.append(setAmount,save);
             card.append(name,number,qrBox,footer);content.append(card);
-            const scanShortcut=element('button','Scan','fp-qr-scan-shortcut');scanShortcut.onclick=()=>renderScan();content.append(scanShortcut);
+            const scanShortcut=element('button','Scan','fp-qr-scan-shortcut');scanShortcut.setAttribute('aria-label','Scan QR code');scanShortcut.onclick=()=>renderScan();content.append(scanShortcut);
             const client=window.Famina?.client;
             try{
                 if(!client?.auth?.getUser)throw new Error('Sign in to create your personal QR.');
@@ -1676,6 +1676,21 @@
                     qrBox.replaceChildren(image);
                 }catch(e){qrBox.textContent=e?.message||'QR unavailable.';}
             };
+            const makeDownload=async()=>{
+                if(!qrCanvas)throw new Error('QR is not ready to save.');
+                const canvas=document.createElement('canvas');canvas.width=900;canvas.height=1380;
+                const ctx=canvas.getContext('2d');
+                ctx.fillStyle='#1bc79f';ctx.fillRect(0,0,900,1380);
+                ctx.fillStyle='#fff';ctx.font='bold 67px system-ui';ctx.textAlign='center';ctx.fillText('Pay with FAMIPAY',450,145);
+                const rounded=(x,y,w,h,r)=>{ctx.beginPath();ctx.roundRect(x,y,w,h,r);ctx.fill();};
+                ctx.fillStyle='#fff';rounded(125,235,650,850,38);
+                ctx.drawImage(qrCanvas,193,330,514,514);
+                ctx.fillStyle='#172722';ctx.font='32px system-ui';ctx.fillText(accountName,450,925);
+                ctx.font='bold 42px system-ui';ctx.fillText(verifiedPhone,450,991);
+                if(amount>0){ctx.font='bold 28px system-ui';ctx.fillText(amount.toLocaleString()+' FCFA',450,1040);}
+                ctx.fillStyle='#fff';ctx.font='bold 64px system-ui';ctx.fillText('FAMIPAY',450,1265);
+                return await new Promise((resolve,reject)=>canvas.toBlob(b=>b?resolve(b):reject(new Error('Unable to export QR.')),'image/png'));
+            };
             setAmount.onclick=()=>{
                 const shade=element('div',null,'fp-qr-sheet-backdrop');
                 const sheet=element('section',null,'fp-qr-amount-sheet');
@@ -1692,7 +1707,7 @@
                 if(!qrCanvas){show('QR is not ready to save.');return;}
                 save.disabled=true;save.replaceChildren(element('span',null,'fp-button-spinner'));
                 try{
-                    const blob=await new Promise(resolve=>qrCanvas.toBlob(resolve,'image/png'));
+                    const blob=await makeDownload();
                     if(!blob)throw new Error('Unable to export QR.');
                     const file=new File([blob],'famipay-qr.png',{type:'image/png'});
                     if(navigator.canShare?.({files:[file]})&&navigator.share){await navigator.share({files:[file],title:'FAMIPAY QR'});}
@@ -1707,10 +1722,12 @@
             const frame=element('div',null,'fp-qr-camera');
             const video=document.createElement('video');video.autoplay=true;video.playsInline=true;video.muted=true;
             const guide=element('div',null,'fp-qr-guide');guide.append(element('span',null,'fp-qr-scan-line'));
+            const cornerA=element('span',null,'fp-qr-corner fp-qr-corner-tl'),cornerB=element('span',null,'fp-qr-corner fp-qr-corner-tr'),cornerC=element('span',null,'fp-qr-corner fp-qr-corner-bl'),cornerD=element('span',null,'fp-qr-corner fp-qr-corner-br');guide.append(cornerA,cornerB,cornerC,cornerD);
             frame.append(video,guide);content.append(frame);
             const status=element('p','Point your camera at a FAMIPAY QR code.','fp-qr-scan-status');content.append(status);
             const actions=element('div',null,'fp-qr-camera-actions');
             const torch=element('button','Flashlight');const album=element('button','Album');const myQr=element('button','My QR');
+            torch.prepend(element('span','♜','fp-qr-action-symbol'));album.prepend(element('span','▧','fp-qr-action-symbol'));myQr.prepend(element('span','▦','fp-qr-action-symbol'));
             actions.append(torch,myQr,album);content.append(actions);
             myQr.onclick=()=>renderPay();
             const input=document.createElement('input');input.type='file';input.accept='image/*';input.hidden=true;content.append(input);album.onclick=()=>input.click();
