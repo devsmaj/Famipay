@@ -1608,9 +1608,146 @@
     }
 
 
+
+    // Account QR uses an explicit FAMIPAY payload; it never initiates or confirms a transfer.
+    let qrCameraStream=null;
+    function stopQrCamera(){if(qrCameraStream){qrCameraStream.getTracks().forEach(t=>t.stop());qrCameraStream=null;}}
+    window.addEventListener('hashchange',()=>{if(location.hash!=='#qr-payment')stopQrCamera();});
+    function renderQrPayment(container){
+        const root=element('section',null,'fp-qr-screen');
+        const top=element('header',null,'fp-qr-top');
+        const back=element('button','‹','fp-qr-back');back.type='button';back.setAttribute('aria-label','Back');back.onclick=()=>{stopQrCamera();navigateBack();};
+        const tabs=element('div',null,'fp-qr-tabs');
+        const scanTab=element('button','Scan','fp-qr-tab');const payTab=element('button','Pay Me','fp-qr-tab');
+        scanTab.type=payTab.type='button';tabs.append(scanTab,payTab);
+        top.append(back,tabs);root.append(top);
+        const content=element('div',null,'fp-qr-content');root.append(content);container.append(root);
+        let amount=0,verifiedPhone='',accountName='',qrCanvas=null;
+        const show=(message)=>{const el=element('p',message,'fp-qr-notice');content.append(el);};
+        const activate=tab=>{scanTab.classList.toggle('active',tab==='scan');payTab.classList.toggle('active',tab==='pay');root.classList.toggle('fp-qr-scan-mode',tab==='scan');root.classList.toggle('fp-qr-pay-mode',tab==='pay');content.replaceChildren();stopQrCamera();};
+        const loadQrLibrary=()=>new Promise((resolve,reject)=>{
+            if(window.QRCode){resolve();return;}
+            const existing=document.querySelector('script[data-fp-qrcode]');
+            if(existing){existing.addEventListener('load',resolve,{once:true});existing.addEventListener('error',reject,{once:true});return;}
+            const s=document.createElement('script');s.dataset.fpQrcode='1';
+            s.src='https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js';
+            s.onload=resolve;s.onerror=()=>reject(new Error('QR generator unavailable. Check your internet connection.'));
+            document.head.append(s);
+        });
+        const renderPay=async()=>{
+            activate('pay');
+            const card=element('section',null,'fp-qr-pay-card');
+            const name=element('strong','FAMIPAY','fp-qr-pay-name');
+            const number=element('h1','Loading account…','fp-qr-pay-number');
+            const qrBox=element('div',null,'fp-qr-code-box');
+            const logo=element('span','F','fp-qr-logo');
+            const footer=element('div',null,'fp-qr-pay-actions');
+            const setAmount=element('button','Set Amount');const save=element('button','Save QR');
+            setAmount.type=save.type='button';footer.append(setAmount,save);
+            card.append(name,number,qrBox,footer);content.append(card);
+            const scanShortcut=element('button','Scan','fp-qr-scan-shortcut');scanShortcut.onclick=()=>renderScan();content.append(scanShortcut);
+            const client=window.Famina?.client;
+            try{
+                if(!client?.auth?.getUser)throw new Error('Sign in to create your personal QR.');
+                const {data,error}=await client.auth.getUser();if(error)throw error;
+                const user=data?.user;
+                const digits=String(user?.phone||'').replace(/\D/g,'');
+                if(!user?.phone_confirmed_at || !/^235[0-9]{8}$/.test(digits))throw new Error('Verify your Chad phone number in Profile Info to activate your personal QR.');
+                verifiedPhone=digits.slice(3);accountName=String(window.Famina?.user?.full_name||user?.user_metadata?.full_name||'FAMIPAY Account').trim();
+                name.textContent=accountName;number.textContent=verifiedPhone;
+            }catch(e){number.textContent='Account not verified';show(e?.message||'Unable to load account.');setAmount.disabled=save.disabled=true;return;}
+            const draw=async()=>{
+                qrBox.replaceChildren();qrCanvas=null;
+                try{
+                    await loadQrLibrary();
+                    const payload=JSON.stringify({scheme:'famipay',version:1,type:'receive',phone:'+235'+verifiedPhone,currency:'XAF',...(amount>0?{amount}: {})});
+                    const target=element('div',null,'fp-qr-generated');qrBox.append(target);
+                    new window.QRCode(target,{text:payload,width:256,height:256,colorDark:'#101010',colorLight:'#ffffff',correctLevel:window.QRCode.CorrectLevel.H});
+                    const original=target.querySelector('canvas');
+                    if(!original)throw new Error('QR image could not be created.');
+                    qrCanvas=document.createElement('canvas');qrCanvas.width=qrCanvas.height=600;
+                    const ctx=qrCanvas.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,600,600);
+                    ctx.drawImage(original,30,30,540,540);
+                    // Small central mark remains within the QR high-error-correction area.
+                    ctx.fillStyle='#fff';ctx.beginPath();ctx.roundRect(262,262,76,76,16);ctx.fill();
+                    ctx.fillStyle='#00b87b';ctx.beginPath();ctx.roundRect(269,269,62,62,13);ctx.fill();
+                    ctx.fillStyle='#fff';ctx.font='bold 48px system-ui';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('F',300,302);
+                    const image=document.createElement('img');image.src=qrCanvas.toDataURL('image/png');image.alt='Your FAMIPAY receive QR code';
+                    qrBox.replaceChildren(image);
+                }catch(e){qrBox.textContent=e?.message||'QR unavailable.';}
+            };
+            setAmount.onclick=()=>{
+                const shade=element('div',null,'fp-qr-sheet-backdrop');
+                const sheet=element('section',null,'fp-qr-amount-sheet');
+                const heading=element('h2','Set Amount for QR Code');
+                const close=element('button','×','fp-qr-sheet-close');close.onclick=()=>shade.remove();heading.append(close);
+                const input=document.createElement('input');input.type='number';input.min='0';input.step='1';input.inputMode='numeric';input.placeholder='₣ 0';input.value=amount||'';
+                const presets=element('div',null,'fp-qr-presets');
+                [500,1000,2000,5000,10000,20000].forEach(n=>{const b=element('button',n.toLocaleString()+' FCFA');b.onclick=()=>{input.value=String(n);};presets.append(b);});
+                const confirm=element('button','Confirm','fp-qr-confirm');
+                confirm.onclick=()=>{const n=Number(input.value||0);if(!Number.isSafeInteger(n)||n<0||n>100000000){input.setCustomValidity('Enter a valid amount.');input.reportValidity();return;}amount=n;shade.remove();draw();};
+                sheet.append(heading,input,presets,confirm);shade.append(sheet);shade.onclick=e=>{if(e.target===shade)shade.remove();};document.body.append(shade);input.focus();
+            };
+            save.onclick=async()=>{
+                if(!qrCanvas){show('QR is not ready to save.');return;}
+                save.disabled=true;save.replaceChildren(element('span',null,'fp-button-spinner'));
+                try{
+                    const blob=await new Promise(resolve=>qrCanvas.toBlob(resolve,'image/png'));
+                    if(!blob)throw new Error('Unable to export QR.');
+                    const file=new File([blob],'famipay-qr.png',{type:'image/png'});
+                    if(navigator.canShare?.({files:[file]})&&navigator.share){await navigator.share({files:[file],title:'FAMIPAY QR'});}
+                    else{const url=URL.createObjectURL(blob);const link=document.createElement('a');link.href=url;link.download='famipay-qr.png';document.body.append(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),30000);}
+                }catch(e){if(e?.name!=='AbortError')show(e?.message||'Could not save QR.');}
+                finally{save.disabled=false;save.textContent='Save QR';}
+            };
+            await draw();
+        };
+        const renderScan=()=>{
+            activate('scan');
+            const frame=element('div',null,'fp-qr-camera');
+            const video=document.createElement('video');video.autoplay=true;video.playsInline=true;video.muted=true;
+            const guide=element('div',null,'fp-qr-guide');guide.append(element('span',null,'fp-qr-scan-line'));
+            frame.append(video,guide);content.append(frame);
+            const status=element('p','Point your camera at a FAMIPAY QR code.','fp-qr-scan-status');content.append(status);
+            const actions=element('div',null,'fp-qr-camera-actions');
+            const torch=element('button','Flashlight');const album=element('button','Album');const myQr=element('button','My QR');
+            actions.append(torch,myQr,album);content.append(actions);
+            myQr.onclick=()=>renderPay();
+            const input=document.createElement('input');input.type='file';input.accept='image/*';input.hidden=true;content.append(input);album.onclick=()=>input.click();
+            const process=raw=>{
+                try{
+                    const payload=JSON.parse(raw);
+                    if(payload.scheme!=='famipay'||payload.version!==1||payload.type!=='receive'||!/^\+235[0-9]{8}$/.test(payload.phone))throw new Error();
+                    stopQrCamera();
+                    status.textContent='FAMIPAY recipient: '+payload.phone.slice(4)+(payload.amount?' • '+payload.amount+' FCFA':'')+'. Payment processing is not connected yet.';
+                }catch(_){status.textContent='This is not a supported FAMIPAY receive QR code.';}
+            };
+            const detector=typeof BarcodeDetector!=='undefined'?new BarcodeDetector({formats:['qr_code']}):null;
+            input.onchange=async()=>{
+                if(!input.files?.[0])return;
+                if(!detector){status.textContent='QR scanning is not supported by this browser.';return;}
+                try{const bitmap=await createImageBitmap(input.files[0]);const codes=await detector.detect(bitmap);bitmap.close();if(codes.length)process(codes[0].rawValue);else status.textContent='No QR code found in this image.';}catch(_){status.textContent='Unable to read this image.';}
+            };
+            torch.onclick=async()=>{const track=qrCameraStream?.getVideoTracks()[0];if(!track?.getCapabilities?.().torch){status.textContent='Flashlight unavailable on this device.';return;}try{const enabled=torch.dataset.on!=='1';await track.applyConstraints({advanced:[{torch:enabled}]});torch.dataset.on=enabled?'1':'0';}catch(_){status.textContent='Unable to control flashlight.';}};
+            if(!navigator.mediaDevices?.getUserMedia){status.textContent='Camera unavailable. Use a supported secure browser.';return;}
+            navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'},audio:false}).then(stream=>{
+                if(!frame.isConnected){stream.getTracks().forEach(t=>t.stop());return;}
+                qrCameraStream=stream;video.srcObject=stream;
+                if(!detector){status.textContent='Camera ready, but QR detection is not supported in this browser.';return;}
+                let busy=false;const scan=async()=>{
+                    if(!frame.isConnected||!qrCameraStream)return;
+                    if(!busy&&video.readyState>=2){busy=true;try{const codes=await detector.detect(video);if(codes.length){process(codes[0].rawValue);return;}}catch(_){}finally{busy=false;}}
+                    setTimeout(scan,350);
+                };scan();
+            }).catch(e=>{status.textContent='Camera access unavailable: '+(e?.message||'permission denied');});
+        };
+        scanTab.onclick=renderScan;payTab.onclick=renderPay;renderScan();
+    }
+
     // Purpose-built service screens. Preserve the existing visual language and route shell.
     function renderServiceContent(screen, container) {
         const id = screen.id;
+        if(id==='qr-payment'){renderQrPayment(container);return;}
         const section = (title, description) => {
             const card = element('section', null, 'fp-native-card');
             card.append(element('h2', translateText(title)));
