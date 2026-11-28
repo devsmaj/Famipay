@@ -1536,7 +1536,7 @@
                 main.append(grid);
             }
             main.append(element('div', translateText('Financial actions require an authorized provider or existing backend service.'), 'warning'));
-        } else if (role === 'customer' && ['my-cards','express-home','my-orders','my-profile','profile-details','profile-photo','profile-edit','profile-address','account-limits','settings','invitation','support-topic'].includes(screenId)) {
+        } else if (role === 'customer' && (['my-cards','express-home','my-orders','my-profile','profile-details','profile-photo','profile-edit','profile-address','account-limits','settings','invitation','support-topic'].includes(screenId) || screenId.startsWith('settings-'))) {
             premiumCustomerPage(screenId);
         } else if (isPrimary) {
             main.append(buildHeader());
