@@ -32,6 +32,8 @@
         {group:'FA-MINNA Express',title:'My Orders',id:'my-orders'},
         {group:'Account',title:'Notifications',id:'notifications'},
         {group:'Account',title:'My Profile',id:'my-profile'},
+        {group:'Account',title:'Profile Details',id:'profile-details'},
+        {group:'Account',title:'Profile Photo',id:'profile-photo'},
         {group:'Account',title:'Settings',id:'settings'},
         {group:'Account',title:'Help Center',id:'help-center'},
         {group:'Merchant',title:'Merchant Registration',id:'merchant-registration'},
@@ -689,6 +691,226 @@
         draw();
     }
 
+
+    // Account pages: show verified account data only; never synthesize an account tier or number.
+    function accountMetadata() {
+        return window.Famina?.client?.auth?.getUser ? window.Famina.client.auth.getUser() : Promise.resolve({data:{user:null}});
+    }
+    function profileAvatar(sizeClass = '') {
+        const wrap = element('span', null, 'fp-me-avatar ' + sizeClass);
+        const initial = element('span', firstName().charAt(0).toUpperCase() || 'F');
+        const url = safePhoto(avatarUrl || window.Famina?.user?.avatar_url || '');
+        if (url) {
+            const img = document.createElement('img');
+            img.src = url;
+            img.alt = 'Profile photo';
+            img.onerror = () => img.replaceWith(initial);
+            wrap.append(img);
+        } else wrap.append(initial);
+        return wrap;
+    }
+    function meRow(parent, label, destination, icon) {
+        const button = element('button', null, 'fp-me-row');
+        button.type = 'button';
+        const left = element('span', null, 'fp-me-row-left');
+        if (iconPaths[icon]) left.append(svgIcon(icon));
+        left.append(element('span', translateText(label)));
+        button.append(left, element('span', '›', 'fp-me-arrow'));
+        button.onclick = () => navigate(destination);
+        parent.append(button);
+    }
+    function renderMePage(page) {
+        page.classList.add('fp-me-page');
+        const user = window.Famina?.user || {};
+        const heading = element('div', null, 'fp-me-top');
+        const help = element('button', null, 'fp-me-top-icon');
+        help.type = 'button'; help.setAttribute('aria-label', 'Help Center');
+        help.append(svgIcon('help')); help.onclick = () => navigate('help-center');
+        const settings = element('button', null, 'fp-me-top-icon');
+        settings.type = 'button'; settings.setAttribute('aria-label', 'Settings');
+        settings.append(svgIcon('settings')); settings.onclick = () => navigate('settings');
+        heading.append(help,settings);
+        page.append(heading);
+        const hero = element('button', null, 'fp-me-identity');
+        hero.type = 'button';
+        hero.append(profileAvatar());
+        const person = element('span',null,'fp-me-identity-copy');
+        person.append(element('strong',user.nickname || user.name?.trim().split(/\\s+/)[0] || firstName()));
+        person.append(element('small', translateText('View my profile') + ' ›'));
+        hero.append(person,element('span','›','fp-me-arrow'));
+        hero.onclick = () => navigate('profile-details');
+        page.append(hero);
+        const balance = element('section',null,'fp-me-balance');
+        const balanceLine = element('div',null,'fp-me-balance-line');
+        balanceLine.append(element('span',translateText('Total Balance')));
+        const hidden = element('strong','****');
+        const eye = element('button',null,'fp-me-eye'); eye.type='button';
+        eye.append(svgIcon('eye-off')); eye.setAttribute('aria-label','Show wallet status');
+        let masked=true;
+        eye.onclick=()=>{masked=!masked;hidden.textContent=masked?'****':translateText('Wallet not connected');eye.replaceChildren(svgIcon(masked?'eye-off':'eye'));};
+        balanceLine.append(eye,hidden);
+        balance.append(balanceLine,element('p',translateText('Earned Today') + ' —'));
+        page.append(balance);
+        const shortcuts = element('section',null,'fp-me-shortcuts');
+        [['Transactions','my-orders','orders'],['Account Limits','settings','shield'],['Security Center','settings','shield']].forEach(([label,destination,icon])=>{
+            const button=element('button',null,'fp-me-shortcut');button.type='button';
+            const badge=element('span',null,'fp-me-shortcut-icon');
+            if(iconPaths[icon])badge.append(svgIcon(icon));
+            button.append(badge,element('span',translateText(label)));
+            button.onclick=()=>navigate(destination);
+            shortcuts.append(button);
+        });
+        page.append(shortcuts);
+        const menu=element('section',null,'fp-me-menu');
+        meRow(menu,'Bank Card / Account','my-cards','cards');
+        meRow(menu,'My Profile','profile-details','profile');
+        meRow(menu,'Notifications','notifications','bell');
+        meRow(menu,'Settings & Language','settings','services');
+        meRow(menu,'Help Center','help-center','help');
+        page.append(menu);
+        const assistant=element('button',translateText('FAMIPAY Support Assistant')+'  ›','fp-me-assistant');
+        assistant.type='button';assistant.onclick=()=>navigate('help-center');
+        page.append(assistant);
+    }
+    function profileBackHeader(page,title) {
+        const header=element('div',null,'fp-me-subheader');
+        const back=element('button','‹','fp-me-back');
+        back.type='button';back.setAttribute('aria-label','Back');
+        back.onclick=()=>navigateBack();
+        header.append(back,element('span',translateText(title)));
+        page.append(header);
+    }
+    function renderProfileDetails(page) {
+        page.classList.add('fp-me-details');
+        profileBackHeader(page,'My Profile');
+        const user=window.Famina?.user || {};
+        const card=element('section',null,'fp-me-details-card');
+        const portrait=element('button',null,'fp-me-portrait');
+        portrait.type='button';portrait.setAttribute('aria-label','Change profile photo');
+        portrait.append(profileAvatar('fp-me-avatar-large'));
+        const camera=element('span',null,'fp-me-camera');camera.append(svgIcon('camera'));
+        portrait.append(camera);portrait.onclick=()=>navigate('profile-photo');
+        card.append(portrait,element('strong',user.nickname || firstName()));
+        const account=element('div',null,'fp-me-account-info');
+        const phone=user.phone || '';
+        const accountRow=element('div',null,'fp-me-field');
+        accountRow.append(element('span',translateText('FAMIPAY Account')),element('span',phone || translateText('Not connected')));
+        account.append(accountRow);
+        const level=element('div',null,'fp-me-field');
+        level.append(element('span',translateText('Account Level')),element('span',translateText('Verification status unavailable')));
+        account.append(level);card.append(account);page.append(card);
+        const fields=element('section',null,'fp-me-fields');
+        const metadata = user.user_metadata || {};
+        const values=[
+            ['Full Name',user.name || metadata.full_name || '',null],
+            ['Mobile Number',phone,null],
+            ['Nickname',metadata.nickname || user.nickname || '', 'nickname'],
+            ['Gender',metadata.gender || '', 'gender'],
+            ['Date of Birth',metadata.date_of_birth || '', 'date_of_birth'],
+            ['Email',user.email || '', 'email'],
+            ['Address',metadata.address || '', 'address']
+        ];
+        values.forEach(([label,value,key])=>{
+            const row=element(key?'button':'div',null,'fp-me-field'+(key?' fp-me-field-editable':''));
+            if(key)row.type='button';
+            row.append(element('span',translateText(label)),element('span',value || translateText('Not set')));
+            if(key){row.append(element('span','›','fp-me-arrow'));row.onclick=()=>renderProfileEditor(page,key,label,value);}
+            fields.append(row);
+        });
+        page.append(fields);
+    }
+    function renderProfileEditor(page,key,label,oldValue) {
+        const panel=element('section',null,'fp-me-editor');
+        const header=element('div',null,'fp-me-editor-heading');
+        header.append(element('h2',translateText('Edit')+' '+translateText(label)));
+        const close=element('button','×');close.type='button';close.setAttribute('aria-label','Close editor');
+        close.onclick=()=>panel.remove();header.append(close);panel.append(header);
+        let input;
+        if(key==='gender'){
+            input=document.createElement('select');
+            [['','Select gender'],['Male','Male'],['Female','Female'],['Prefer not to say','Prefer not to say']].forEach(([v,t])=>{const option=document.createElement('option');option.value=v;option.textContent=translateText(t);input.append(option);});
+        } else {
+            input=document.createElement('input');
+            input.type=key==='date_of_birth'?'date':key==='email'?'email':'text';
+            if(key==='date_of_birth')input.max=new Date().toISOString().slice(0,10);
+            if(key==='nickname')input.maxLength=50;
+            if(key==='address')input.maxLength=250;
+        }
+        input.value=oldValue || '';input.setAttribute('aria-label',label);panel.append(input);
+        const feedback=element('p',null,'fp-me-editor-feedback');
+        const save=element('button',translateText('Save changes'),'fp-me-save');
+        save.type='button';
+        save.onclick=async()=>{
+            const value=input.value.trim();
+            if(!value){feedback.textContent=translateText('Please enter a value.');return;}
+            if(key==='email'&&!input.checkValidity()){feedback.textContent=translateText('Enter a valid email address.');return;}
+            const client=window.Famina?.client;
+            if(!client?.auth?.updateUser){feedback.textContent=translateText('Account updates are unavailable.');return;}
+            save.disabled=true;feedback.textContent=translateText('Saving…');
+            try{
+                const payload=key==='email'?{email:value}:{data:{[key]:value}};
+                const {error}=await client.auth.updateUser(payload);
+                if(error)throw error;
+                if(key!=='email'){
+                    if(window.Famina?.user){
+                        window.Famina.user.user_metadata={...(window.Famina.user.user_metadata||{}),[key]:value};
+                        if(key==='nickname')window.Famina.user.nickname=value;
+                    }
+                    panel.remove();render();
+                } else {
+                    feedback.textContent=translateText('Check your email to confirm the address change.');
+                }
+            }catch(error){feedback.textContent=error?.message||translateText('Could not save changes.');}
+            finally{save.disabled=false;}
+        };
+        panel.append(save,feedback);page.append(panel);input.focus();
+    }
+    function renderProfilePhoto(page) {
+        page.classList.add('fp-me-photo-page');
+        profileBackHeader(page,'Photo');
+        const center=element('div',null,'fp-me-photo-center');
+        const avatar=profileAvatar('fp-me-photo-preview');
+        center.append(avatar);
+        page.append(center);
+        const controls=element('div',null,'fp-me-photo-controls');
+        const feedback=element('p',null,'fp-me-photo-feedback');
+        const upload=async file=>{
+            if(!file)return;
+            if(!['image/jpeg','image/png','image/webp'].includes(file.type)||file.size>2*1024*1024){
+                feedback.textContent=translateText('Choose a JPG, PNG or WebP image under 2 MB.');return;
+            }
+            const client=window.Famina?.client;
+            if(!client?.auth||!client?.storage){feedback.textContent=translateText('Photo uploads are unavailable.');return;}
+            feedback.textContent=translateText('Uploading photo…');
+            try{
+                const {data,error}=await client.auth.getSession();if(error)throw error;
+                const id=data?.session?.user?.id;if(!id)throw new Error('Please sign in again.');
+                const ext=file.type==='image/png'?'png':file.type==='image/webp'?'webp':'jpg';
+                const key=id+'/profile.'+ext;
+                const {error:uploadError}=await client.storage.from('avatars').upload(key,file,{upsert:true,contentType:file.type});
+                if(uploadError)throw uploadError;
+                const {data:publicData}=client.storage.from('avatars').getPublicUrl(key);
+                const url=safePhoto(publicData?.publicUrl);
+                if(!url)throw new Error('Could not retrieve photo URL.');
+                const {error:updateError}=await client.auth.updateUser({data:{avatar_url:url}});
+                if(updateError)throw updateError;
+                avatarUrl=url+'?v='+Date.now();
+                if(window.Famina?.user)window.Famina.user.avatar_url=avatarUrl;
+                avatar.replaceChildren();
+                const image=document.createElement('img');image.src=avatarUrl;image.alt='Profile photo';avatar.append(image);
+                feedback.textContent=translateText('Profile photo updated.');
+            }catch(error){feedback.textContent=error?.message||translateText('Upload failed.');}
+        };
+        [['Select from album',false],['Take a Photo',true]].forEach(([label,camera])=>{
+            const input=document.createElement('input');input.type='file';input.accept='image/jpeg,image/png,image/webp';
+            if(camera)input.setAttribute('capture','user');
+            input.hidden=true;input.onchange=()=>{const file=input.files?.[0];upload(file);input.value='';};
+            const button=element('button',translateText(label),'fp-me-photo-button');button.type='button';
+            button.onclick=()=>input.click();controls.append(input,button);
+        });
+        controls.append(feedback);page.append(controls);
+    }
+
     function premiumCustomerPage(screenId) {
         const page = element('div', null, 'fp-premium-page');
         if (screenId === 'my-cards') {
@@ -822,91 +1044,11 @@
             });
             else { orders = []; paint(); }
         } else if (screenId === 'my-profile') {
-            premiumTitle(page, 'My Account', 'Your personal FAMIPAY space');
-            const user = window.Famina?.user || {};
-            const profile = element('section', null, 'fp-premium-profile');
-            const avatar = element('span', String(user.name || user.email || 'F').trim().charAt(0).toUpperCase(), 'fp-premium-profile-avatar');
-            const info = element('div', null, 'fp-premium-profile-info');
-            info.append(element('strong', user.name || translateText('FAMIPAY User')), element('small', user.email || user.phone || translateText('Personal Account')));
-            const photo = element('div', null, 'fp-profile-photo-controls');
-            const picker = document.createElement('input');
-            picker.type = 'file';
-            picker.accept = 'image/jpeg,image/png,image/webp';
-            picker.hidden = true;
-            picker.setAttribute('aria-label', 'Choose profile photo');
-            const uploadButton = element('button', 'Upload photo', 'fp-profile-photo-button');
-            uploadButton.type = 'button';
-            const feedback = element('small', '', 'fp-profile-photo-feedback');
-            const showAvatar = url => {
-                const safe = safePhoto(url);
-                if (!safe) return;
-                const img = document.createElement('img');
-                img.src = safe;
-                img.alt = 'Your profile photo';
-                img.className = 'fp-profile-photo-image';
-                img.onerror = () => img.replaceWith(element('span', firstName().slice(0, 1).toUpperCase()));
-                avatar.replaceChildren(img);
-            };
-            if (avatarUrl) showAvatar(avatarUrl);
-            uploadButton.onclick = () => picker.click();
-            picker.onchange = async () => {
-                const file = picker.files?.[0];
-                if (!file) return;
-                if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type) || file.size > 2 * 1024 * 1024) {
-                    feedback.textContent = 'Choose a JPG, PNG or WebP image under 2 MB.';
-                    picker.value = '';
-                    return;
-                }
-                const client = window.Famina?.client;
-                if (!client?.storage || !client?.auth) {
-                    feedback.textContent = 'Photo uploads are not available right now.';
-                    return;
-                }
-                uploadButton.disabled = true;
-                feedback.textContent = 'Uploading photo…';
-                try {
-                    const {data: sessionData, error: sessionError} = await client.auth.getSession();
-                    if (sessionError) throw sessionError;
-                    const id = sessionData?.session?.user?.id;
-                    if (!id) throw new Error('Please sign in again.');
-                    const ext = file.type === 'image/png' ? 'png' : file.type === 'image/webp' ? 'webp' : 'jpg';
-                    const key = id + '/profile.' + ext;
-                    const {error: uploadError} = await client.storage.from('avatars').upload(key, file, {upsert:true, contentType:file.type});
-                    if (uploadError) throw uploadError;
-                    const {data: publicData} = client.storage.from('avatars').getPublicUrl(key);
-                    const url = safePhoto(publicData?.publicUrl);
-                    if (!url) throw new Error('Could not retrieve the uploaded photo.');
-                    const {error: updateError} = await client.auth.updateUser({data:{avatar_url:url}});
-                    if (updateError) throw updateError;
-                    avatarUrl = url + '?v=' + Date.now();
-                    showAvatar(avatarUrl);
-                    feedback.textContent = 'Profile photo updated.';
-                } catch (error) {
-                    feedback.textContent = error?.message || 'Photo upload failed. Please try again.';
-                } finally {
-                    uploadButton.disabled = false;
-                    picker.value = '';
-                }
-            };
-            photo.append(picker, uploadButton, feedback);
-            info.append(photo);
-            profile.append(avatar, info);
-            page.append(profile);
-            page.append(element('h2', translateText('Account & Security'), 'fp-premium-section-title'));
-            const account = element('section', null, 'fp-premium-list');
-            const details = element('div', null, 'fp-premium-account-details');
-            details.append(element('strong', translateText('Personal information')));
-            if (user.name) details.append(element('p', user.name));
-            if (user.email) details.append(element('p', user.email));
-            if (user.phone) details.append(element('p', user.phone));
-            account.append(details);
-            premiumAction(account,'Settings & Language','settings','services','Preferences and languages');
-            premiumAction(account,'Notifications','notifications','bell','Alerts and updates');
-            page.append(account);
-            page.append(element('h2', translateText('Support'), 'fp-premium-section-title'));
-            const support = element('section', null, 'fp-premium-list');
-            premiumAction(support,'Help Center','help-center','help','Get assistance');
-            page.append(support);
+            renderMePage(page);
+        } else if (screenId === 'profile-details') {
+            renderProfileDetails(page);
+        } else if (screenId === 'profile-photo') {
+            renderProfilePhoto(page);
         }
         main.append(page);
     }
@@ -1119,7 +1261,7 @@
                 main.append(grid);
             }
             main.append(element('div', translateText('Financial actions require an authorized provider or existing backend service.'), 'warning'));
-        } else if (isPrimary && role === 'customer' && ['my-cards','express-home','my-orders','my-profile'].includes(screenId)) {
+        } else if (isPrimary && role === 'customer' && ['my-cards','express-home','my-orders','my-profile','profile-details','profile-photo'].includes(screenId)) {
             premiumCustomerPage(screenId);
         } else if (isPrimary) {
             main.append(buildHeader());
