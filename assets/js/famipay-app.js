@@ -263,10 +263,25 @@
         return 0;
     }
 
+    const privateRouteStack = [];
     function navigate(id) {
+        if (!byId[id] && id !== 'home') return;
         const current = decodeURIComponent(location.hash.slice(1) || 'home');
-        if (current !== id) previousPrivateRoute = current;
+        if (current === id) return;
+        previousPrivateRoute = current;
+        privateRouteStack.push(current);
+        if (privateRouteStack.length > 30) privateRouteStack.shift();
         location.hash = id;
+    }
+    function navigateBack() {
+        const current = decodeURIComponent(location.hash.slice(1) || 'home');
+        let target = privateRouteStack.pop();
+        while (target === current && privateRouteStack.length) target = privateRouteStack.pop();
+        if (!target || !byId[target]) target = previousPrivateRoute && byId[previousPrivateRoute] && previousPrivateRoute !== current
+            ? previousPrivateRoute : (tabRoutes[0] || 'home');
+        if (target === current) target = 'home';
+        previousPrivateRoute = null;
+        location.hash = target;
     }
 
     function addSideNavigation() {
@@ -341,7 +356,7 @@
         back.setAttribute('aria-label', translateText('Back'));
         back.append(backIcon());
         back.onclick = () => {
-            navigate(previousPrivateRoute || tabRoutes[0] || 'home');
+            navigateBack();
         };
         const title = element('h1', translateText(screen.title), 'fp-service-header-title');
         const historyAction = element('button', translateText('History'), 'fp-service-history');
@@ -902,7 +917,7 @@
         });
         updateNotificationBadge();
         document.title = (byId[screenId]?.title || 'Home') + ' · FAMIPAY';
-        window.scrollTo(0, 0);
+        window.scrollTo({top: 0, behavior: 'instant'});
     }
 
     addSideNavigation();
