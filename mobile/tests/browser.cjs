@@ -62,10 +62,12 @@ const server=http.createServer((request,response)=>{
       const cards=[...document.querySelectorAll('.fp-classic-grid .card')];
       return {count:cards.length,width:document.documentElement.scrollWidth,height:document.documentElement.scrollHeight,
        top:document.querySelector('.fp-classic-dashboard').getBoundingClientRect().top,navBottom:nav.bottom,
-       fits:cards.every(card=>{const r=card.getBoundingClientRect();return r.top>=0&&r.bottom<=nav.top&&r.left>=0&&r.right<=innerWidth&&card.scrollHeight<=card.clientHeight+1;})};
+       fits:cards.every(card=>{const r=card.getBoundingClientRect();return r.left>=0&&r.right<=innerWidth&&card.scrollHeight<=card.clientHeight+1;})};
      });
      assert.equal(layout.count,9);assert(layout.fits,JSON.stringify({size,layout}));
-     assert(layout.width<=size.width&&layout.height<=size.height,JSON.stringify({size,layout}));
+     // Home is intentionally vertically scrollable; the bottom navigation remains fixed.
+     assert(layout.width<=size.width,JSON.stringify({size,layout}));
+     assert(layout.height>=size.height,JSON.stringify({size,layout}));
      assert.equal(layout.top,0);assert.equal(layout.navBottom,size.height);
     }
     await page.setViewportSize({width:390,height:844});
