@@ -944,6 +944,44 @@
             })();
             return;
         }
+        if(title==='Change Password'){
+            const card=element('section',null,'fp-settings-card fp-settings-question');
+            const password=document.createElement('input');password.type='password';password.autocomplete='new-password';password.minLength=8;password.placeholder='New password (at least 8 characters)';
+            const confirm=document.createElement('input');confirm.type='password';confirm.autocomplete='new-password';confirm.placeholder='Confirm new password';
+            const status=element('p','','fp-settings-note');status.setAttribute('role','alert');
+            const save=element('button',translateText('Change Password'),'fp-me-save');save.type='button';
+            save.onclick=async()=>{
+                if(password.value.length<8){status.textContent='Use at least 8 characters.';return;}
+                if(password.value!==confirm.value){status.textContent='Passwords do not match.';return;}
+                save.disabled=true;save.setAttribute('aria-busy','true');status.textContent='Updating password…';
+                try{
+                    const client=window.Famina?.client;
+                    const {error}=await client.auth.updateUser({password:password.value});
+                    if(error)throw error;
+                    password.value='';confirm.value='';status.textContent='Password updated successfully.';
+                }catch(e){status.textContent=e?.message||'Unable to change password. Please sign in again.';}
+                finally{save.disabled=false;save.setAttribute('aria-busy','false');}
+            };
+            card.append(password,confirm,status,save);page.append(card);return;
+        }
+        if(title==='Forgot Password'){
+            const card=element('section',null,'fp-settings-card fp-settings-question');
+            card.append(element('p','Send a password reset link to your verified email address.','fp-settings-note'));
+            const status=element('p','','fp-settings-note');status.setAttribute('role','status');
+            const send=element('button','Send reset email','fp-me-save');send.type='button';
+            send.onclick=async()=>{
+                send.disabled=true;status.textContent='Sending…';
+                try{
+                    const client=window.Famina?.client;
+                    const {data:{user},error:authError}=await client.auth.getUser();
+                    if(authError||!user?.email)throw new Error('No verified email is available for password recovery.');
+                    const {error}=await client.auth.resetPasswordForEmail(user.email,{redirectTo:new URL('login.html',location.href).href});
+                    if(error)throw error;status.textContent='Check your email for the reset link.';
+                }catch(e){status.textContent=e?.message||'Could not send reset email.';}
+                finally{send.disabled=false;}
+            };
+            card.append(status,send);page.append(card);return;
+        }
         if(title==='Security Questions'){
             page.append(element('h2',translateText('Set up security questions')));
             page.append(element('p',translateText('Protect your account from unauthorized access'),'fp-settings-note'));
