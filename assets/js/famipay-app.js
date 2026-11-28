@@ -739,63 +739,102 @@
     }
 
     function renderCardsPage(page) {
-        premiumTitle(page, 'My Cards', 'Virtual and physical debit cards');
-        const switcher = element('div', null, 'fp-cards-switch');
-        const content = element('div', null, 'fp-cards-content');
-        let type = 'virtual';
-        const draw = () => {
+        page.classList.add('fp-cards-redesign');
+        const header = element('div',null,'fp-card-header');
+        header.append(element('h1',translateText('Cards')));
+        const help = element('button',translateText('Q&A'),'fp-card-help');
+        help.type='button'; help.onclick=()=>showDetail('help');
+        header.append(help);
+        const switcher=element('div',null,'fp-card-tabs');
+        const content=element('div',null,'fp-card-body');
+        let type='physical';
+        const services=[
+            ['Details','credit-card','details'],['Card Settings','shield','settings'],
+            ['Manage Dispute','alert-circle','dispute'],['Customize Card','palette','customize'],
+            ['Online Merchants','store','merchants'],['Transactions','receipt','transactions'],
+            ['Card Support','headphones','support']
+        ];
+        function showDetail(id) {
+            const definitions={
+                help:['Cards Help','FAMIPAY cards require an issuing partner. No card has been issued.'],
+                details:['Card Details','Card information becomes available after issuance.'],
+                settings:['Card Settings','Card security settings become available after issuance.'],
+                dispute:['Manage Dispute','Describe the transaction issue to prepare a support request.'],
+                customize:['Customize Card','Card appearance options become available after issuance.'],
+                merchants:['Online Merchants','Connected merchant controls become available after issuance.'],
+                transactions:['Card Transactions','Card transactions become available after issuance.'],
+                support:['Card Support','Tell us what you need help with.'],
+                apply:['Card Application','Enter your contact and delivery details. Card issuing is not yet available.']
+            };
+            const [title,description]=definitions[id];
+            content.replaceChildren();
+            switcher.hidden=true;header.hidden=true;
+            const detail=element('section',null,'fp-card-detail');
+            const back=element('button',translateText('‹  Back'),'fp-card-back');
+            back.type='button';back.onclick=()=>{header.hidden=false;switcher.hidden=false;draw();};
+            detail.append(back,element('h2',translateText(title)),element('p',translateText(description)));
+            const fields=id==='apply'?[['Full name','text'],['Phone number','tel'],['Region / Province','text'],['City','text'],['Delivery address','text'],['Nearby landmark','text']]:id==='dispute'||id==='support'?[['Describe your issue','textarea']]:[];
+            const form=element('form',null,'fp-card-form');
+            fields.forEach(([label,kind])=>{
+                const field=element('label',null,'fp-card-field');
+                field.append(element('span',translateText(label)));
+                const input=document.createElement(kind==='textarea'?'textarea':'input');
+                if(kind!=='textarea')input.type=kind;
+                input.placeholder=translateText(label);
+                input.required=true;field.append(input);form.append(field);
+            });
+            if(fields.length){
+                const submit=element('button',translateText(id==='apply'?'Continue':'Review request'),'fp-card-submit');
+                submit.type='submit';
+                const feedback=element('p',null,'fp-card-feedback');
+                form.onsubmit=e=>{e.preventDefault();feedback.textContent=translateText(id==='apply'?'Card issuing is not yet available. Your details have not been submitted.':'Support submission is not connected yet. No request has been sent.');};
+                form.append(submit,feedback);detail.append(form);
+            }
+            else {
+                const notice=element('div',translateText('This feature requires an issued card and a connected card provider.'),'fp-card-notice');
+                detail.append(notice);
+            }
+            content.append(detail);
+        }
+        function draw(){
             switcher.replaceChildren();
-            [['virtual','Virtual Card'],['physical','Physical Card']].forEach(([value,label]) => {
-                const button = element('button', translateText(label), 'fp-cards-switch-button' + (type === value ? ' active' : ''));
-                button.type = 'button';
-                button.setAttribute('aria-pressed', String(type === value));
-                button.onclick = () => { type = value; draw(); };
-                switcher.append(button);
+            [['physical','Physical Card'],['virtual','Virtual Card']].forEach(([value,label])=>{
+                const button=element('button',translateText(label),'fp-card-tab'+(type===value?' active':''));
+                button.type='button';button.setAttribute('aria-pressed',String(type===value));
+                button.onclick=()=>{type=value;draw();};switcher.append(button);
             });
             content.replaceChildren();
-            const card = element('div', null, 'fp-cards-face');
-            const top = element('div', null, 'fp-cards-face-top');
-            const logo = document.createElement('img');
-            logo.src = 'assets/branding/famipay-mark.svg';
-            logo.alt = 'FAMIPAY';
-            logo.className = 'fp-cards-brand-logo';
-            const branding = element('div',null,'fp-cards-brand');
-            branding.append(logo,element('strong','FAMIPAY'));
-            top.append(branding,element('span',translateText('CARD PREVIEW')));
-            card.append(top,element('div','••••  ••••  ••••  ••••','fp-cards-digits'));
-            const footer = element('div',null,'fp-cards-face-footer');
-            footer.append(element('span',translateText(type === 'virtual' ? 'VIRTUAL CARD' : 'PHYSICAL CARD')),element('span',translateText('NOT ISSUED')));
-            card.append(footer);
-            content.append(card);
-            const disclaimer = element('p',translateText('Illustration only. No card has been issued.'),'fp-cards-disclaimer');
-            content.append(disclaimer);
-            const info = element('section',null,'fp-cards-info');
-            info.append(element('h2',translateText(type === 'virtual' ? 'Virtual Debit Card' : 'Physical ATM Card')));
-            info.append(element('p',translateText(type === 'virtual' ? 'For online payments when card issuing becomes available.' : 'For ATM withdrawals and in-store payments when card issuing becomes available.')));
-            const button = element('button',translateText('Request ' + (type === 'virtual' ? 'Virtual' : 'Physical') + ' Card'),'fp-cards-request');
-            button.type = 'button';
-            button.onclick = () => {
-                const existing = info.querySelector('.fp-cards-feedback');
-                if (existing) existing.remove();
-                info.append(element('p',translateText('Card issuing is not yet available. No request has been submitted.'),'fp-cards-feedback'));
-            };
-            info.append(button);
-            content.append(info);
-            const management = element('section',null,'fp-cards-management');
-            management.append(element('h2',translateText('Card Management')));
-            const disabled = [['Card Security','Freeze and manage issued cards'],['Card Transactions','Payments made with your cards']];
-            disabled.forEach(([label,description]) => {
-                const row = element('div',null,'fp-cards-management-row');
-                row.append(element('strong',translateText(label)),element('small',translateText(description + ' · Available after issuance')));
-                management.append(row);
+            const card=element('section',null,'fp-card-preview');
+            const top=element('div',null,'fp-card-preview-top');
+            const brand=element('div',null,'fp-card-brand');
+            const logo=document.createElement('img');logo.src='assets/branding/famipay-mark.svg';logo.alt='';
+            brand.append(logo,element('strong','FAMIPAY'));
+            top.append(brand,element('span','DEBIT'));card.append(top);
+            card.append(element('div','▣  )))','fp-card-chip'));
+            card.append(element('div','••••  ••••  ••••  ••••','fp-card-number'));
+            const bottom=element('div',null,'fp-card-preview-bottom');
+            bottom.append(element('span',translateText(type==='physical'?'PHYSICAL CARD':'VIRTUAL CARD')),element('span',translateText('NOT ISSUED')));
+            card.append(bottom);content.append(card);
+            const status=element('div',null,'fp-card-status');
+            status.append(element('span',translateText('No active '+type+' card')),element('span',translateText('Not issued')));
+            content.append(status);
+            const request=element('button',translateText('＋  Request '+(type==='physical'?'Physical':'Virtual')+' Card'),'fp-card-request');
+            request.type='button';request.onclick=()=>showDetail('apply');content.append(request);
+            content.append(element('h2',translateText('Card Services'),'fp-card-services-heading'));
+            const grid=element('div',null,'fp-card-services');
+            services.forEach(([label,icon,id])=>{
+                const item=element('button',null,'fp-card-service');
+                item.type='button';
+                const badge=element('span',null,'fp-card-service-icon');
+                const glyph={ 'credit-card':'▤','shield':'♢','alert-circle':'!','palette':'◉','store':'▣','receipt':'▥','headphones':'◖◗' }[icon];
+                badge.textContent=glyph;
+                item.append(badge,element('span',translateText(label)));
+                item.onclick=()=>showDetail(id);grid.append(item);
             });
-            premiumAction(management,'Card Support','help-center','help','Get assistance');
-            content.append(management);
-        };
-        page.append(switcher,content);
-        draw();
+            content.append(grid);
+        }
+        page.append(header,switcher,content);draw();
     }
-
 
     // Account pages: show verified account data only; never synthesize an account tier or number.
     function accountMetadata() {
