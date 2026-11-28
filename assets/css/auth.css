@@ -230,3 +230,13 @@ body.auth-page[data-auth-page="register"] .auth-card.form-section {
 @media(max-width:600px) {
   body.auth-page[data-auth-page="register"] main.auth-scene { padding-top: 16px !important; }
 }
+
+/* Registration is a standalone screen: never let the fixed public header cover the form. */
+body.auth-page[data-auth-page="register"] #header { display: none !important; }
+body.auth-page[data-auth-page="register"] main.auth-scene {
+  margin-top: 0 !important;
+  padding-top: max(20px, env(safe-area-inset-top)) !important;
+  min-height: 100svh !important;
+  align-items: flex-start !important;
+}
+body.auth-page[data-auth-page="register"] .auth-card.form-section { margin-top: 0 !important; }
