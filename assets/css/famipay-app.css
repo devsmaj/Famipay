@@ -1716,3 +1716,15 @@ body.fp-app .fp-all-services button:focus-visible {outline:2px solid #008b60;out
 .fp-language-page .fp-language-check{display:grid;place-items:center;min-width:26px;height:26px;border-radius:50%;font-size:17px;font-weight:800}
 .fp-language-page .fp-language-option.selected .fp-language-check{background:#00845c;color:#fff}
 .fp-language-page .fp-language-status{font-size:13px;color:#a33}
+
+/* Payment security screens */
+.fp-security-flow .fp-security-panel{margin:16px 16px 28px;padding:24px 20px;border-radius:22px;background:#fff;display:flex;flex-direction:column;gap:16px;box-shadow:0 2px 14px rgba(10,70,46,.045)}
+.fp-security-flow .fp-security-panel h2{margin:0;color:#153f30;font-size:23px;line-height:1.25}
+.fp-security-flow .fp-security-symbol{display:grid;place-items:center;width:68px;height:68px;border-radius:50%;background:#e3f8ed;color:#008c62}
+.fp-security-flow .fp-security-symbol svg{width:34px;height:34px}
+.fp-security-flow .fp-security-field{display:flex;flex-direction:column;gap:9px;font-weight:600;color:#24493b}
+.fp-security-flow .fp-security-field input{width:100%;box-sizing:border-box;height:54px;border:1px solid #cfe1d8;border-radius:13px;padding:0 16px;background:#fff;font-size:21px;letter-spacing:6px;color:#153f30}
+.fp-security-flow .fp-security-field input:focus{outline:2px solid #008c62;outline-offset:1px}
+.fp-security-flow .fp-security-submit{width:100%;min-height:52px;border-radius:14px}
+.fp-security-flow .fp-security-submit:disabled{opacity:.55}
+.fp-security-flow .fp-security-status{margin:0;color:#386557;line-height:1.5;font-size:14px}
