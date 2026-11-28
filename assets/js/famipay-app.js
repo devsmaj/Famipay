@@ -505,7 +505,13 @@
                 if (input.name) rows.push([input.placeholder || input.name, input.value]);
             });
             if (providerCard?.getSelected()) rows.unshift(['Provider', providerCard.getSelected()]);
-            openBottomSheet(screen.title + ' preview', rows);
+            // Never imply a payment was submitted when no transaction API is connected.
+            const status = form.querySelector('.fp-inline-status');
+            if (status) {
+                status.textContent = translateText('This transaction is not available until an authorized payment provider is connected. No money was sent.');
+                status.className = 'fp-inline-status error';
+                status.setAttribute('role', 'alert');
+            }
         });
 
         return formCard;
@@ -747,7 +753,12 @@
             page.append(profile);
             page.append(element('h2', translateText('Account & Security'), 'fp-premium-section-title'));
             const account = element('section', null, 'fp-premium-list');
-            premiumAction(account,'My Profile','my-profile','profile','Your personal information');
+            const details = element('div', null, 'fp-premium-account-details');
+            details.append(element('strong', translateText('Personal information')));
+            if (user.name) details.append(element('p', user.name));
+            if (user.email) details.append(element('p', user.email));
+            if (user.phone) details.append(element('p', user.phone));
+            account.append(details);
             premiumAction(account,'Settings & Language','settings','services','Preferences and languages');
             premiumAction(account,'Notifications','notifications','bell','Alerts and updates');
             page.append(account);
