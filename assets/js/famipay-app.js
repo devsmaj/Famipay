@@ -1668,7 +1668,12 @@
             const setAmount=element('button','Set Amount');const save=element('button','Save QR');
             setAmount.type=save.type='button';footer.append(setAmount,save);
             card.append(name,number,qrBox,footer);content.append(card);
-            const scanShortcut=element('button','Scan','fp-qr-scan-shortcut');scanShortcut.setAttribute('aria-label','Scan QR code');scanShortcut.onclick=()=>renderScan();content.append(scanShortcut);
+            const scanShortcut=element('button',null,'fp-qr-scan-shortcut');
+            scanShortcut.type='button';scanShortcut.setAttribute('aria-label','Scan QR code');
+            const scanSymbol=document.createElementNS('http://www.w3.org/2000/svg','svg');
+            scanSymbol.setAttribute('viewBox','0 0 24 24');scanSymbol.setAttribute('fill','none');scanSymbol.setAttribute('stroke','currentColor');scanSymbol.setAttribute('stroke-width','1.8');scanSymbol.setAttribute('stroke-linecap','round');scanSymbol.setAttribute('stroke-linejoin','round');scanSymbol.setAttribute('aria-hidden','true');
+            ['M8 3H5a2 2 0 0 0-2 2v3','M16 3h3a2 2 0 0 1 2 2v3','M21 16v3a2 2 0 0 1-2 2h-3','M8 21H5a2 2 0 0 1-2-2v-3','M8 8h3v3H8z','M15 8h2v2h-2z','M8 15h3v3H8z','M15 15h3v3h-3z'].forEach(d=>{const path=document.createElementNS('http://www.w3.org/2000/svg','path');path.setAttribute('d',d);scanSymbol.append(path);});
+            scanShortcut.append(scanSymbol,element('span','Scan'));scanShortcut.onclick=()=>renderScan();content.append(scanShortcut);
             const client=window.Famina?.client;
             try{
                 if(!client?.auth?.getUser)throw new Error('Sign in to create your personal QR.');
@@ -1747,16 +1752,31 @@
             const guide=element('div',null,'fp-qr-guide');guide.append(element('span',null,'fp-qr-scan-line'));
             const cornerA=element('span',null,'fp-qr-corner fp-qr-corner-tl'),cornerB=element('span',null,'fp-qr-corner fp-qr-corner-tr'),cornerC=element('span',null,'fp-qr-corner fp-qr-corner-bl'),cornerD=element('span',null,'fp-qr-corner fp-qr-corner-br');guide.append(cornerA,cornerB,cornerC,cornerD);
             frame.append(video,guide);content.append(frame);
-            const status=element('p','Point your camera at a FAMIPAY QR code.','fp-qr-scan-status');content.append(status);
+            const status=element('p','','fp-qr-scan-status');status.setAttribute('role','status');status.setAttribute('aria-live','polite');content.append(status);
             const actions=element('div',null,'fp-qr-camera-actions');
             const torchWrap=element('div',null,'fp-qr-torch-wrap');
             const torch=element('button',null,'fp-qr-torch-button');torch.type='button';torch.setAttribute('aria-label','Toggle flashlight');
-            torch.append(element('span','♜','fp-qr-torch-icon'),element('span','Tap to turn light on','fp-qr-torch-label'));
+            // Use actual vector icons, not text glyphs (which vary by Android font).
+            const scannerIcon=(paths,viewBox='0 0 24 24')=>{
+                const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
+                svg.setAttribute('viewBox',viewBox);svg.setAttribute('aria-hidden','true');
+                svg.setAttribute('fill','none');svg.setAttribute('stroke','currentColor');
+                svg.setAttribute('stroke-width','1.8');svg.setAttribute('stroke-linecap','round');svg.setAttribute('stroke-linejoin','round');
+                paths.forEach(d=>{const path=document.createElementNS('http://www.w3.org/2000/svg','path');path.setAttribute('d',d);svg.append(path);});
+                return svg;
+            };
+            const torchSymbol=element('span',null,'fp-qr-torch-icon');
+            torchSymbol.append(scannerIcon(['M9 2h6v4l-1.5 2.5V12l-1.5 2-1.5-2V8.5L9 6V2Z','M8 2h8','M10 14v8h4v-8','M11 17h2']));
+            torch.append(torchSymbol,element('span','Tap to turn light on','fp-qr-torch-label'));
             torchWrap.append(torch);content.append(torchWrap);
             const album=element('button',null,'fp-qr-album-button');const myQr=element('button',null,'fp-qr-myqr-button');
             album.type=myQr.type='button';
-            album.append(element('span','▧','fp-qr-action-symbol'),element('span','Album'));
-            myQr.append(element('span','▦','fp-qr-action-symbol'),element('span','My QR'));
+            const albumSymbol=element('span',null,'fp-qr-action-symbol');
+            albumSymbol.append(scannerIcon(['M4 3h16a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Z','M7 16l4-4 3 3 2-2 5 5','M8 9h.01']));
+            album.append(albumSymbol,element('span','Album'));
+            const qrSymbol=element('span',null,'fp-qr-action-symbol');
+            qrSymbol.append(scannerIcon(['M3 9V4a1 1 0 0 1 1-1h5','M15 3h5a1 1 0 0 1 1 1v5','M21 15v5a1 1 0 0 1-1 1h-5','M9 21H4a1 1 0 0 1-1-1v-5','M7 7h4v4H7z','M15 7h2v2h-2z','M7 15h4v4H7z','M15 15h2v2h-2z','M19 15v4h-4']));
+            myQr.append(qrSymbol,element('span','My QR'));
             actions.append(myQr,album);content.append(actions);
             myQr.onclick=()=>renderPay();
             const input=document.createElement('input');input.type='file';input.accept='image/*';input.hidden=true;content.append(input);album.onclick=()=>{status.textContent='Select a QR image from your album.';input.click();};
