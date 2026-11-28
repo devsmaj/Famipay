@@ -828,6 +828,68 @@
             const avatar = element('span', String(user.name || user.email || 'F').trim().charAt(0).toUpperCase(), 'fp-premium-profile-avatar');
             const info = element('div', null, 'fp-premium-profile-info');
             info.append(element('strong', user.name || translateText('FAMIPAY User')), element('small', user.email || user.phone || translateText('Personal Account')));
+            const photo = element('div', null, 'fp-profile-photo-controls');
+            const picker = document.createElement('input');
+            picker.type = 'file';
+            picker.accept = 'image/jpeg,image/png,image/webp';
+            picker.hidden = true;
+            picker.setAttribute('aria-label', 'Choose profile photo');
+            const uploadButton = element('button', 'Upload photo', 'fp-profile-photo-button');
+            uploadButton.type = 'button';
+            const feedback = element('small', '', 'fp-profile-photo-feedback');
+            const showAvatar = url => {
+                const safe = safePhoto(url);
+                if (!safe) return;
+                const img = document.createElement('img');
+                img.src = safe;
+                img.alt = 'Your profile photo';
+                img.className = 'fp-profile-photo-image';
+                img.onerror = () => img.replaceWith(element('span', firstName().slice(0, 1).toUpperCase()));
+                avatar.replaceChildren(img);
+            };
+            if (avatarUrl) showAvatar(avatarUrl);
+            uploadButton.onclick = () => picker.click();
+            picker.onchange = async () => {
+                const file = picker.files?.[0];
+                if (!file) return;
+                if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type) || file.size > 2 * 1024 * 1024) {
+                    feedback.textContent = 'Choose a JPG, PNG or WebP image under 2 MB.';
+                    picker.value = '';
+                    return;
+                }
+                const client = window.Famina?.client;
+                if (!client?.storage || !client?.auth) {
+                    feedback.textContent = 'Photo uploads are not available right now.';
+                    return;
+                }
+                uploadButton.disabled = true;
+                feedback.textContent = 'Uploading photo…';
+                try {
+                    const {data: sessionData, error: sessionError} = await client.auth.getSession();
+                    if (sessionError) throw sessionError;
+                    const id = sessionData?.session?.user?.id;
+                    if (!id) throw new Error('Please sign in again.');
+                    const ext = file.type === 'image/png' ? 'png' : file.type === 'image/webp' ? 'webp' : 'jpg';
+                    const key = id + '/profile.' + ext;
+                    const {error: uploadError} = await client.storage.from('avatars').upload(key, file, {upsert:true, contentType:file.type});
+                    if (uploadError) throw uploadError;
+                    const {data: publicData} = client.storage.from('avatars').getPublicUrl(key);
+                    const url = safePhoto(publicData?.publicUrl);
+                    if (!url) throw new Error('Could not retrieve the uploaded photo.');
+                    const {error: updateError} = await client.auth.updateUser({data:{avatar_url:url}});
+                    if (updateError) throw updateError;
+                    avatarUrl = url + '?v=' + Date.now();
+                    showAvatar(avatarUrl);
+                    feedback.textContent = 'Profile photo updated.';
+                } catch (error) {
+                    feedback.textContent = error?.message || 'Photo upload failed. Please try again.';
+                } finally {
+                    uploadButton.disabled = false;
+                    picker.value = '';
+                }
+            };
+            photo.append(picker, uploadButton, feedback);
+            info.append(photo);
             profile.append(avatar, info);
             page.append(profile);
             page.append(element('h2', translateText('Account & Security'), 'fp-premium-section-title'));
