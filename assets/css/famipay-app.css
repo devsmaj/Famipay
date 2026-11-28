@@ -1239,3 +1239,19 @@ body.fp-app .fp-premium-page.fp-me-page,body.fp-app .fp-premium-page.fp-me-detai
 .fp-me-limits-table th,.fp-me-limits-table td{padding:14px 6px;text-align:left;overflow-wrap:anywhere;}
 .fp-me-limits-table th{background:#f5f6f8;font-weight:600;}
 .fp-me-limits-table tr:nth-child(odd):not(:first-child){background:#f7f8f9;}
+
+/* Me account menu and sign-out confirmation */
+.fp-me-hint{margin-inline-start:auto;color:#89938e;font-size:12px;text-align:end;max-width:40%}
+.fp-me-assistant-card{border:1px solid #fff;border-radius:18px;overflow:hidden;background:linear-gradient(110deg,#daf3fa,#dff5e9);margin:0 0 14px}
+.fp-me-assistant-card .fp-me-assistant{width:100%;margin:0;background:transparent;text-align:start}
+.fp-me-support-topics{display:flex;flex-wrap:wrap;gap:8px;padding:12px;background:#effbfc;border-radius:16px}
+.fp-me-support-topics button{border:0;background:white;color:#53635c;border-radius:30px;padding:10px 12px;font:inherit;font-size:12px;cursor:pointer}
+.fp-me-signout{display:block;width:100%;border:0;border-radius:16px;background:white;color:#df3865;padding:20px;margin:14px 0;font:inherit;cursor:pointer}
+.fp-me-logout-dialog{box-sizing:border-box;width:min(calc(100% - 48px),360px);border:0;border-radius:16px;padding:24px 20px;color:#252a28;background:white;text-align:center}
+.fp-me-logout-dialog::backdrop{background:rgba(0,0,0,.58)}
+.fp-me-logout-dialog>p:first-child{margin:0 0 24px;font-size:16px;line-height:1.5}
+.fp-me-logout-actions{display:flex;gap:12px}
+.fp-me-logout-actions button{flex:1;border:0;border-radius:40px;padding:15px;background:#e0f4e9;color:#00885e;font:inherit;font-weight:700;cursor:pointer}
+.fp-me-logout-actions button:last-child{background:#00b77b;color:white}
+.fp-me-logout-actions button:disabled{opacity:.6}
+.fp-me-logout-dialog .fp-me-editor-feedback:empty{display:none}
