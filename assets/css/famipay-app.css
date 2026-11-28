@@ -1647,3 +1647,23 @@ body.fp-app .app.fp-dashboard-home .main .fp-classic-grid .card:focus-visible {
     outline: 2px solid #008b60;
     outline-offset: 2px;
 }
+
+
+/* All Services and its dedicated search route. */
+body.fp-app .app:has(.fp-all-services) .main {padding-inline:0!important; width:100%!important; max-width:none!important;}
+body.fp-app .app .main > .fp-all-services {width:100%!important;max-width:none!important;margin:0!important;padding:0 0 20px!important;background:#fff!important;box-sizing:border-box;}
+body.fp-app .fp-all-services .fp-all-services-header {display:flex;align-items:center;gap:16px;padding:12px 16px;min-height:60px;box-sizing:border-box;background:#fff;border-bottom:1px solid #edf1ef;}
+body.fp-app .fp-all-services-header h1 {font-size:20px;line-height:1.25;margin:0;flex:1;color:#17382c;font-weight:650;}
+body.fp-app .fp-all-services-header .fp-all-services-action {display:grid;place-items:center;width:40px;height:40px;padding:8px;background:transparent;border:0;box-shadow:none;color:#17382c;cursor:pointer;}
+body.fp-app .fp-all-services-action svg {width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
+body.fp-app .fp-all-services .fp-premium-catalog {padding:8px 16px 20px;background:#fff;}
+body.fp-app .fp-all-services .fp-premium-section-title {font-size:17px;margin:18px 0 14px;}
+body.fp-app .fp-all-services .fp-premium-service-grid {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px 6px;padding-bottom:18px;border-bottom:1px solid #e9efeb;}
+body.fp-app .fp-all-services .fp-premium-service-grid:last-child {border-bottom:0;}
+body.fp-app .fp-all-services .fp-premium-service {display:flex!important;flex-direction:column;align-items:center;justify-content:center;gap:8px;background:transparent!important;border:0!important;box-shadow:none!important;padding:6px 2px!important;min-height:86px!important;height:auto!important;font-size:12px!important;line-height:1.25;text-align:center;white-space:normal;}
+body.fp-app .fp-all-services .fp-premium-service-icon {display:grid;place-items:center;width:58px!important;height:58px!important;border-radius:17px!important;background:#e7f7ef!important;}
+body.fp-app .fp-all-services .fp-dashboard-service-icon {display:block;width:40px!important;height:40px!important;}
+body.fp-app .fp-service-search-page .fp-premium-search {display:block;width:calc(100% - 32px)!important;margin:16px!important;border:0!important;border-radius:30px!important;background:#f3f5f5!important;padding:14px 18px!important;font-size:14px;box-sizing:border-box;}
+body.fp-app .fp-service-search-page .fp-premium-service-grid {border:0;}
+body.fp-app .app:has(.fp-service-search-page) .bottom {display:none!important;}
+body.fp-app .fp-all-services button:focus-visible {outline:2px solid #008b60;outline-offset:2px;}
