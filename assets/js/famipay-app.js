@@ -163,7 +163,9 @@
     const helpPath = byId['help-center'] ? 'help-center' : 'my-profile';
     const qrPath = byId['qr-payment'] ? 'qr-payment' : (byId['merchant-qr'] ? 'merchant-qr' : 'my-profile');
     let unreadCount = 0;
-    let avatarUrl = '';
+    const avatarCacheKey = 'famipay-avatar:' + (window.Famina?.user?.id || window.Famina?.user?.user_id || 'unknown');
+    let avatarUrl = safePhoto(window.Famina?.user?.user_metadata?.avatar_url || window.Famina?.user?.user_metadata?.picture || '');
+    try { if (!avatarUrl && avatarCacheKey !== 'famipay-avatar:unknown') avatarUrl = safePhoto(localStorage.getItem(avatarCacheKey) || ''); } catch (_) {}
     let balanceHidden = true;
 
     function element(tag, text, className) {
@@ -312,7 +314,7 @@
         window.Famina.client.auth.getSession().then(({data, error}) => {
             if (error) throw error;
             const metadata = data.session?.user?.user_metadata || {};
-            avatarUrl = safePhoto(metadata.avatar_url || metadata.picture || '');
+            avatarUrl = safePhoto(metadata.avatar_url || metadata.picture || avatarUrl || '');
             const profile = main.querySelector('.fp-profile-action');
             if (!avatarUrl || !profile) return;
             const image = document.createElement('img');
@@ -2078,7 +2080,7 @@
             const showAvatar=(url)=>{
                 const safe=safePhoto(url||'');if(!safe||!profileButton.isConnected)return;
                 const photo=new Image();photo.alt='Profile photo';photo.referrerPolicy='no-referrer';
-                photo.onload=()=>{if(profileButton.isConnected)profileButton.replaceChildren(photo);};
+                photo.onload=()=>{if(profileButton.isConnected)profileButton.replaceChildren(photo);try { if(avatarCacheKey !== 'famipay-avatar:unknown') localStorage.setItem(avatarCacheKey,safe); } catch (_) {}};
                 photo.onerror=()=>{if(profileButton.isConnected)profileButton.replaceChildren(initial);};
                 photo.src=safe;
             };
