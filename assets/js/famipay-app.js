@@ -826,8 +826,20 @@
                 const item=element('button',null,'fp-card-service');
                 item.type='button';
                 const badge=element('span',null,'fp-card-service-icon');
-                const glyph={ 'credit-card':'▤','shield':'♢','alert-circle':'!','palette':'◉','store':'▣','receipt':'▥','headphones':'◖◗' }[icon];
-                badge.textContent=glyph;
+                const paths={
+                    'credit-card':'<rect x="3" y="5" width="18" height="14" rx="3"/><path d="M3 10h18M7 15h4"/>',
+                    'shield':'<path d="M12 2 20 6v6c0 5-3.5 8-8 10-4.5-2-8-5-8-10V6z"/><path d="m9 12 2 2 4-4"/>',
+                    'alert-circle':'<path d="M12 3 2.5 20h19z"/><path d="M12 9v5M12 17h.01"/>',
+                    'palette':'<path d="M12 3a9 9 0 1 0 0 18h1.5a2.5 2.5 0 0 0 1.7-4.3 1.7 1.7 0 0 1 1.2-2.9H18A3 3 0 0 0 21 11 9 9 0 0 0 12 3z"/><circle cx="7.5" cy="11" r="1"/><circle cx="10" cy="7.5" r="1"/><circle cx="15" cy="8" r="1"/>',
+                    'store':'<path d="M3 10h18l-2-6H5zM5 10v11h14V10M9 21v-7h6v7"/>',
+                    'receipt':'<path d="M5 3h14v18l-3-2-4 2-4-2-3 2zM9 8h6M9 12h6M9 16h4"/>',
+                    'headphones':'<path d="M4 14v-3a8 8 0 0 1 16 0v3M4 14h4v6H6a2 2 0 0 1-2-2zM20 14h-4v6h2a2 2 0 0 0 2-2z"/>'
+                };
+                const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
+                svg.setAttribute('viewBox','0 0 24 24');svg.setAttribute('width','27');svg.setAttribute('height','27');
+                svg.setAttribute('fill','none');svg.setAttribute('stroke','currentColor');svg.setAttribute('stroke-width','1.8');
+                svg.setAttribute('stroke-linecap','round');svg.setAttribute('stroke-linejoin','round');
+                svg.innerHTML=paths[icon]||paths['credit-card'];badge.append(svg);
                 item.append(badge,element('span',translateText(label)));
                 item.onclick=()=>showDetail(id);grid.append(item);
             });
