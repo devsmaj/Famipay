@@ -1589,3 +1589,17 @@ body.fp-app .fp-me-page>.fp-me-shortcuts{display:grid!important;grid-template-co
 body.fp-app .fp-me-page>.fp-me-menu{padding:4px 16px!important;}
 body.fp-app .fp-me-page .fp-me-row-left svg{display:block!important;flex:none!important;width:24px!important;height:24px!important;fill:none!important;stroke:currentColor!important;stroke-width:1.8!important;stroke-linecap:round;stroke-linejoin:round;}
 body.fp-app .fp-me-page>.fp-me-assistant-card{margin:0 0 14px!important;border-radius:20px!important;overflow:hidden;}
+
+
+/* Scanner reference: actual outline SVGs, centered torch, icon-only Pay Me shortcut. */
+.fp-qr-scan-mode .fp-qr-torch-icon{display:grid!important;place-items:center!important;font-size:0!important;width:38px!important;height:43px!important;}
+.fp-qr-scan-mode .fp-qr-torch-icon svg{display:block!important;width:36px!important;height:42px!important;stroke:#fff!important;fill:none!important;}
+.fp-qr-scan-mode .fp-qr-action-symbol{display:grid!important;place-items:center!important;font-size:0!important;width:58px!important;height:58px!important;border-radius:50%!important;background:#171f20c9!important;}
+.fp-qr-scan-mode .fp-qr-action-symbol svg{display:block!important;width:27px!important;height:27px!important;stroke:#fff!important;fill:none!important;}
+.fp-qr-scan-mode .fp-qr-scan-status:empty{display:none!important;}
+.fp-qr-scan-mode .fp-qr-torch-wrap{bottom:24%!important;}
+.fp-qr-scan-mode .fp-qr-camera-actions{position:absolute!important;bottom:0!important;left:0!important;right:0!important;width:100%!important;display:flex!important;justify-content:space-between!important;align-items:flex-end!important;padding:0 26px calc(26px + env(safe-area-inset-bottom,0px))!important;}
+.fp-qr-scan-mode .fp-qr-camera-actions button{display:flex!important;flex-direction:column!important;align-items:center!important;gap:7px!important;font-size:14px!important;min-width:64px!important;}
+.fp-qr-pay-mode .fp-qr-scan-shortcut{display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:7px!important;width:78px!important;height:auto!important;margin:auto auto calc(28px + env(safe-area-inset-bottom,0px))!important;padding:0!important;border-radius:0!important;background:transparent!important;color:#fff!important;font-size:14px!important;font-weight:500!important;}
+.fp-qr-pay-mode .fp-qr-scan-shortcut svg{display:block;width:64px;height:64px;padding:18px;border-radius:50%;background:#ffffff35;stroke:#fff;box-sizing:border-box;}
+.fp-qr-pay-mode .fp-qr-scan-shortcut span{display:block;white-space:nowrap;}
