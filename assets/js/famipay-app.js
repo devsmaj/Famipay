@@ -1018,16 +1018,37 @@
             if(key==='address')input.maxLength=250;
         }
         input.value=oldValue || '';input.setAttribute('aria-label',label);panel.append(input);
-        const feedback=element('p',null,'fp-me-editor-feedback');
+        const feedback=element('div',null,'fp-me-form-feedback');
+        feedback.setAttribute('role','alert');
+        feedback.setAttribute('aria-live','polite');
+        const showFeedback=(message,type='error')=>{
+            feedback.textContent=translateText(message);
+            feedback.dataset.state=type;
+            feedback.hidden=!message;
+        };
+        feedback.hidden=true;
         const save=element('button',translateText('Save changes'),'fp-me-save');
         save.type='button';
+        const loading=element('div',null,'fp-me-bottom-loading');
+        loading.setAttribute('role','status');
+        loading.setAttribute('aria-live','polite');
+        loading.innerHTML='<span class="fp-me-bottom-spinner" aria-hidden="true"></span><span></span>';
+        loading.lastElementChild.textContent=translateText('Saving…');
+        loading.hidden=true;
+        const setBusy=busy=>{
+            save.disabled=busy;
+            save.setAttribute('aria-busy',String(busy));
+            loading.hidden=!busy;
+        };
+        input.addEventListener('input',()=>showFeedback(''));
         save.onclick=async()=>{
             const value=input.value.trim();
-            if(!value){feedback.textContent=translateText('Please enter a value.');return;}
-            if(key==='email'&&!input.checkValidity()){feedback.textContent=translateText('Enter a valid email address.');return;}
+            if(!value){showFeedback('Please enter a value.');input.focus();return;}
+            if(key==='email'&&!input.checkValidity()){showFeedback('Enter a valid email address.');input.focus();return;}
             const client=window.Famina?.client;
-            if(!client?.auth?.updateUser){feedback.textContent=translateText('Account updates are unavailable.');return;}
-            save.disabled=true;feedback.textContent=translateText('Saving…');
+            if(!client?.auth?.updateUser){showFeedback('Account updates are unavailable.');return;}
+            showFeedback('');
+            setBusy(true);
             try{
                 const payload=key==='email'?{email:value}:{data:{[key]:value}};
                 const {error}=await client.auth.updateUser(payload);
@@ -1039,12 +1060,13 @@
                     }
                     navigate('profile-details');
                 } else {
-                    feedback.textContent=translateText('Check your email to confirm the address change.');
+                    showFeedback('Check your email to confirm the address change.','success');
                 }
-            }catch(error){feedback.textContent=error?.message||translateText('Could not save changes.');}
-            finally{save.disabled=false;}
+            }catch(error){showFeedback(error?.message||'Could not save changes.');}
+            finally{setBusy(false);}
         };
-        panel.append(save,feedback);page.append(panel);
+        panel.prepend(feedback);
+        panel.append(save,loading);page.append(panel);
     }
     const chadProvinces = ["Batha","Borkou","Chari-Baguirmi","Ennedi-Est","Ennedi-Ouest","Guéra","Hadjer-Lamis","Kanem","Lac","Logone Occidental","Logone Oriental","Mandoul","Mayo-Kebbi Est","Mayo-Kebbi Ouest","Moyen-Chari","N'Djamena","Ouaddaï","Salamat","Sila","Tandjilé","Tibesti","Wadi Fira","Barh El Gazel"];
     function renderAddressPage(page) {
