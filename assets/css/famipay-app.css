@@ -1667,3 +1667,39 @@ body.fp-app .fp-service-search-page .fp-premium-search {display:block;width:calc
 body.fp-app .fp-service-search-page .fp-premium-service-grid {border:0;}
 body.fp-app .app:has(.fp-service-search-page) .bottom {display:none!important;}
 body.fp-app .fp-all-services button:focus-visible {outline:2px solid #008b60;outline-offset:2px;}
+
+/* Compact Cards experience */
+.fp-premium-page.fp-cards-redesign{background:#f7f8fa!important;padding:0 0 18px!important;margin:0!important;border:0!important;border-radius:0!important;box-shadow:none!important;min-height:calc(100dvh - 90px)}
+.fp-cards-redesign .fp-card-header{display:flex;align-items:center;justify-content:space-between;padding:16px 18px 8px}
+.fp-cards-redesign .fp-card-header h1{font-size:28px;line-height:1.2;margin:0;color:#172c25;font-weight:800}
+.fp-cards-redesign button{font:inherit;cursor:pointer}
+.fp-cards-redesign .fp-card-help{border:0;background:transparent;color:#009b70;font-weight:700}
+.fp-cards-redesign .fp-card-tabs{display:grid;grid-template-columns:1fr 1fr;gap:5px;background:#e9eeeb;border-radius:15px;padding:5px;margin:6px 16px 18px}
+.fp-cards-redesign .fp-card-tab{border:0;border-radius:12px;background:transparent;padding:13px 4px;color:#667970;font-weight:700}
+.fp-cards-redesign .fp-card-tab.active{background:#fff;color:#008667;box-shadow:0 2px 8px #153c2614}
+.fp-cards-redesign .fp-card-body{padding:0 16px}
+.fp-cards-redesign .fp-card-preview{background:linear-gradient(120deg,#00604c,#009e7c);color:#fff;border-radius:22px;padding:23px;aspect-ratio:1.63;display:flex;flex-direction:column;justify-content:space-between;overflow:hidden;position:relative}
+.fp-cards-redesign .fp-card-preview:after{content:'';position:absolute;right:-90px;top:-40px;width:280px;height:280px;border:1px solid #ffffff24;border-radius:50%;box-shadow:0 0 0 45px #ffffff09;pointer-events:none}
+.fp-cards-redesign .fp-card-preview-top,.fp-cards-redesign .fp-card-preview-bottom{display:flex;align-items:center;justify-content:space-between;position:relative;z-index:1}
+.fp-cards-redesign .fp-card-brand{display:flex;align-items:center;gap:10px;font-size:21px}
+.fp-cards-redesign .fp-card-brand img{width:38px;height:38px;object-fit:contain}
+.fp-cards-redesign .fp-card-preview-top>span{font-size:12px;letter-spacing:.1em}
+.fp-cards-redesign .fp-card-chip{color:#e6d8a4;font-size:24px;letter-spacing:4px}
+.fp-cards-redesign .fp-card-number{font-size:21px;letter-spacing:2px;font-weight:700}
+.fp-cards-redesign .fp-card-preview-bottom{font-size:11px;letter-spacing:.08em}
+.fp-cards-redesign .fp-card-status{display:flex;justify-content:space-between;align-items:center;gap:8px;color:#65756f;font-size:13px;margin:13px 0}
+.fp-cards-redesign .fp-card-status span:last-child{background:#e5eeea;color:#476457;padding:6px 10px;border-radius:20px;font-weight:700}
+.fp-cards-redesign .fp-card-request,.fp-cards-redesign .fp-card-submit{width:100%;background:#008c6a;color:white;border:0;border-radius:15px;padding:15px;font-weight:800}
+.fp-cards-redesign .fp-card-services-heading{font-size:18px;color:#183d32;margin:22px 0 13px}
+.fp-cards-redesign .fp-card-services{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.fp-cards-redesign .fp-card-service{min-height:114px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px;border:0;background:#fff;border-radius:17px;padding:13px 5px;color:#284438;font-size:12px;font-weight:650;text-align:center}
+.fp-cards-redesign .fp-card-service-icon{display:grid;place-items:center;width:49px;height:49px;border-radius:50%;background:#e0f7eb;color:#008e69;font-size:25px;font-weight:800}
+.fp-cards-redesign .fp-card-detail{background:#fff;border-radius:17px;padding:18px;min-height:300px}
+.fp-cards-redesign .fp-card-detail h2{font-size:22px;color:#183c31;margin:15px 0 8px}
+.fp-cards-redesign .fp-card-detail p{color:#64756d;line-height:1.5}
+.fp-cards-redesign .fp-card-back{border:0;background:transparent;color:#008967;font-weight:700;padding:8px 0}
+.fp-cards-redesign .fp-card-form{display:grid;gap:15px;margin-top:22px}
+.fp-cards-redesign .fp-card-field{display:grid;gap:7px;font-size:14px;font-weight:650;color:#244438}
+.fp-cards-redesign .fp-card-field input,.fp-cards-redesign .fp-card-field textarea{width:100%;box-sizing:border-box;border:1px solid #d9e4de;background:#f8faf9;border-radius:11px;padding:13px;font:inherit}
+.fp-cards-redesign .fp-card-notice{background:#edf8f2;color:#426357;padding:16px;border-radius:12px;margin-top:20px}
+@media(max-width:350px){.fp-cards-redesign .fp-card-service{font-size:11px}.fp-cards-redesign .fp-card-preview{padding:16px}}
