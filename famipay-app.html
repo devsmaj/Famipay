@@ -44,7 +44,8 @@
             const message = app.querySelector('.fp-redirect-message');
             const retry = app.querySelector('.fp-redirect-retry');
             const spinner = app.querySelector('.fp-redirect-spinner');
-            const stopLoading = window.FaminaLoading?.start?.() || (() => {});
+            // The redirect screen owns its single spinner; do not mount the global overlay.
+            const stopLoading = () => {};
             let finished = false;
             const finish = () => { if (!finished) { finished = true; stopLoading(); } };
             const setRedirect = destination => {
