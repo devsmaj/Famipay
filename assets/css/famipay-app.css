@@ -1300,3 +1300,9 @@ body.fp-app .fp-me-save{position:relative;display:flex;align-items:center;justif
 body.fp-app .fp-me-save.fp-me-saving{cursor:wait;opacity:.75;}
 body.fp-app .fp-me-button-spinner{display:none;width:20px;height:20px;border:2.5px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:fp-me-spin .75s linear infinite;flex:none;}
 body.fp-app .fp-me-save.fp-me-saving .fp-me-button-spinner{display:inline-block;}
+
+/* Verified FAMIPAY account: compact inline copy action, no oversized icon or border. */
+.fp-me-account-actions{display:inline-flex;align-items:center;justify-content:flex-end;gap:8px;min-width:0;max-width:60%;text-align:right}
+.fp-me-account-actions>span{overflow-wrap:anywhere}
+.fp-me-copy-icon{display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;width:30px;height:34px;padding:4px;border:0!important;border-radius:0;background:transparent!important;box-shadow:none!important;color:#667b75;cursor:pointer}
+.fp-me-copy-icon:focus-visible{outline:2px solid #008c65;outline-offset:2px;border-radius:5px}
