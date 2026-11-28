@@ -50,3 +50,56 @@
 .fp-shell {
     padding-bottom: calc(100px + env(safe-area-inset-bottom, 0px));
 }
+
+/* Consistent five-tab navigation on Home, Cards, Services, Orders and Me.
+   Fixed dimensions prevent route-specific content or active labels resizing it. */
+body.fp-app .app .bottom:not([hidden]):not(.fp-hidden),
+body.fp-app .app.fp-dashboard-home .bottom:not([hidden]):not(.fp-hidden) {
+    box-sizing: border-box;
+    height: calc(76px + env(safe-area-inset-bottom, 0px));
+    min-height: calc(76px + env(safe-area-inset-bottom, 0px));
+    max-height: calc(76px + env(safe-area-inset-bottom, 0px));
+    padding: 6px 8px calc(6px + env(safe-area-inset-bottom, 0px));
+    align-items: stretch;
+    flex-wrap: nowrap;
+}
+body.fp-app .app .bottom .fp-tab {
+    box-sizing: border-box;
+    flex: 1 1 0;
+    width: 0;
+    min-width: 0;
+    min-height: 0;
+    height: 100%;
+    max-height: 100%;
+    margin: 0;
+    padding: 5px 2px;
+    gap: 4px;
+    overflow: hidden;
+}
+body.fp-app .app .bottom .fp-tab-icon {
+    display: flex;
+    flex: 0 0 26px;
+    height: 26px;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+body.fp-app .app .bottom .fp-tab-icon svg {
+    display: block;
+    width: 23px;
+    height: 23px;
+    flex-shrink: 0;
+}
+body.fp-app .app .bottom .fp-tab-label {
+    display: block;
+    max-width: 100%;
+    font-size: 11px;
+    line-height: 15px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+body.fp-app .app.fp-service-focused .bottom,
+body.fp-app .app .bottom[hidden] {
+    display: none !important;
+}
