@@ -1056,7 +1056,7 @@
         const symbol=element('div',null,'fp-security-symbol');
         symbol.append(svgIcon(isBio?'fingerprint':isReset?'shield':'lock'));
         panel.append(symbol,element('h2',translateText(isBio?'Fingerprint Security':isReset?'Recover your payment PIN':'Update your payment PIN')));
-        panel.append(element('p',translateText(isBio?'Your fingerprint remains on your device. Device authentication and server registration are required.':isReset?'Verify your account before setting a new PIN.':'Enter your current PIN and choose a new four-digit PIN.'),'fp-settings-note'));
+        panel.append(element('p',translateText(isBio?'Your fingerprint remains on your device. Device authentication and server registration are required.':isReset?'Verify your account before setting a new PIN.':'Enter your current PIN and choose a new six-digit PIN.'),'fp-settings-note'));
         const status=element('p',null,'fp-security-status');status.setAttribute('role','status');
         const fields={};
         if(!isBio && !isReset) {
@@ -1064,7 +1064,7 @@
                 const wrap=element('label',null,'fp-security-field');
                 wrap.append(element('span',translateText(label)));
                 const input=document.createElement('input');
-                input.type='password';input.inputMode='numeric';input.pattern='[0-9]{4}';input.maxLength=4;input.autocomplete='off';input.placeholder='••••';input.required=true;
+                input.type='password';input.inputMode='numeric';input.pattern='[0-9]{6}';input.maxLength=6;input.autocomplete='off';input.placeholder='••••';input.required=true;
                 wrap.append(input);panel.append(wrap);fields[key]=input;
             });
         }
@@ -1073,7 +1073,7 @@
         button.onclick=async()=>{
             status.textContent='';
             if(isChange && (!Object.values(fields).every(input=>/^\\d{4}$/.test(input.value)) || fields.next.value!==fields.confirm.value || fields.next.value===fields.current.value)){
-                status.textContent='Enter your current PIN and a different matching four-digit new PIN.';return;
+                status.textContent='Enter your current PIN and a different matching six-digit new PIN.';return;
             }
             if(isBio && !window.PublicKeyCredential){status.textContent='This device or browser does not support secure biometric credentials.';return;}
             if(!window.Famina?.api){status.textContent='Secure account service is unavailable. No changes were made.';return;}
@@ -1081,7 +1081,7 @@
             try{
                 // PINs must only be handled by the authenticated server; never save them in browser storage.
                 const endpoint=isBio?'/security/biometrics/enrollment':isReset?'/security/payment-pin/reset/start':'/security/payment-pin/change';
-                const options={method:'POST',body:JSON.stringify(isChange?{current_pin:fields.current.value,new_pin:fields.next.value}:{})};
+                const options={method:'POST',body:isChange?{current_pin:fields.current.value,new_pin:fields.next.value}:{}};
                 const response=await window.Famina.api(endpoint,options);
                 status.textContent=response?.message || (isChange?'PIN updated securely.':isReset?'Follow the verification instructions sent to your registered contact.':'Follow the secure device enrollment instructions.');
                 if(isChange)Object.values(fields).forEach(input=>input.value='');
