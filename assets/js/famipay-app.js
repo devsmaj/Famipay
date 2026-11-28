@@ -71,6 +71,22 @@
         'Identity Verification': ['Full legal name', 'Document type', 'Document reference'],
     };
     const iconPaths = {
+        home: 'M3 10 12 3l9 7v11h-6v-7H9v7H3Z',
+        wallet: 'M3 6h17v15H3V4h15v2M16 12h4v5h-4Z',
+        services: 'M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z',
+        orders: 'm3 7 9-4 9 4v11l-9 4-9-4ZM3 7l9 4 9-4M12 11v11',
+        profile: 'M16 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0ZM4 21v-2a8 8 0 0 1 16 0v2',
+        'send-money': 'm3 10 18-7-7 18-3-8-8-3ZM11 13 21 3',
+        'receive-money': 'M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0ZM12 7v10M7 12h10',
+        'mobile-money': 'M7 2h10v20H7ZM11 18h2',
+        airtime: 'M7 2h10v20H7ZM11 18h2',
+        'pay-bills': 'M5 3h14v19l-4-3-3 3-3-3-4 3ZM8 8h8M8 12h8',
+        'qr-payment': 'M3 3h6v6H3zM15 3h6v6h-6zM3 15h6v6H3zM15 15h2v2h-2zM19 15h2v6h-6v-2',
+        restaurants: 'M4 3v7a3 3 0 0 0 6 0V3M7 3v19M20 22V3c-5 0-6 6-6 11h6',
+        'online-shop': 'M4 7h16l-1 15H5ZM8 8V6a4 4 0 0 1 8 0v2',
+        agriculture: 'M12 22V12M12 16C3 16 3 9 3 5c7 0 9 4 9 11ZM12 12c0-7 4-9 10-9 0 6-3 9-10 9Z',
+        eye: 'M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12ZM15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z',
+        'eye-off': 'm3 3 18 18M10 5c7-1 12 7 12 7l-3 4M6 6l-4 6s4 7 10 7l4-1',
         help: 'M3 13v-1a9 9 0 0 1 18 0v1M3 13h3v6H5a2 2 0 0 1-2-2v-4Zm18 0h-3v6h1a2 2 0 0 0 2-2v-4ZM18 19a6 6 0 0 1-6 3',
         scan: 'M4 8V5a1 1 0 0 1 1-1h3m8 0h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3m-8 0H5a1 1 0 0 1-1-1v-3M8 8h8v8H8z',
         bell: 'M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9m-8 12a2 2 0 0 0 4 0',
@@ -99,6 +115,7 @@
     const qrPath = byId['qr-payment'] ? 'qr-payment' : (byId['merchant-qr'] ? 'merchant-qr' : 'my-profile');
     let unreadCount = 0;
     let avatarUrl = '';
+    let balanceHidden = true;
 
     function element(tag, text, className) {
         const node = document.createElement(tag);
@@ -270,7 +287,9 @@
             const link = element('a', null, 'fp-tab');
             link.href = `#${id}`;
             link.dataset.fpTab = String(index);
-            link.append(element('span', tabIcons[index], 'fp-tab-icon'), element('span', tabNames[index], 'fp-tab-label'));
+            const icon = element('span', null, 'fp-tab-icon');
+            icon.append(svgIcon(['home', 'wallet', 'services', 'orders', 'profile'][index]));
+            link.append(icon, element('span', tabNames[index], 'fp-tab-label'));
             bottom.append(link);
         });
     }
@@ -558,6 +577,7 @@
         const screenId = byId[id] ? id : (id === 'home' ? 'home' : 'home');
         const isPrimary = screenId === 'home' || tabRoutes.includes(screenId);
         shell.classList.toggle('fp-service-focused', !isPrimary);
+        shell.classList.toggle('fp-dashboard-home', screenId === 'home' && role === 'customer');
         bottom.hidden = !isPrimary;
         main.replaceChildren();
 
@@ -567,14 +587,16 @@
             const heading = element('div');
             heading.append(
                 element('p', greeting() + ',', 'fp-classic-greeting'),
-                element('h1', firstName() === 'there' ? 'FAMIPAY' : firstName(), 'fp-classic-name'),
+                element('h1', 'FAMIPAY', 'fp-classic-name'),
             );
             const notifications = linkButton(notificationsPath, 'Notifications', 'bell');
             notifications.classList.add('fp-notification-action');
             const badge = element('span', '', 'fp-notification-badge');
             badge.hidden = true;
             notifications.append(badge);
-            masthead.append(heading, notifications);
+            const actions = element('div', null, 'fp-classic-actions');
+            actions.append(linkButton(helpPath, 'Help Center', 'help'), linkButton(qrPath, 'Scan QR code', 'scan'), notifications);
+            masthead.append(heading, actions);
             const balance = element('section', null, 'fp-classic-balance');
             const balanceTop = element('div', null, 'fp-classic-balance-top');
             balanceTop.append(
@@ -582,7 +604,20 @@
                 element('span', translateText('Wallet not connected')),
             );
             const balanceBottom = element('div', null, 'fp-classic-balance-bottom');
-            balanceBottom.append(element('strong', '— FCFA'));
+            const balanceValue = element('strong', null, 'fp-classic-balance-value');
+            const visibility = element('button', null, 'fp-balance-visibility');
+            visibility.type = 'button';
+            const updateBalance = () => {
+                // There is no wallet provider in this application yet. Never invent a balance.
+                balanceValue.textContent = balanceHidden ? '******' : translateText('Wallet not connected');
+                visibility.setAttribute('aria-label', balanceHidden ? 'Show balance' : 'Hide balance');
+                visibility.setAttribute('aria-pressed', String(!balanceHidden));
+                visibility.replaceChildren(svgIcon(balanceHidden ? 'eye-off' : 'eye'));
+            };
+            visibility.onclick = () => { balanceHidden = !balanceHidden; updateBalance(); };
+            updateBalance();
+            balanceTop.firstChild.append(visibility);
+            balanceBottom.append(balanceValue);
             const addMoney = element('button', translateText('Add Money'), 'fp-classic-add-money');
             addMoney.type = 'button';
             addMoney.onclick = () => navigate('add-money');
@@ -590,6 +625,7 @@
             balance.append(balanceTop, balanceBottom);
             dashboard.append(masthead, balance);
             main.append(dashboard);
+            main.append(element('h2', translateText('Quick Services'), 'fp-classic-quick-title'));
             const quick = ['send-money', 'receive-money', 'mobile-money', 'airtime', 'pay-bills', 'qr-payment'];
             const more = ['restaurants', 'online-shop', 'agriculture'];
             const quickGrid = cards(quick.map(id => byId[id]).filter(Boolean));
@@ -599,6 +635,10 @@
             const moreGrid = cards(more.map(id => byId[id]).filter(Boolean));
             moreGrid.classList.add('fp-classic-grid');
             main.append(moreGrid);
+            for (const button of main.querySelectorAll('.fp-classic-grid .card')) {
+                const id = [...quick, ...more].find(id => byId[id]?.title === button.querySelector('strong').textContent);
+                if (id) button.firstChild.replaceChildren(svgIcon(id));
+            }
         } else if (screenId === 'home') {
             main.append(buildHeader());
             const walletHeader = element('section', null, 'fp-wallet-overview');

@@ -4,7 +4,7 @@ const fs=require('node:fs');
 const path=require('node:path');
 const assert=require('node:assert/strict');
 
-const root=path.resolve(__dirname,'../www');
+const root=path.resolve(process.env.FAMIPAY_BROWSER_ROOT||path.resolve(__dirname,'../www'));
 const mime={
  '.css':'text/css',
  '.html':'text/html',
@@ -54,6 +54,33 @@ const server=http.createServer((request,response)=>{
    await page.locator('#app .app').waitFor({state:'attached'});
    assert(await page.locator('#app .app').count(),`missing shared app shell for ${role}`);
    if(role==='customer')assert(await page.locator('.fp-classic-dashboard').count(),'missing existing classic customer dashboard');
+   if(role==='customer'){
+    for(const size of [{width:320,height:568},{width:360,height:640},{width:390,height:844},{width:412,height:915},{width:768,height:1024},{width:844,height:390}]){
+     await page.setViewportSize(size);
+     const layout=await page.evaluate(()=>{
+      const nav=document.querySelector('.bottom').getBoundingClientRect();
+      const cards=[...document.querySelectorAll('.fp-classic-grid .card')];
+      return {count:cards.length,width:document.documentElement.scrollWidth,height:document.documentElement.scrollHeight,
+       top:document.querySelector('.fp-classic-dashboard').getBoundingClientRect().top,navBottom:nav.bottom,
+       fits:cards.every(card=>{const r=card.getBoundingClientRect();return r.top>=0&&r.bottom<=nav.top&&r.left>=0&&r.right<=innerWidth&&card.scrollHeight<=card.clientHeight+1;})};
+     });
+     assert.equal(layout.count,9);assert(layout.fits,JSON.stringify({size,layout}));
+     assert(layout.width<=size.width&&layout.height<=size.height,JSON.stringify({size,layout}));
+     assert.equal(layout.top,0);assert.equal(layout.navBottom,size.height);
+    }
+    await page.setViewportSize({width:390,height:844});
+    assert.equal(await page.locator('.fp-classic-balance-value').textContent(),'******');
+    await page.getByRole('button',{name:'Show balance',exact:true}).click();
+    assert.equal(await page.locator('.fp-classic-balance-value').textContent(),'Wallet not connected');
+    await page.getByRole('button',{name:'Hide balance',exact:true}).click();
+    assert.equal(await page.locator('.fp-classic-balance-value').textContent(),'******');
+    for(const [label,hash] of [['Send Money','send-money'],['Receive Money','receive-money'],['Mobile Money','mobile-money'],['Airtime','airtime'],['Pay Bills','pay-bills'],['QR Payment','qr-payment'],['Restaurants','restaurants'],['Online Shop','online-shop'],['Agriculture','agriculture']]){
+     await page.locator('.fp-classic-grid .card').filter({hasText:label}).click();
+     await page.waitForFunction(hash=>location.hash==='#'+hash,hash);
+     await page.evaluate(()=>{location.hash='home';});
+     await page.locator('.fp-classic-dashboard').waitFor();
+    }
+   }
    assert(await page.locator('#app main').count(),`missing private content for ${role}`);
    const layout=await page.evaluate(()=>({width:innerWidth,scroll:document.documentElement.scrollWidth,overflow:[...document.querySelectorAll('body *')].filter(node=>node.getBoundingClientRect().right>innerWidth+1).slice(0,6).map(node=>({tag:node.tagName,cls:node.className,width:node.getBoundingClientRect().width}))}));
    assert.equal(layout.scroll<=layout.width,true,`${role}: ${JSON.stringify(layout)}`);

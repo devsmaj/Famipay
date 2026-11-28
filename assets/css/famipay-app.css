@@ -829,3 +829,85 @@ body.fp-app .app .main .fp-classic-grid .card small { display: none; }
     body.fp-app .app .main .fp-classic-grid.cards { padding-inline: 24px; gap: 14px; }
     .fp-classic-more-title { margin-inline: 24px; }
 }
+
+/* One-screen customer dashboard. Other private routes retain their scrolling. */
+body.fp-app:has(.fp-dashboard-home) { overflow: hidden; }
+body.fp-app #app:has(.fp-dashboard-home) { width: 100%; min-height: 0; margin: 0; padding: 0; }
+body.fp-app .app.fp-dashboard-home {
+    height: 100vh;
+    height: 100dvh;
+    min-height: 0;
+    overflow: hidden;
+    font-family: system-ui, Arial, sans-serif;
+}
+body.fp-app .app.fp-dashboard-home .main {
+    height: calc(100vh - 66px - env(safe-area-inset-bottom));
+    height: calc(100dvh - 66px - env(safe-area-inset-bottom));
+    min-height: 0;
+    padding: 0 0 10px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-rows: auto auto minmax(0, 2fr) auto minmax(0, 1fr);
+    gap: clamp(6px, 1.3dvh, 12px);
+    overflow: hidden;
+}
+.fp-dashboard-home .fp-classic-dashboard {
+    padding: calc(12px + env(safe-area-inset-top)) 16px 14px;
+    background: linear-gradient(165deg, #167c69, #005a46 45%);
+}
+.fp-dashboard-home .fp-classic-masthead { margin-bottom: 12px; }
+.fp-dashboard-home .fp-classic-greeting { font-size: 13px; }
+.fp-dashboard-home .fp-classic-name { font-size: 25px; line-height: 1.15; }
+.fp-classic-actions { display: flex; gap: 6px; }
+.fp-dashboard-home .fp-header-action {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: #ffffff12; border: 1px solid #ffffff30;
+}
+.fp-dashboard-home .fp-classic-balance { padding: 12px 14px; background: linear-gradient(110deg, #008a52, #00a67e); }
+.fp-dashboard-home .fp-classic-balance-top { font-size: 12px; gap: 6px; }
+.fp-dashboard-home .fp-classic-balance-top > span:first-child { display: flex; align-items: center; gap: 6px; }
+.fp-balance-visibility { padding: 2px; display: inline-flex; color: inherit; background: none; border: 0; cursor: pointer; }
+.fp-balance-visibility svg { width: 24px; height: 24px; }
+.fp-dashboard-home .fp-classic-balance-bottom { margin-top: 10px; gap: 8px; }
+.fp-dashboard-home .fp-classic-balance-value { font-size: clamp(14px, 4.8vw, 23px); overflow-wrap: anywhere; }
+.fp-dashboard-home .fp-classic-add-money { min-height: 36px; padding: 0 14px; white-space: nowrap; }
+.fp-dashboard-home .fp-classic-quick-title,
+.fp-dashboard-home .fp-classic-more-title { margin: 0 16px; font-size: 17px; line-height: 1.25; color: #193c30; }
+body.fp-app .app.fp-dashboard-home .main .fp-classic-grid.cards {
+    padding: 0 16px; gap: clamp(6px, 1.3dvh, 12px); min-height: 0;
+    grid-auto-rows: minmax(0, 1fr);
+}
+body.fp-app .app.fp-dashboard-home .main .fp-classic-grid .card {
+    min-height: 0; padding: 5px; gap: 5px; font-family: inherit;
+    border: 1px solid #e1eae6; border-radius: 17px;
+    box-shadow: 0 2px 6px #005a4605;
+}
+body.fp-app .app.fp-dashboard-home .main .fp-classic-grid .card > span {
+    width: 30px; height: 30px; margin: 0; flex-shrink: 0;
+}
+.fp-dashboard-home .fp-classic-grid svg { width: 30px; height: 30px; }
+body.fp-app .app.fp-dashboard-home .main .fp-classic-grid .card strong { font-size: 12px; line-height: 1.2; }
+.fp-dashboard-home .fp-icon { fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.bottom .fp-tab-icon svg { width: 23px; height: 23px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.fp-dashboard-home .bottom { height: calc(66px + env(safe-area-inset-bottom)); }
+@media (min-width: 721px) { .fp-dashboard-home .bottom { left: 250px; } }
+@media (max-width: 350px), (max-height: 600px) {
+    .fp-dashboard-home .fp-classic-dashboard { padding: calc(6px + env(safe-area-inset-top)) 12px 8px; }
+    .fp-dashboard-home .fp-classic-masthead { margin-bottom: 6px; }
+    .fp-dashboard-home .fp-classic-balance { padding: 8px 10px; }
+    .fp-dashboard-home .fp-classic-balance-top { font-size: 10px; }
+    .fp-dashboard-home .fp-classic-name { font-size: 21px; }
+    .fp-dashboard-home .fp-classic-balance-bottom { margin-top: 4px; }
+    body.fp-app .app.fp-dashboard-home .main .fp-classic-grid.cards { padding-inline: 12px; }
+    body.fp-app .app.fp-dashboard-home .main .fp-classic-grid .card { gap: 3px; }
+    body.fp-app .app.fp-dashboard-home .main .fp-classic-grid .card strong { font-size: 11px; }
+    .fp-dashboard-home .fp-classic-quick-title, .fp-dashboard-home .fp-classic-more-title { font-size: 15px; }
+}
+@media (orientation: landscape) and (max-height: 500px) {
+    body.fp-app .app.fp-dashboard-home .main { grid-template-columns: 40% 1fr; grid-template-rows: auto minmax(0, 2fr) auto minmax(0, 1fr); gap: 4px; }
+    .fp-dashboard-home .fp-classic-dashboard { grid-column: 1; grid-row: 1 / 5; }
+    .fp-dashboard-home .fp-classic-quick-title, .fp-dashboard-home .fp-classic-more-title { grid-column: 2; }
+    body.fp-app .app.fp-dashboard-home .main .fp-classic-grid.cards { grid-column: 2; padding-inline: 6px; gap: 4px; }
+    body.fp-app .app.fp-dashboard-home .main .fp-classic-grid .card { flex-direction: row; gap: 4px; }
+    body.fp-app .app.fp-dashboard-home .main .fp-classic-grid .card > span, .fp-dashboard-home .fp-classic-grid svg { width: 22px; height: 22px; }
+}
