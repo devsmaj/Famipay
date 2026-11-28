@@ -911,3 +911,71 @@ body.fp-app .app.fp-dashboard-home .main .fp-classic-grid .card strong { font-si
     body.fp-app .app.fp-dashboard-home .main .fp-classic-grid .card { flex-direction: row; gap: 4px; }
     body.fp-app .app.fp-dashboard-home .main .fp-classic-grid .card > span, .fp-dashboard-home .fp-classic-grid svg { width: 22px; height: 22px; }
 }
+
+
+/* FAMIPAY customer primary pages — compact, full-bleed mobile experience. */
+body.fp-app .app .main:has(.fp-premium-page) {
+    padding: 0 0 calc(95px + env(safe-area-inset-bottom));
+    background: #f6f9f7;
+    max-width: none;
+    min-height: 100dvh;
+}
+.fp-premium-page {
+    width: min(100%, 680px);
+    margin: 0 auto;
+    padding: 25px 18px 34px;
+    color: #183a30;
+}
+.fp-premium-heading { margin: 0 0 22px; }
+.fp-premium-heading h1 { font-size: clamp(24px, 5vw, 30px); font-weight: 850; letter-spacing: -.9px; line-height: 1.2; margin: 0; color: #163c2d; }
+.fp-premium-heading p { font-size: 13px; margin: 7px 0 0; color: #788e83; }
+.fp-premium-section-title { font-size: 16px; font-weight: 800; letter-spacing: -.25px; margin: 25px 0 13px; color: #1c3e30; }
+.fp-premium-wallet-hero { background: linear-gradient(128deg,#00583e,#00956b); color: white; border-radius: 23px; padding: 22px 20px; box-shadow: 0 13px 30px #006c4b25; overflow: hidden; position: relative; }
+.fp-premium-wallet-hero::after { content: ''; width: 175px; height: 175px; position: absolute; right: -90px; top: -95px; border: 28px solid #ffffff12; border-radius: 50%; pointer-events: none; }
+.fp-premium-wallet-hero>p { color: #d4f4e5; font-size: 13px; margin: 0; }
+.fp-premium-balance-row { display: flex; align-items: center; gap: 12px; margin-top: 13px; min-height: 46px; }
+.fp-premium-wallet-amount { font-size: clamp(20px,6vw,30px); font-weight: 850; overflow-wrap: anywhere; line-height: 1.3; }
+.fp-premium-visibility { border: 0; background: #ffffff1e; color: white; border-radius: 12px; height: 38px; width: 38px; display: grid; place-items: center; }
+.fp-premium-visibility svg { width: 19px; height: 19px; fill: none; stroke: currentColor; stroke-width: 1.8; }
+.fp-premium-wallet-caption { display: block; font-size: 11px; color: #b9e9d5; margin-top: 4px; }
+.fp-premium-wallet-buttons { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 9px; margin-top: 24px; }
+.fp-premium-wallet-buttons button { border: 1px solid #ffffff38; background: #ffffff1b; color: white; font-size: 12px; font-weight: 750; border-radius: 12px; min-height: 45px; padding: 8px 3px; }
+.fp-premium-wallet-buttons button:first-child { background: white; color: #006b4c; }
+.fp-premium-empty { border: 1px solid #e6eee9; background: white; border-radius: 19px; padding: 24px 17px; color: #7c8f85; font-size: 13px; }
+.fp-premium-empty strong { display: block; color: #244333; font-size: 15px; font-weight: 800; }
+.fp-premium-empty p { margin: 7px 0 0; line-height: 1.6; }
+.fp-premium-list { border: 1px solid #e6eee9; background: white; border-radius: 19px; padding: 0 15px; overflow: hidden; }
+.fp-premium-action { width: 100%; display: flex; align-items: center; text-align: left; gap: 12px; min-height: 72px; padding: 11px 0; background: none; border: 0; border-bottom: 1px solid #eef3ef; color: #234335; }
+.fp-premium-action:last-child { border-bottom: 0; }
+.fp-premium-action-icon { flex: 0 0 43px; height: 43px; display: grid; place-items: center; background: #eaf7ef; color: #00835a; border-radius: 14px; font-size: 22px; }
+.fp-premium-action-icon svg,.fp-premium-service-icon svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.fp-premium-action-copy { display: flex; flex: 1; flex-direction: column; gap: 3px; min-width: 0; }
+.fp-premium-action-copy strong { font-size: 13px; font-weight: 750; }
+.fp-premium-action-copy small { font-size: 11px; color: #8a9a91; }
+.fp-premium-chevron { font-size: 24px; color: #a5b7ac; }
+.fp-premium-search { display: block; width: 100%; min-height: 49px; border-radius: 15px; border: 1px solid #e0eae4; background: white; padding: 0 16px; color: #163d2e; font: inherit; outline-color: #0a9669; margin-bottom: 16px; }
+.fp-premium-filters { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; margin: 0 0 19px; }
+.fp-premium-filters button { flex: none; border: 1px solid #e2ece6; border-radius: 999px; padding: 9px 16px; background: white; color: #607d6c; font-size: 12px; font-weight: 700; }
+.fp-premium-filters button.selected { background: #007c58; border-color: #007c58; color: white; }
+.fp-premium-service-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 10px; }
+.fp-premium-service { min-width: 0; min-height: 103px; border-radius: 17px; border: 1px solid #e6eee9; background: white; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 9px; padding: 12px 5px; color: #254938; font-size: 11px; line-height: 1.35; font-weight: 750; text-align: center; }
+.fp-premium-service-icon { display: grid; place-items: center; width: 45px; height: 45px; border-radius: 15px; color: #00865b; background: #e8f7ef; font-size: 24px; }
+.fp-premium-service:active,.fp-premium-action:active { transform: scale(.98); }
+.fp-premium-orders-empty { text-align: center; padding: 32px 18px; }
+.fp-premium-empty-icon { display: grid; place-items: center; width: 70px; height: 70px; background: #e7f7ee; color: #00865c; border-radius: 22px; font-size: 40px; margin: 0 auto 17px; }
+.fp-premium-cta { background: #007d58; border: 0; color: white; padding: 12px 23px; border-radius: 999px; margin-top: 18px; font-size: 12px; font-weight: 800; }
+.fp-premium-order-card { border: 1px solid #e6eee9; background: white; border-radius: 17px; padding: 18px; margin: 0 0 12px; }
+.fp-premium-order-head { display: flex; justify-content: space-between; gap: 10px; align-items: center; font-size: 13px; }
+.fp-premium-order-status { background: #e5f6eb; color: #00845b; border-radius: 99px; padding: 6px 9px; font-size: 11px; }
+.fp-premium-order-date { display: block; color: #819488; margin-top: 10px; }
+.fp-premium-profile { display: flex; gap: 15px; align-items: center; background: white; border: 1px solid #e6eee9; border-radius: 19px; padding: 18px; }
+.fp-premium-profile-avatar { width: 57px; height: 57px; flex: 0 0 57px; border-radius: 50%; display: grid; place-items: center; background: #dff4e8; color: #007953; font-size: 23px; font-weight: 800; }
+.fp-premium-profile-info { min-width: 0; display: flex; flex-direction: column; gap: 4px; overflow-wrap: anywhere; }
+.fp-premium-profile-info strong { font-size: 16px; font-weight: 800; }
+.fp-premium-profile-info small { color: #819488; font-size: 12px; }
+@media (max-width: 360px) {
+  .fp-premium-page { padding: 19px 12px 26px; }
+  .fp-premium-service-grid { gap: 7px; }
+  .fp-premium-service { font-size: 10px; }
+  .fp-premium-wallet-buttons { gap: 6px; }
+}
