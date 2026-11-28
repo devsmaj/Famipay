@@ -39,6 +39,7 @@
         {group:'Account',title:'Edit Address',id:'profile-address'},
         {group:'Account',title:'Account Limits',id:'account-limits'},
         {group:'Account',title:'Settings',id:'settings'},
+        {group:'Account',title:'Language',id:'settings-language'},
         {group:'Account',title:"Payment Settings",id:'settings-payment-settings'},
         {group:'Account',title:"Login Settings",id:'settings-login-settings'},
         {group:'Account',title:"Savings Settings",id:'settings-savings-settings'},
@@ -972,7 +973,7 @@
     }
     const settingsGroups = [
         [['My Profile','profile-details','profile'],['Payment Settings','settings-payment-settings','shield'],['Login Settings','settings-login-settings','gear'],['Savings Settings','settings-savings-settings','wallet']],
-        [['Homepage Settings','settings-homepage-settings','home'],['Security Questions','settings-security-questions','shield'],['SMS Alert Settings','settings-sms-alert-settings','bell'],['Security Plus','settings-security-plus','shield'],['Access to Clipboard','settings-access-to-clipboard','receipt'],['Themes','settings-themes','gear']],
+        [['Language','settings-language','gear'],['Homepage Settings','settings-homepage-settings','home'],['Security Questions','settings-security-questions','shield'],['SMS Alert Settings','settings-sms-alert-settings','bell'],['Security Plus','settings-security-plus','shield'],['Access to Clipboard','settings-access-to-clipboard','receipt'],['Themes','settings-themes','gear']],
         [['Security Center','settings-security-center','shield'],['Feedback and Suggestions','settings-feedback-and-suggestions','receipt']],
         [['Close Account','settings-close-account','shield']],
         [['About','settings-about','help']]
@@ -1008,6 +1009,41 @@
         signout.type='button';
         signout.onclick=()=>{ const overlay=element('div',null,'fp-settings-overlay');const dialog=element('div',null,'fp-settings-dialog');dialog.append(element('p',translateText('Are you sure you want to log out of FAMIPAY?')));const actions=element('div',null,'fp-settings-actions');const no=element('button',translateText('No'));const yes=element('button',translateText('Yes'));no.onclick=()=>overlay.remove();yes.onclick=async()=>{yes.disabled=true;try{const client=window.Famina?.client;if(!client?.auth?.signOut)throw Error('Sign out unavailable');const result=await client.auth.signOut();if(result?.error)throw result.error;location.replace('login.html');}catch(error){yes.disabled=false;dialog.append(element('p',error.message||'Unable to sign out'));}};actions.append(no,yes);dialog.append(actions);overlay.append(dialog);page.append(overlay);};
         page.append(signout);
+    }
+    function renderLanguageSettings(page){
+        page.classList.add('fp-me-details','fp-settings-page','fp-language-page');
+        profileBackHeader(page,'Language');
+        const intro=element('p',translateText('Choose your preferred language'),'fp-language-intro');
+        page.append(intro);
+        const card=element('section',null,'fp-settings-card fp-language-options');
+        const languages=[['en','English','English'],['fr-TD','Français','French'],['ar-TD','العربية','Arabic']];
+        const current=()=>window.i18n?.getCurrentLanguage?.()||window.FaminaSession?.getPreference?.('language')||localStorage.getItem('language')||'fr-TD';
+        const update=()=>card.querySelectorAll('button[data-lang]').forEach(button=>{
+            const active=button.dataset.lang===current();
+            button.classList.toggle('selected',active);
+            button.setAttribute('aria-pressed',String(active));
+            const mark=button.querySelector('.fp-language-check');if(mark)mark.textContent=active?'✓':'';
+        });
+        languages.forEach(([code,name,english])=>{
+            const button=element('button',null,'fp-settings-row fp-language-option');
+            button.type='button';button.dataset.lang=code;
+            const copy=element('span',null,'fp-language-option-label');
+            copy.append(element('strong',name),element('small',english));
+            button.append(copy,element('span','','fp-language-check'));
+            button.onclick=async()=>{
+                if(!window.i18n?.setLanguage){return;}
+                button.disabled=true;
+                const success=await window.i18n.setLanguage(code);
+                button.disabled=false;
+                if(success){render();}else{
+                    status.textContent='Unable to change language. Please try again.';
+                }
+            };
+            card.append(button);
+        });
+        page.append(card);
+        const status=element('p','','fp-language-status');status.setAttribute('role','status');page.append(status);
+        update();
     }
     function renderSettingsDetail(page,title){
         page.classList.add('fp-me-details','fp-settings-page');
@@ -1750,6 +1786,7 @@
         } else if (screenId === 'account-limits') {
             renderAccountLimits(page);
         } else if(screenId==='settings'){renderMeSettings(page);
+        } else if(screenId==='settings-language'){renderLanguageSettings(page);
         } else if(screenId.startsWith('settings-')){renderSettingsDetail(page,byId[screenId]?.title||'Settings');
         } else if(screenId==='invitation'){profileBackHeader(page,'Invitation');const b=element('button',translateText('Share FAMIPAY'),'fp-me-signout');b.onclick=async()=>{const url=new URL('index.html',location.href).href;try{if(navigator.share)await navigator.share({title:'FAMIPAY',url});else {await navigator.clipboard.writeText(url);b.textContent=translateText('Link copied');}}catch(e){b.textContent=translateText('Unable to share. Try again.');}};page.append(b);
         } else if(screenId==='support-topic'){profileBackHeader(page,supportTopic||'Support');const card=element('section',null,'fp-me-menu');card.append(element('p',translateText('Contact support for assistance with this issue.')));meRow(card,'Help Center','help-center','help');page.append(card);
