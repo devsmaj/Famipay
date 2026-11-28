@@ -10,7 +10,7 @@
   );
   // The private app has its own compact account-verification spinner.
   // Never show the large global overlay on its pages.
-  const allowGlobalOverlay = !document.body?.classList.contains('fp-app');
+  const allowGlobalOverlay = !document.body?.classList.contains('fp-app') && !document.body?.dataset.authPage;
   let active = 0;
   let showTimer = 0;
   let loader = null;
