@@ -34,6 +34,9 @@
         {group:'Account',title:'My Profile',id:'my-profile'},
         {group:'Account',title:'Profile Details',id:'profile-details'},
         {group:'Account',title:'Profile Photo',id:'profile-photo'},
+        {group:'Account',title:'Edit Profile Field',id:'profile-edit'},
+        {group:'Account',title:'Edit Address',id:'profile-address'},
+        {group:'Account',title:'Account Limits',id:'account-limits'},
         {group:'Account',title:'Settings',id:'settings'},
         {group:'Account',title:'Help Center',id:'help-center'},
         {group:'Merchant',title:'Merchant Registration',id:'merchant-registration'},
@@ -752,7 +755,7 @@
         balance.append(balanceLine,element('p',translateText('Earned Today') + ' —'));
         page.append(balance);
         const shortcuts = element('section',null,'fp-me-shortcuts');
-        [['Transactions','my-orders','orders'],['Account Limits','settings','shield'],['Security Center','settings','shield']].forEach(([label,destination,icon])=>{
+        [['Transactions','my-orders','orders'],['Account Limits','account-limits','shield'],['Security Center','settings','shield']].forEach(([label,destination,icon])=>{
             const button=element('button',null,'fp-me-shortcut');button.type='button';
             const badge=element('span',null,'fp-me-shortcut-icon');
             if(iconPaths[icon])badge.append(svgIcon(icon));
@@ -797,7 +800,7 @@
         accountRow.append(element('span',translateText('FAMIPAY Account')),element('span',phone || translateText('Not connected')));
         account.append(accountRow);
         const level=element('div',null,'fp-me-field');
-        level.append(element('span',translateText('Account Level')),element('span',translateText('Verification status unavailable')));
+        const tierButton=element('button',translateText('View Account Limits')+' ›','fp-me-tier-link');tierButton.type='button';tierButton.onclick=()=>navigate('account-limits');level.append(element('span',translateText('Account Level')),tierButton);
         account.append(level);card.append(account);page.append(card);
         const fields=element('section',null,'fp-me-fields');
         const metadata = user.user_metadata || {};
@@ -814,17 +817,20 @@
             const row=element(key?'button':'div',null,'fp-me-field'+(key?' fp-me-field-editable':''));
             if(key)row.type='button';
             row.append(element('span',translateText(label)),element('span',value || translateText('Not set')));
-            if(key){row.append(element('span','›','fp-me-arrow'));row.onclick=()=>renderProfileEditor(page,key,label,value);}
+            if(key){row.append(element('span','›','fp-me-arrow'));row.onclick=()=>{profileEditField=key;navigate(key==='address'?'profile-address':'profile-edit');};}
             fields.append(row);
         });
         page.append(fields);
     }
+    let profileEditField = 'nickname';
     function renderProfileEditor(page,key,label,oldValue) {
+        page.classList.add('fp-me-photo-page','fp-me-edit-screen');
+        profileBackHeader(page,'Edit '+label);
         const panel=element('section',null,'fp-me-editor');
         const header=element('div',null,'fp-me-editor-heading');
         header.append(element('h2',translateText('Edit')+' '+translateText(label)));
         const close=element('button','×');close.type='button';close.setAttribute('aria-label','Close editor');
-        close.onclick=()=>panel.remove();header.append(close);panel.append(header);
+        close.onclick=()=>navigateBack();header.append(close);panel.append(header);
         let input;
         if(key==='gender'){
             input=document.createElement('select');
@@ -856,14 +862,97 @@
                         window.Famina.user.user_metadata={...(window.Famina.user.user_metadata||{}),[key]:value};
                         if(key==='nickname')window.Famina.user.nickname=value;
                     }
-                    panel.remove();render();
+                    navigate('profile-details');
                 } else {
                     feedback.textContent=translateText('Check your email to confirm the address change.');
                 }
             }catch(error){feedback.textContent=error?.message||translateText('Could not save changes.');}
             finally{save.disabled=false;}
         };
-        panel.append(save,feedback);page.append(panel);input.focus();
+        panel.append(save,feedback);page.append(panel);
+    }
+    const chadProvinces = ["Batha","Borkou","Chari-Baguirmi","Ennedi-Est","Ennedi-Ouest","Guéra","Hadjer-Lamis","Kanem","Lac","Logone Occidental","Logone Oriental","Mandoul","Mayo-Kebbi Est","Mayo-Kebbi Ouest","Moyen-Chari","N'Djamena","Ouaddaï","Salamat","Sila","Tandjilé","Tibesti","Wadi Fira","Barh El Gazel"];
+    function renderAddressPage(page) {
+        page.classList.add('fp-me-photo-page','fp-me-address-page');
+        profileBackHeader(page,'Edit Address');
+        const form=element('form',null,'fp-me-address-form');
+        form.append(element('h2',translateText('Please fill in your current address')));
+        const metadata=window.Famina?.user?.user_metadata||{};
+        const fields={};
+        function field(label,key,kind='text',options=[]) {
+            const group=element('label',null,'fp-me-address-group');
+            group.append(element('span',translateText(label)));
+            const input=document.createElement(kind==='select'?'select':'input');
+            input.name=key;input.required=key!=='landmark';
+            if(kind==='select'){
+                const placeholder=document.createElement('option');placeholder.value='';placeholder.textContent=translateText('Select province');input.append(placeholder);
+                options.forEach(name=>{const option=document.createElement('option');option.value=name;option.textContent=name;input.append(option);});
+            } else {input.type='text';input.maxLength=200;input.placeholder=translateText('Enter '+label.toLowerCase());}
+            input.value=metadata['address_'+key]||'';
+            fields[key]=input;group.append(input);form.append(group);
+        }
+        field('Province','province','select',chadProvinces);
+        field('Department / Commune','department');
+        field('Area / District','area');
+        field('Landmark','landmark');
+        field('Address','address');
+        const feedback=element('p',null,'fp-me-editor-feedback');
+        const save=element('button',translateText('Save'),'fp-me-save fp-me-address-save');save.type='submit';
+        form.append(feedback,save);
+        form.onsubmit=async event=>{
+            event.preventDefault();
+            if(!form.reportValidity())return;
+            const client=window.Famina?.client;
+            if(!client?.auth?.updateUser){feedback.textContent=translateText('Account updates are unavailable.');return;}
+            const data={};Object.entries(fields).forEach(([key,input])=>data['address_'+key]=input.value.trim());
+            data.address=[data.address_address,data.address_area,data.address_department,data.address_province].filter(Boolean).join(', ');
+            save.disabled=true;feedback.textContent=translateText('Saving…');
+            try{
+                const {error}=await client.auth.updateUser({data});if(error)throw error;
+                if(window.Famina?.user)window.Famina.user.user_metadata={...(window.Famina.user.user_metadata||{}),...data};
+                navigate('profile-details');
+            }catch(error){feedback.textContent=error?.message||translateText('Could not save changes.');}
+            finally{save.disabled=false;}
+        };
+        page.append(form);
+    }
+    function renderAccountLimits(page) {
+        page.classList.add('fp-me-details','fp-me-limits-page');
+        profileBackHeader(page,'Account Limits');
+        const user=window.Famina?.user||{};
+        const metadata=user.user_metadata||{};
+        const tier=metadata.account_tier ?? metadata.kyc_tier ?? null;
+        const verified=tier!==null&&tier!==undefined&&String(tier).trim()!=='';
+        const info=element('section',null,'fp-me-limit-info');
+        info.append(element('span',translateText('Account Info')));
+        info.append(element('strong',user.phone||translateText('Account number unavailable')));
+        info.append(element('span',user.name||metadata.full_name||firstName()));
+        if(verified)info.append(element('span',translateText('Tier')+' '+String(tier),'fp-me-limit-tier'));
+        page.append(info);
+        const id=element('section',null,'fp-me-limit-section');
+        id.append(element('strong',translateText('Linked ID')),element('p',translateText('Identity verification details are provided by your verified account provider.')));
+        page.append(id);
+        const limits=element('section',null,'fp-me-limit-section');
+        limits.append(element('strong',translateText('Daily Transaction Limit')));
+        const amount=metadata.daily_transaction_limit;
+        limits.append(element('p',amount!=null?String(amount)+' XAF':translateText('Not available until account limits are verified.')));
+        page.append(limits);
+        const benefits=element('section',null,'fp-me-limit-section');
+        benefits.append(element('strong',translateText('Level Benefits')));
+        const table=document.createElement('table');table.className='fp-me-limits-table';
+        const head=document.createElement('tr');
+        ['Tier','Daily transaction limit','Maximum account balance'].forEach(label=>{const th=document.createElement('th');th.textContent=translateText(label);head.append(th);});table.append(head);
+        [0,1,2,3].forEach(level=>{
+            const tr=document.createElement('tr');
+            const cell=document.createElement('td');cell.textContent='Tier '+level+(verified&&Number(tier)===level?' · Current':'');tr.append(cell);
+            ['daily_limit','balance_limit'].forEach(type=>{
+                const td=document.createElement('td');const value=metadata['tier_'+level+'_'+type];
+                td.textContent=value!=null?String(value)+' XAF':'—';tr.append(td);
+            });table.append(tr);
+        });
+        benefits.append(table);
+        benefits.append(element('p',translateText('Limits are displayed only when supplied by your verified account provider.')));
+        page.append(benefits);
     }
     function renderProfilePhoto(page) {
         page.classList.add('fp-me-photo-page');
@@ -1049,6 +1138,13 @@
             renderProfileDetails(page);
         } else if (screenId === 'profile-photo') {
             renderProfilePhoto(page);
+        } else if (screenId === 'profile-edit') {
+            const key=profileEditField;const labels={nickname:'Nickname',gender:'Gender',date_of_birth:'Date of Birth',email:'Email'};
+            const user=window.Famina?.user||{};renderProfileEditor(page,key,labels[key]||key,key==='email'?(user.email||''):(user.user_metadata?.[key]||''));
+        } else if (screenId === 'profile-address') {
+            renderAddressPage(page);
+        } else if (screenId === 'account-limits') {
+            renderAccountLimits(page);
         }
         main.append(page);
     }
@@ -1261,7 +1357,7 @@
                 main.append(grid);
             }
             main.append(element('div', translateText('Financial actions require an authorized provider or existing backend service.'), 'warning'));
-        } else if (role === 'customer' && ['my-cards','express-home','my-orders','my-profile','profile-details','profile-photo'].includes(screenId)) {
+        } else if (role === 'customer' && ['my-cards','express-home','my-orders','my-profile','profile-details','profile-photo','profile-edit','profile-address','account-limits'].includes(screenId)) {
             premiumCustomerPage(screenId);
         } else if (isPrimary) {
             main.append(buildHeader());
