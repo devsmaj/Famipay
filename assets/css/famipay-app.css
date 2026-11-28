@@ -1703,3 +1703,16 @@ body.fp-app .fp-all-services button:focus-visible {outline:2px solid #008b60;out
 .fp-cards-redesign .fp-card-field input,.fp-cards-redesign .fp-card-field textarea{width:100%;box-sizing:border-box;border:1px solid #d9e4de;background:#f8faf9;border-radius:11px;padding:13px;font:inherit}
 .fp-cards-redesign .fp-card-notice{background:#edf8f2;color:#426357;padding:16px;border-radius:12px;margin-top:20px}
 @media(max-width:350px){.fp-cards-redesign .fp-card-service{font-size:11px}.fp-cards-redesign .fp-card-preview{padding:16px}}
+
+/* Account > Settings > Language */
+.fp-language-page .fp-language-intro{margin:6px 0 18px;color:#657970;font-size:14px}
+.fp-language-page .fp-language-options{overflow:hidden;padding:0}
+.fp-language-page .fp-language-option{display:flex;width:100%;min-height:72px;align-items:center;justify-content:space-between;gap:16px;padding:15px 18px;border:0;border-bottom:1px solid #edf2ef;background:#fff;text-align:start;color:#193b30;cursor:pointer}
+.fp-language-page .fp-language-option:last-child{border-bottom:0}
+.fp-language-page .fp-language-option.selected{background:#e9f8f0;color:#007f58}
+.fp-language-page .fp-language-option-label{display:flex;flex-direction:column;gap:3px}
+.fp-language-page .fp-language-option-label strong{font-size:16px;font-weight:700}
+.fp-language-page .fp-language-option-label small{font-size:12px;color:#6a8177}
+.fp-language-page .fp-language-check{display:grid;place-items:center;min-width:26px;height:26px;border-radius:50%;font-size:17px;font-weight:800}
+.fp-language-page .fp-language-option.selected .fp-language-check{background:#00845c;color:#fff}
+.fp-language-page .fp-language-status{font-size:13px;color:#a33}
