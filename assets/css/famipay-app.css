@@ -1085,3 +1085,25 @@ body.fp-app #app.fp-bootstrap-shell:has(.fp-redirect) {
     margin-top:20px;background:#007b56;color:white;border:0;
     border-radius:12px;padding:12px 18px;font-weight:750;cursor:pointer;
 }
+
+
+/* FAMIPAY Cards: existing green-and-white visual system. */
+.fp-cards-switch{display:flex;gap:4px;padding:4px;border-radius:12px;background:#eaf1ed;margin:16px 0;}
+.fp-cards-switch-button{flex:1;border:0;border-radius:9px;padding:12px 7px;background:transparent;color:#698074;font-size:13px;font-weight:700;cursor:pointer;}
+.fp-cards-switch-button.active{background:#fff;color:#007e59;box-shadow:0 1px 5px #0000000b;}
+.fp-cards-face{min-height:190px;border-radius:19px;background:linear-gradient(125deg,#075e48,#009e74);color:#fff;padding:21px;display:flex;flex-direction:column;justify-content:space-between;overflow:hidden;position:relative;}
+.fp-cards-face:after{content:"";position:absolute;width:210px;height:210px;border:1px solid #ffffff24;border-radius:50%;right:-80px;top:25px;box-shadow:0 0 0 30px #ffffff0b,0 0 0 60px #ffffff09;pointer-events:none;}
+.fp-cards-face-top,.fp-cards-face-footer{display:flex;align-items:center;justify-content:space-between;gap:12px;position:relative;z-index:1;}
+.fp-cards-face-top strong{font-size:16px;letter-spacing:.5px;}
+.fp-cards-face-top span,.fp-cards-face-footer span{font-size:11px;}
+.fp-cards-digits{font-size:clamp(16px,5vw,22px);letter-spacing:2px;font-weight:750;position:relative;z-index:1;}
+.fp-cards-disclaimer{font-size:11px;color:#809188;line-height:1.5;margin:11px 2px 16px;}
+.fp-cards-info,.fp-cards-management{background:#fff;border:1px solid #e5eee8;border-radius:16px;padding:17px;margin:13px 0;}
+.fp-cards-info h2,.fp-cards-management h2{font-size:15px;font-weight:800;margin:0 0 10px;}
+.fp-cards-info p{font-size:12px;line-height:1.6;color:#718579;margin:0 0 14px;}
+.fp-cards-request{background:#007e59;border:0;border-radius:12px;color:#fff;padding:13px 16px;font-weight:750;font-size:12px;cursor:pointer;}
+.fp-cards-info .fp-cards-feedback{color:#98652b;margin:13px 0 0;}
+.fp-cards-management-row{padding:13px 0;border-bottom:1px solid #edf2ee;display:flex;flex-direction:column;gap:4px;}
+.fp-cards-management-row strong{font-size:13px;}
+.fp-cards-management-row small{font-size:11px;color:#81938a;}
+body.fp-app .fp-premium-page:has(.fp-cards-switch){padding-top:17px;padding-bottom:20px;}
