@@ -1347,3 +1347,25 @@ body.fp-app .app.fp-service-focused .fp-settings-page .fp-me-subheader { margin-
 body.fp-app .app.fp-service-focused .fp-me-edit-screen .fp-me-editor { margin-top:0!important; padding-top:12px!important; }
 body.fp-app .app.fp-service-focused .fp-me-address-form { padding-bottom:16px!important; }
 body.fp-app .app.fp-service-focused .fp-me-photo-page .fp-me-photo-center { margin-top:0!important; }
+
+/* Global form surface: remove grey-filled fields throughout the private app.
+   Preserve checkboxes, radios, file pickers, sliders, and button controls. */
+body.fp-app input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="range"]):not([type="color"]):not([type="button"]):not([type="submit"]):not([type="reset"]):not([type="hidden"]),
+body.fp-app textarea,
+body.fp-app select {
+  background:#fff!important;
+  background-color:#fff!important;
+  color:#263a30;
+  border:1px solid #dce5df;
+  box-shadow:none;
+}
+body.fp-app input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="range"]):not([type="color"]):not([type="button"]):not([type="submit"]):not([type="reset"]):not([type="hidden"]):focus,
+body.fp-app textarea:focus,
+body.fp-app select:focus {
+  border-color:#00a979;
+  outline:2px solid rgba(0,169,121,.14);
+  outline-offset:0;
+}
+body.fp-app input:disabled:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="range"]),
+body.fp-app textarea:disabled,
+body.fp-app select:disabled {background:#fff!important;opacity:.65;}
