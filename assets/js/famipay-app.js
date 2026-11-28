@@ -38,6 +38,8 @@
         {group:'Account',title:'Edit Address',id:'profile-address'},
         {group:'Account',title:'Account Limits',id:'account-limits'},
         {group:'Account',title:'Settings',id:'settings'},
+        {group:'Account',title:'Invitation',id:'invitation'},
+        {group:'Account',title:'Support Topic',id:'support-topic'},
         {group:'Account',title:'Help Center',id:'help-center'},
         {group:'Merchant',title:'Merchant Registration',id:'merchant-registration'},
         {group:'Merchant',title:'Merchant Dashboard',id:'merchant-dashboard'},
@@ -77,6 +79,11 @@
         'Identity Verification': ['Full legal name', 'Document type', 'Document reference'],
     };
     const iconPaths = {
+        shield: 'M12 2 3 6v6c0 5 4 8 9 10 5-2 9-5 9-10V6ZM8 12l3 3 5-6',
+        gauge: 'M3 18a9 9 0 1 1 18 0ZM12 13l4-5',
+        receipt: 'M5 3h14v18l-4-3-3 3-3-3-4 3ZM8 8h8M8 12h8',
+        gift: 'M3 8h18v4H3ZM5 12v9h14v-9M12 8v13M12 8C2 8 6-2 12 8M12 8c10 0 6-10 0 0',
+        gear: 'M9 3h6l1 3 3 1 2 5-2 5-3 1-1 3H9l-1-3-3-1-2-5 2-5 3-1ZM15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z',
         home: 'M3 10 12 3l9 7v11h-6v-7H9v7H3Z',
         wallet: 'M3 6h17v15H3V4h15v2M16 12h4v5h-4Z',
         cards: 'M3 6h18v12H3zM3 11h18M7 15h4',
@@ -712,13 +719,13 @@
         } else wrap.append(initial);
         return wrap;
     }
-    function meRow(parent, label, destination, icon) {
+    function meRow(parent, label, destination, icon, hint='') {
         const button = element('button', null, 'fp-me-row');
         button.type = 'button';
         const left = element('span', null, 'fp-me-row-left');
         if (iconPaths[icon]) left.append(svgIcon(icon));
         left.append(element('span', translateText(label)));
-        button.append(left, element('span', '›', 'fp-me-arrow'));
+        button.append(left); if(hint)button.append(element('small',translateText(hint),'fp-me-hint')); button.append(element('span', '›', 'fp-me-arrow'));
         button.onclick = () => navigate(destination);
         parent.append(button);
     }
@@ -731,7 +738,7 @@
         help.append(svgIcon('help')); help.onclick = () => navigate('help-center');
         const settings = element('button', null, 'fp-me-top-icon');
         settings.type = 'button'; settings.setAttribute('aria-label', 'Settings');
-        settings.append(svgIcon('services')); settings.onclick = () => navigate('settings');
+        settings.append(svgIcon('gear')); settings.onclick = () => navigate('settings');
         heading.append(help,settings);
         page.append(heading);
         const hero = element('button', null, 'fp-me-identity');
@@ -755,7 +762,7 @@
         balance.append(balanceLine,element('p',translateText('Earned Today') + ' —'));
         page.append(balance);
         const shortcuts = element('section',null,'fp-me-shortcuts');
-        [['Transactions','my-orders','orders'],['Account Limits','account-limits','shield'],['Security Center','settings','shield']].forEach(([label,destination,icon])=>{
+        [['Transactions','transaction-history','receipt'],['Account Limits','account-limits','gauge'],['Security Center','settings','shield']].forEach(([label,destination,icon])=>{
             const button=element('button',null,'fp-me-shortcut');button.type='button';
             const badge=element('span',null,'fp-me-shortcut-icon');
             if(iconPaths[icon])badge.append(svgIcon(icon));
@@ -766,15 +773,47 @@
         page.append(shortcuts);
         const menu=element('section',null,'fp-me-menu');
         meRow(menu,'Bank Card / Account','my-cards','cards');
-        meRow(menu,'My Profile','profile-details','profile');
         meRow(menu,'Notifications','notifications','bell');
-        meRow(menu,'Settings & Language','settings','services');
-        meRow(menu,'Help Center','help-center','help');
         page.append(menu);
-        const assistant=element('button',translateText('FAMIPAY Support Assistant')+'  ›','fp-me-assistant');
-        assistant.type='button';assistant.onclick=()=>navigate('help-center');
-        page.append(assistant);
+        const assistant=element('section',null,'fp-me-assistant-card');
+        const title=element('button',translateText('FAMIPAY Support Assistant')+' ›','fp-me-assistant');
+        title.type='button';title.onclick=()=>navigate('help-center');assistant.append(title);
+        const topics=element('div',null,'fp-me-support-topics');
+        ['Successful but not credited','Erroneous Transfer','Internet Fraud','Account Theft'].forEach(topic=>{
+            const b=element('button',translateText(topic));b.type='button';b.onclick=()=>{supportTopic=topic;navigate('support-topic');};topics.append(b);
+        });assistant.append(topics);page.append(assistant);
+        const invite=element('section',null,'fp-me-menu');meRow(invite,'Invitation','invitation','gift','Invite friends');page.append(invite);
+        const account=element('section',null,'fp-me-menu');meRow(account,'Profile Info','profile-details','profile','Name / ID');meRow(account,'Settings','settings','gear','Security & Language');page.append(account);
+        appendSignOut(page);
     }
+    let supportTopic='';
+    function appendSignOut(page){
+        const b=element('button',translateText('Sign Out'),'fp-me-signout');b.type='button';b.onclick=()=>confirmSignOut();page.append(b);
+    }
+    function confirmSignOut(){
+        const dialog=document.createElement('dialog');dialog.className='fp-me-logout-dialog';
+        dialog.append(element('p',translateText('Are you sure to log out of FAMIPAY?')));
+        const actions=element('div',null,'fp-me-logout-actions');
+        const no=element('button',translateText('No'));const yes=element('button',translateText('Yes'));
+        no.type=yes.type='button';no.onclick=()=>dialog.close();
+        const feedback=element('p',null,'fp-me-editor-feedback');
+        yes.onclick=async()=>{
+            no.disabled=yes.disabled=true;
+            try{
+                const client=window.Famina?.client;if(!client?.auth?.signOut)throw Error('Authentication unavailable');
+                const {error}=await client.auth.signOut();if(error)throw error;
+                window.FaminaSession?.clear();location.replace('login.html');
+            }catch(error){feedback.textContent=translateText('Unable to sign out. Please try again.');no.disabled=yes.disabled=false;}
+        };
+        actions.append(no,yes);dialog.append(actions,feedback);dialog.addEventListener('close',()=>dialog.remove());document.body.append(dialog);dialog.showModal();
+    }
+    function renderMeSettings(page){
+        page.classList.add('fp-me-details');profileBackHeader(page,'Settings');
+        const group=element('section',null,'fp-me-menu');
+        meRow(group,'Profile Info','profile-details','profile');meRow(group,'Account Limits','account-limits','gauge');meRow(group,'Notifications','notifications','bell');meRow(group,'Help Center','help-center','help');page.append(group);
+        const preferences=element('section',null,'fp-me-menu');preferences.append(element('h3',translateText('Language preferences')));const language=element('div');language.dataset.fpLanguageSettings='';preferences.append(language);page.append(preferences);appendSignOut(page);
+    }
+
     function profileBackHeader(page,title) {
         const header=element('div',null,'fp-me-subheader');
         const back=element('button','‹','fp-me-back');
@@ -1145,6 +1184,9 @@
             renderAddressPage(page);
         } else if (screenId === 'account-limits') {
             renderAccountLimits(page);
+        } else if(screenId==='settings'){renderMeSettings(page);
+        } else if(screenId==='invitation'){profileBackHeader(page,'Invitation');const b=element('button',translateText('Share FAMIPAY'),'fp-me-signout');b.onclick=async()=>{const url=new URL('index.html',location.href).href;try{if(navigator.share)await navigator.share({title:'FAMIPAY',url});else {await navigator.clipboard.writeText(url);b.textContent=translateText('Link copied');}}catch(e){b.textContent=translateText('Unable to share. Try again.');}};page.append(b);
+        } else if(screenId==='support-topic'){profileBackHeader(page,supportTopic||'Support');const card=element('section',null,'fp-me-menu');card.append(element('p',translateText('Contact support for assistance with this issue.')));meRow(card,'Help Center','help-center','help');page.append(card);
         }
         main.append(page);
     }
@@ -1357,7 +1399,7 @@
                 main.append(grid);
             }
             main.append(element('div', translateText('Financial actions require an authorized provider or existing backend service.'), 'warning'));
-        } else if (role === 'customer' && ['my-cards','express-home','my-orders','my-profile','profile-details','profile-photo','profile-edit','profile-address','account-limits'].includes(screenId)) {
+        } else if (role === 'customer' && ['my-cards','express-home','my-orders','my-profile','profile-details','profile-photo','profile-edit','profile-address','account-limits','settings','invitation','support-topic'].includes(screenId)) {
             premiumCustomerPage(screenId);
         } else if (isPrimary) {
             main.append(buildHeader());
