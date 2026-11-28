@@ -1369,3 +1369,29 @@ body.fp-app select:focus {
 body.fp-app input:disabled:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="range"]),
 body.fp-app textarea:disabled,
 body.fp-app select:disabled {background:#fff!important;opacity:.65;}
+
+/* Five primary tabs: remove the double-reserved footer space and grey band. */
+body.fp-app .app:not(.fp-service-focused) .main:has(> .fp-premium-page){
+  background:#fff!important;
+  padding:0 0 calc(76px + env(safe-area-inset-bottom,0px))!important;
+  min-height:100dvh;
+}
+body.fp-app .app:not(.fp-service-focused) .main > .fp-premium-page{
+  background:#fff!important;
+  padding-bottom:12px!important;
+  min-height:0!important;
+}
+body.fp-app .app:not(.fp-service-focused) .main > .fp-premium-page.fp-me-page{
+  background:#fff!important;
+  padding-bottom:12px!important;
+}
+.fp-me-verify-phone{background:transparent;border:0;padding:0;color:#008565;text-align:right;text-decoration:underline;font:inherit;cursor:pointer;}
+.fp-phone-overlay{position:fixed;inset:0;z-index:10000;background:#0007;display:flex;align-items:center;justify-content:center;padding:20px;}
+.fp-phone-panel{background:#fff;color:#183a30;width:min(100%,420px);border-radius:18px;padding:24px;display:flex;flex-direction:column;gap:14px;box-shadow:0 20px 60px #0003;}
+.fp-phone-panel h2{margin:0;font-size:22px;}
+.fp-phone-panel p{margin:0;color:#526b60;font-size:14px;}
+.fp-phone-panel input{width:100%;padding:14px;border:1px solid #dce5df;border-radius:10px;background:#fff;color:#183a30;font:inherit;}
+.fp-phone-panel .fp-phone-submit{min-height:50px;background:#00b87b;color:white;border:0;border-radius:25px;font-weight:700;display:flex;justify-content:center;align-items:center;}
+.fp-phone-panel .fp-phone-cancel{min-height:42px;background:#fff;border:1px solid #dce5df;border-radius:22px;color:#183a30;}
+.fp-phone-panel [hidden]{display:none!important;}
+.fp-phone-panel .fp-phone-status{color:#a33b2b;}
