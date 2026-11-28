@@ -1603,3 +1603,47 @@ body.fp-app .fp-me-page>.fp-me-assistant-card{margin:0 0 14px!important;border-r
 .fp-qr-pay-mode .fp-qr-scan-shortcut{display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:7px!important;width:78px!important;height:auto!important;margin:auto auto calc(28px + env(safe-area-inset-bottom,0px))!important;padding:0!important;border-radius:0!important;background:transparent!important;color:#fff!important;font-size:14px!important;font-weight:500!important;}
 .fp-qr-pay-mode .fp-qr-scan-shortcut svg{display:block;width:64px;height:64px;padding:18px;border-radius:50%;background:#ffffff35;stroke:#fff;box-sizing:border-box;}
 .fp-qr-pay-mode .fp-qr-scan-shortcut span{display:block;white-space:nowrap;}
+
+
+/* Home dashboard only: cardless, compact duotone service shortcuts. */
+body.fp-app .app.fp-dashboard-home .main .fp-classic-grid.cards {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 10px !important;
+}
+body.fp-app .app.fp-dashboard-home .main .fp-classic-grid .card {
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
+    padding: 8px 2px !important;
+    min-height: 90px !important;
+    height: auto !important;
+}
+body.fp-app .app.fp-dashboard-home .main .fp-classic-grid .card > span:first-child {
+    display: grid !important;
+    place-items: center !important;
+    width: 58px !important;
+    height: 58px !important;
+    border-radius: 17px !important;
+    background: #e7f7ef !important;
+    padding: 0 !important;
+}
+body.fp-app .app.fp-dashboard-home .main .fp-classic-grid .fp-dashboard-service-icon {
+    display: block !important;
+    width: 40px !important;
+    height: 40px !important;
+    flex: none !important;
+}
+body.fp-app .app.fp-dashboard-home .main .fp-classic-grid .card strong {
+    text-align: center !important;
+    white-space: normal !important;
+    font-size: 12px !important;
+    line-height: 1.25 !important;
+}
+body.fp-app .app.fp-dashboard-home .main .fp-classic-grid .card:focus-visible {
+    outline: 2px solid #008b60;
+    outline-offset: 2px;
+}
