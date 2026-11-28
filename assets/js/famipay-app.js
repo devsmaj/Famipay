@@ -902,13 +902,47 @@
             });return;
         }
         if(title==='SMS Alert Settings'){
-            page.append(element('p',translateText('Select subscription option(s). SMS alerts require an integrated provider and published charges.'),'fp-settings-note'));
-            ['Credit Alerts','Card Transaction Alerts','Transfer & Withdrawal Alerts','Other Alerts'].forEach(label=>{
-                const card=element('label',null,'fp-settings-theme');
-                card.append(element('span',translateText(label)));
-                const checkbox=document.createElement('input');checkbox.type='checkbox';card.append(checkbox);page.append(card);
+            const card=element('section',null,'fp-settings-card fp-settings-question');
+            const options=[['sms_credit','Credit Alerts'],['sms_card','Card Transaction Alerts'],['sms_transfer','Transfer & Withdrawal Alerts'],['sms_other','Other Alerts']];
+            const inputs={};
+            options.forEach(([key,label])=>{
+                const row=element('label',null,'fp-settings-row');
+                const input=document.createElement('input');input.type='checkbox';input.disabled=true;inputs[key]=input;
+                row.append(element('span',translateText(label)),input);card.append(row);
             });
-            page.append(element('p',translateText('Activation is unavailable until an SMS provider is connected.'),'fp-settings-note'));return;
+            const consent=element('label',null,'fp-settings-row');
+            const agree=document.createElement('input');agree.type='checkbox';agree.disabled=true;
+            consent.append(agree,element('span',translateText('I agree to receive the selected SMS notifications. Any provider charges will be disclosed before activation.')));
+            card.append(consent);
+            const status=element('p','Loading preferences…','fp-settings-note');status.setAttribute('role','status');
+            const save=element('button',translateText('Save preferences'),'fp-me-save');save.type='button';save.disabled=true;
+            card.append(status,save);page.append(card);
+            (async()=>{
+                try{
+                    const client=window.Famina?.client;
+                    const {data:{user},error:authError}=await client.auth.getUser();
+                    if(authError||!user)throw authError||new Error('Sign in required');
+                    const {data,error}=await client.from('famipay_user_settings').select('sms_credit,sms_card,sms_transfer,sms_other,sms_consent_at').eq('user_id',user.id).maybeSingle();
+                    if(error)throw error;
+                    options.forEach(([key])=>{inputs[key].checked=!!data?.[key];inputs[key].disabled=false;});
+                    agree.checked=!!data?.sms_consent_at;agree.disabled=false;
+                    save.disabled=false;status.textContent='Preferences are saved to your account. SMS delivery is not active until a provider is connected.';
+                    save.onclick=async()=>{
+                        const selected=options.some(([key])=>inputs[key].checked);
+                        if(selected&&!agree.checked){status.textContent='Please accept SMS consent before saving selected alerts.';return;}
+                        save.disabled=true;save.setAttribute('aria-busy','true');status.textContent='Saving…';
+                        try{
+                            const payload={user_id:user.id,sms_consent_at:selected?new Date().toISOString():null,updated_at:new Date().toISOString()};
+                            options.forEach(([key])=>payload[key]=inputs[key].checked);
+                            const {error:writeError}=await client.from('famipay_user_settings').upsert(payload,{onConflict:'user_id'});
+                            if(writeError)throw writeError;
+                            status.textContent='Preferences saved. SMS delivery is not active until a provider is connected.';
+                        }catch(e){status.textContent=e?.message||'Unable to save preferences.';}
+                        finally{save.disabled=false;save.setAttribute('aria-busy','false');}
+                    };
+                }catch(e){status.textContent=e?.message||'Unable to load preferences. Apply the Supabase migration first.';}
+            })();
+            return;
         }
         if(title==='Security Questions'){
             page.append(element('h2',translateText('Set up security questions')));
@@ -932,7 +966,23 @@
         if(title==='Feedback and Suggestions'){
             const card=element('section',null,'fp-settings-card fp-settings-question');
             const input=document.createElement('textarea');input.placeholder='Tell us how we can improve FAMIPAY';input.rows=5;card.append(input);
-            card.append(element('p',translateText('Feedback submission is not connected yet.'),'fp-settings-note'));page.append(card);return;
+            const status=element('p','','fp-settings-note');status.setAttribute('role','status');
+            const send=element('button',translateText('Send feedback'),'fp-me-save');send.type='button';
+            send.onclick=async()=>{
+                const message=input.value.trim();
+                if(message.length<10||message.length>2000){status.textContent='Please enter 10 to 2000 characters.';return;}
+                send.disabled=true;send.setAttribute('aria-busy','true');status.textContent='Sending…';
+                try{
+                    const client=window.Famina?.client;
+                    const {data:{user},error:authError}=await client.auth.getUser();
+                    if(authError||!user)throw authError||new Error('Sign in required');
+                    const {error}=await client.from('famipay_feedback').insert({user_id:user.id,message});
+                    if(error)throw error;
+                    input.value='';status.textContent='Feedback received. Thank you.';
+                }catch(e){status.textContent=e?.message||'Unable to submit feedback.';}
+                finally{send.disabled=false;send.setAttribute('aria-busy','false');}
+            };
+            card.append(status,send);page.append(card);return;
         }
         if(title==='Auto-logout Setting'){
             const card=element('section',null,'fp-settings-card fp-settings-question');
