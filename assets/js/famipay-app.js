@@ -172,9 +172,36 @@
         return node;
     }
 
+    // Profile edits live in Supabase Auth metadata; the API's user object can omit it.
+    let profileAuthMetadata = {};
+    function profileMetadata(){
+        return {...(window.Famina?.user?.user_metadata||{}),...profileAuthMetadata};
+    }
+    function profileDisplayName(){
+        const user=window.Famina?.user||{};
+        const nickname=profileMetadata().nickname;
+        return (typeof nickname==='string'&&nickname.trim())?nickname.trim():(user.name||user.full_name||user.user_metadata?.full_name||'FAMIPAY');
+    }
+    async function hydrateProfile(){
+        const client=window.Famina?.client;
+        if(!client?.auth?.getUser)return;
+        try{
+            const {data,error}=await client.auth.getUser();
+            if(error||!data?.user||!window.Famina?.user)return;
+            const metadata=data.user.user_metadata||{};
+            if(JSON.stringify(profileAuthMetadata)===JSON.stringify(metadata))return;
+            profileAuthMetadata={...metadata};
+            if(window.Famina.user){
+                window.Famina.user.user_metadata={...(window.Famina.user.user_metadata||{}),...metadata};
+                if(metadata.nickname)window.Famina.user.nickname=metadata.nickname;
+            }
+            render();
+        }catch(error){console.warn('Profile metadata unavailable',error);}
+    }
+
     function firstName() {
         const user = window.Famina?.user || {};
-        const name = [user.first_name, user.firstName, user.full_name, user.name, user.display_name, user.user_metadata?.full_name, user.user_metadata?.name].find(value => typeof value === 'string' && value.trim());
+        const name = [profileMetadata().nickname, user.first_name, user.firstName, user.full_name, user.name, user.display_name, user.user_metadata?.full_name, user.user_metadata?.name].find(value => typeof value === 'string' && value.trim());
         return name ? name.trim().split(/\s+/)[0] : 'there';
     }
 
@@ -1079,7 +1106,7 @@
         portrait.append(profileAvatar('fp-me-avatar-large'));
         const camera=element('span',null,'fp-me-camera');camera.append(svgIcon('profile'));
         portrait.append(camera);portrait.onclick=()=>navigate('profile-photo');
-        card.append(portrait,element('strong',user.nickname || firstName()));
+        card.append(portrait,element('strong',profileMetadata().nickname || firstName()));
         const account=element('div',null,'fp-me-account-info');
         const phone=user.phone || '';
         // The local Chad number is a wallet alias only after Supabase confirms ownership.
@@ -1171,7 +1198,7 @@
         const tierButton=element('button',translateText('View Account Limits')+' ›','fp-me-tier-link');tierButton.type='button';tierButton.onclick=()=>navigate('account-limits');level.append(element('span',translateText('Account Level')),tierButton);
         account.append(level);card.append(account);page.append(card);
         const fields=element('section',null,'fp-me-fields');
-        const metadata = user.user_metadata || {};
+        const metadata = profileMetadata();
         const values=[
             ['Full Name',user.name || metadata.full_name || '',null],
             ['Mobile Number',localChadPhone(phone) || phone,null],
@@ -1243,9 +1270,11 @@
             setBusy(true);
             try{
                 const payload=key==='email'?{email:value}:{data:{[key]:value}};
-                const {error}=await client.auth.updateUser(payload);
+                const {data,error}=await client.auth.updateUser(payload);
                 if(error)throw error;
+                if(key!=='email' && data?.user?.user_metadata?.[key]!==value)throw new Error('Profile change was not confirmed. Please retry.');
                 if(key!=='email'){
+                    profileAuthMetadata={...profileAuthMetadata,...(data.user.user_metadata||{}),[key]:value};
                     if(window.Famina?.user){
                         window.Famina.user.user_metadata={...(window.Famina.user.user_metadata||{}),[key]:value};
                         if(key==='nickname')window.Famina.user.nickname=value;
@@ -1266,7 +1295,7 @@
         profileBackHeader(page,'Edit Address');
         const form=element('form',null,'fp-me-address-form');
         form.append(element('h2',translateText('Please fill in your current address')));
-        const metadata=window.Famina?.user?.user_metadata||{};
+        const metadata=profileMetadata();
         const fields={};
         function field(label,key,kind='text',options=[]) {
             const group=element('label',null,'fp-me-address-group');
@@ -1297,7 +1326,8 @@
             data.address=[data.address_address,data.address_area,data.address_department,data.address_province].filter(Boolean).join(', ');
             save.disabled=true;feedback.textContent=translateText('Saving…');
             try{
-                const {error}=await client.auth.updateUser({data});if(error)throw error;
+                const {data:updated,error}=await client.auth.updateUser({data});if(error)throw error;
+                profileAuthMetadata={...profileAuthMetadata,...(updated?.user?.user_metadata||{}),...data};
                 if(window.Famina?.user)window.Famina.user.user_metadata={...(window.Famina.user.user_metadata||{}),...data};
                 navigate('profile-details');
             }catch(error){feedback.textContent=error?.message||translateText('Could not save changes.');}
@@ -1617,7 +1647,7 @@
             renderProfilePhoto(page);
         } else if (screenId === 'profile-edit') {
             const key=profileEditField;const labels={nickname:'Nickname',gender:'Gender',date_of_birth:'Date of Birth',email:'Email'};
-            const user=window.Famina?.user||{};renderProfileEditor(page,key,labels[key]||key,key==='email'?(user.email||''):(user.user_metadata?.[key]||''));
+            const user=window.Famina?.user||{};renderProfileEditor(page,key,labels[key]||key,key==='email'?(user.email||''):(profileMetadata()[key]||''));
         } else if (screenId === 'profile-address') {
             renderAddressPage(page);
         } else if (screenId === 'account-limits') {
@@ -2140,5 +2170,6 @@
     window.addEventListener('hashchange', render);
     render();
     loadProfilePhoto();
+    hydrateProfile();
     loadUnreadNotifications();
 })();
