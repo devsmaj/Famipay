@@ -1451,3 +1451,37 @@ body.fp-app .fp-dashboard-home .fp-classic-masthead .fp-header-action{width:42px
 body.fp-app .fp-dashboard-home .fp-classic-masthead .fp-header-action svg{width:25px;height:25px;stroke:currentColor;}
 body.fp-app .fp-dashboard-home .fp-classic-balance{margin-top:0!important;}
 @media(max-width:370px){body.fp-app .fp-dashboard-home .fp-classic-header-hi{font-size:15px;}body.fp-app .fp-dashboard-home .fp-classic-masthead .fp-header-action{width:34px;height:38px;}}
+
+/* QR scanner: edge-to-edge, no inset webpage frame. */
+body.fp-app .app.fp-service-focused:has(.fp-qr-screen){display:block!important;padding:0!important;margin:0!important;max-width:none!important;background:#00b879!important;}
+body.fp-app .app.fp-service-focused:has(.fp-qr-screen) .main{position:fixed!important;inset:0!important;width:100vw!important;height:100dvh!important;max-width:none!important;margin:0!important;padding:0!important;overflow:hidden!important;z-index:80!important;background:#00b879!important;}
+body.fp-app .app.fp-service-focused:has(.fp-qr-screen) .main>.fp-qr-screen{width:100%!important;height:100dvh!important;min-height:100dvh!important;overflow:hidden!important;margin:0!important;}
+body.fp-app .app.fp-service-focused:has(.fp-qr-screen) .main>.fp-qr-screen .fp-qr-top{padding:calc(18px + env(safe-area-inset-top,0px)) 16px 18px!important;min-height:86px;flex:none;z-index:5;}
+.fp-qr-tabs{width:min(56vw,250px);background:#00875f;border-radius:50px;padding:5px;}
+.fp-qr-tab{font-size:16px;padding:11px 8px;}
+.fp-qr-scan-mode .fp-qr-content{flex:1;position:relative;justify-content:flex-end;min-height:0;}
+.fp-qr-scan-mode .fp-qr-camera{position:absolute;inset:calc(-86px - env(safe-area-inset-top,0px)) 0 0!important;background:#151515;}
+.fp-qr-scan-mode .fp-qr-camera video{width:100%;height:100%;object-fit:cover;}
+.fp-qr-guide{left:14%!important;top:32%!important;width:72%!important;aspect-ratio:1!important;border:0!important;border-radius:0!important;clip-path:none!important;}
+.fp-qr-corner{position:absolute;width:17%;height:17%;border:5px solid #fff;border-radius:12px;}
+.fp-qr-corner-tl{top:0;left:0;border-right:0;border-bottom:0;border-radius:12px 0 0 0;}
+.fp-qr-corner-tr{top:0;right:0;border-left:0;border-bottom:0;border-radius:0 12px 0 0;}
+.fp-qr-corner-bl{bottom:0;left:0;border-right:0;border-top:0;border-radius:0 0 0 12px;}
+.fp-qr-corner-br{bottom:0;right:0;border-left:0;border-top:0;border-radius:0 0 12px 0;}
+.fp-qr-scan-line{left:13%;right:13%;top:50%;height:3px;background:#13d6a0;box-shadow:0 0 10px #00d9a0;}
+.fp-qr-scan-status{margin:0 18px 22px!important;font-size:14px;z-index:2;}
+.fp-qr-camera-actions{width:100%;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));padding:12px 12px calc(32px + env(safe-area-inset-bottom,0px));gap:8px;align-items:end;z-index:2;}
+.fp-qr-camera-actions button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;min-width:0!important;border:0!important;background:transparent!important;padding:8px 0!important;font-size:14px!important;color:#fff;}
+.fp-qr-action-symbol{display:grid;place-items:center;width:58px;height:58px;background:#0008;border-radius:50%;font-size:27px;line-height:1;}
+.fp-qr-pay-mode .fp-qr-content{justify-content:flex-start;}
+.fp-qr-pay-card{width:calc(100% - 32px);max-width:450px;min-height:0!important;padding:26px 18px 20px;margin:24px auto 0;border:0;border-radius:18px;box-shadow:none;}
+.fp-qr-pay-name{font-size:19px;}
+.fp-qr-pay-number{margin:12px 0 20px;}
+.fp-qr-code-box{width:min(100%,300px);min-height:0!important;margin:0 auto 14px;}
+.fp-qr-code-box img{width:100%;max-width:300px;}
+.fp-qr-pay-actions{margin-top:8px;padding-top:0!important;border-top:0!important;}
+.fp-qr-pay-actions button{font-size:16px;min-height:54px;}
+.fp-qr-scan-shortcut{margin:auto auto calc(28px + env(safe-area-inset-bottom,0px));}
+.fp-qr-notice{margin:12px 16px;padding:12px;font-size:13px;}
+.fp-qr-amount-sheet{max-height:92dvh;overflow-y:auto;}
+@media(max-height:700px){.fp-qr-pay-card{margin-top:8px;padding:14px 14px 12px;}.fp-qr-code-box{width:min(100%,230px);}.fp-qr-pay-number{margin:6px 0 10px;}.fp-qr-top{padding-bottom:8px!important;}}
