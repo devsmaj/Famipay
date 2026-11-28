@@ -152,6 +152,7 @@
         : [role[0].toUpperCase() + role.slice(1), 'Account'];
     const visible = screens.filter(screen => groups.includes(screen.group));
     const byId = Object.fromEntries(visible.map(screen => [screen.id, screen]));
+    if (byId['express-home']) byId['service-search'] = {group:'FA-MINNA Express',title:'Search',id:'service-search'};
     let previousPrivateRoute = 'home';
     const app = document.getElementById('app');
     const shell = element('div', null, 'app');
@@ -221,6 +222,12 @@
     "online-shop": "<path d=\"M5 15H43L39 44H9Z\" fill=\"#008B60\"/><path d=\"M16 19V11A8 8 0 0 1 32 11V19\" fill=\"none\" stroke=\"#005C43\" stroke-width=\"4\"/><path d=\"M18 29L23 34L32 25\" fill=\"none\" stroke=\"#A4E8CA\" stroke-width=\"3.5\"/>",
     "agriculture": "<path d=\"M24 39V19\" stroke=\"#006B4E\" stroke-width=\"4\"/><path d=\"M24 26Q5 28 4 8Q24 7 24 26Z\" fill=\"#00A875\"/><path d=\"M24 21Q23 3 44 3Q45 23 24 21Z\" fill=\"#008B60\"/><path d=\"M24 38L13 18 M24 27L35 12\" stroke=\"#A4E8CA\" stroke-width=\"2\"/><path d=\"M4 44Q24 26 44 44Z\" fill=\"#006B4E\"/>"
 };
+
+    Object.assign(dashboardIconShapes, {
+        'bank-transfer': '<path d="M3 15L24 3L45 15Z M4 39H44V44H4Z" fill="#006B4E"/><path d="M12 19V35 M24 19V35 M36 19V35" stroke="#00A875" stroke-width="6"/>',
+        'withdraw': '<rect x="4" y="5" width="40" height="27" rx="5" fill="#008B60"/><rect x="9" y="10" width="30" height="17" rx="3" fill="#8ADDB7"/><circle cx="24" cy="18" r="6" fill="#008B60"/><path d="M24 25V44 M16 36L24 44L32 36" stroke="#005C43" stroke-width="4" fill="none"/>',
+        'mobile-data': '<path d="M4 15Q24 -1 44 15 M11 24Q24 13 37 24 M18 32Q24 26 30 32" fill="none" stroke="#008B60" stroke-width="5"/><circle cx="24" cy="41" r="4" fill="#005C43"/>'
+    });
 
     function dashboardServiceIcon(id) {
         const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
@@ -721,7 +728,8 @@
         const button = element('button', null, 'fp-premium-service');
         button.type = 'button';
         const symbol = element('span', null, 'fp-premium-service-icon');
-        if (iconPaths[id]) symbol.append(svgIcon(id));
+        if (dashboardIconShapes[id]) symbol.append(dashboardServiceIcon(id));
+        else if (iconPaths[id]) symbol.append(svgIcon(id));
         else symbol.textContent = screenSymbols[id] || '•';
         button.append(symbol, element('span', translateText(label || byId[id].title)));
         button.onclick = () => navigate(id);
@@ -1567,47 +1575,61 @@
             premiumAction(links, 'Transaction History', 'transaction-history', 'wallet', 'View your wallet activity');
             premiumAction(links, 'Bank Transfer', 'bank-transfer', 'send-money', 'Transfer to a bank account');
             page.append(links);
-        } else if (screenId === 'express-home') {
-            premiumTitle(page, 'Services', 'Everything you need, in one place');
-            const search = document.createElement('input');
-            search.type = 'search';
-            search.className = 'fp-premium-search';
-            search.placeholder = translateText('Search services');
-            search.setAttribute('aria-label', translateText('Search services'));
-            page.append(search);
-            const catalog = element('div', null, 'fp-premium-catalog');
+        } else if (screenId === 'express-home' || screenId === 'service-search') {
+            const searching = screenId === 'service-search';
+            page.classList.add('fp-all-services');
+            if (searching) page.classList.add('fp-service-search-page');
+            const header = element('header', null, 'fp-all-services-header');
+            const back = element('button', null, 'fp-all-services-action');
+            back.type = 'button';
+            back.setAttribute('aria-label', translateText('Back'));
+            back.append(backIcon());
+            back.onclick = () => searching ? navigateBack() : navigate('home');
+            header.append(back, element('h1', translateText(searching ? 'Search' : 'All Services')));
+            if (!searching) {
+                const action = element('button', null, 'fp-all-services-action');
+                action.type = 'button';
+                action.setAttribute('aria-label', translateText('Search services'));
+                const icon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+                icon.setAttribute('viewBox','0 0 24 24');
+                icon.setAttribute('aria-hidden','true');
+                icon.innerHTML = '<circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/>';
+                action.append(icon);
+                action.onclick = () => navigate('service-search');
+                header.append(action);
+            }
+            page.append(header);
             const sections = [
                 ['Money & Transfers', [['send-money','Send Money'],['receive-money','Receive Money'],['mobile-money','Mobile Money'],['bank-transfer','Bank Transfer'],['withdraw','Withdraw'],['qr-payment','QR Payment']]],
                 ['Bills & Payments', [['airtime','Airtime'],['mobile-data','Mobile Data'],['pay-bills','Pay Bills']]],
                 ['Shopping & Lifestyle', [['restaurants','Food Delivery'],['online-shop','Online Shop'],['agriculture','Agriculture']]],
             ];
-            const tabs = element('div', null, 'fp-premium-filters');
-            const filters = ['All','Money','Payments','Lifestyle'];
-            let activeFilter = 'All';
+
+            const catalog = element('div', null, 'fp-premium-catalog');
+            const search = document.createElement('input');
+            search.type = 'search';
+            search.className = 'fp-premium-search';
+            search.placeholder = translateText('What service are you looking for?');
+            search.setAttribute('aria-label', translateText('Search services'));
+            if (searching) page.append(search);
+            page.append(catalog);
             const updateCatalog = () => {
                 catalog.replaceChildren();
-                sections.forEach(([title,items],index) => {
-                    if (activeFilter !== 'All' && ['Money','Payments','Lifestyle'][index] !== activeFilter) return;
-                    const filtered = items.filter(([id,label]) => (label + ' ' + byId[id]?.title).toLowerCase().includes(search.value.trim().toLowerCase()));
+                const query = search.value.trim().toLowerCase();
+                if (searching && !query) return;
+                sections.forEach(([title,items]) => {
+                    const filtered = items.filter(([id,label]) => byId[id] && [label,translateText(label),byId[id].title].join(' ').toLowerCase().includes(query));
                     if (!filtered.length) return;
-                    catalog.append(element('h2', translateText(title), 'fp-premium-section-title'));
+                    if (!searching) catalog.append(element('h2', translateText(title), 'fp-premium-section-title'));
                     const grid = element('div', null, 'fp-premium-service-grid');
                     filtered.forEach(([id,label]) => premiumService(grid,id,label));
                     catalog.append(grid);
                 });
                 if (!catalog.childElementCount) catalog.append(element('p', translateText('No matching services.'), 'fp-premium-empty'));
-                [...tabs.children].forEach(button => button.classList.toggle('selected', button.dataset.filter === activeFilter));
             };
-            filters.forEach(label => {
-                const button = element('button', translateText(label));
-                button.type = 'button';
-                button.dataset.filter = label;
-                button.onclick = () => { activeFilter = label; updateCatalog(); };
-                tabs.append(button);
-            });
             search.addEventListener('input', updateCatalog);
-            page.append(tabs,catalog);
             updateCatalog();
+            if (searching) requestAnimationFrame(() => search.focus());
         } else if (screenId === 'my-orders') {
             premiumTitle(page, 'My Orders', 'Track your deliveries and purchases');
             const tabs = element('div', null, 'fp-premium-filters');
@@ -2132,7 +2154,7 @@
                 main.append(grid);
             }
             main.append(element('div', translateText('Financial actions require an authorized provider or existing backend service.'), 'warning'));
-        } else if (role === 'customer' && (['my-cards','express-home','my-orders','my-profile','profile-details','profile-photo','profile-edit','profile-address','account-limits','settings','invitation','support-topic'].includes(screenId) || screenId.startsWith('settings-'))) {
+        } else if (role === 'customer' && (['my-cards','express-home','service-search','my-orders','my-profile','profile-details','profile-photo','profile-edit','profile-address','account-limits','settings','invitation','support-topic'].includes(screenId) || screenId.startsWith('settings-'))) {
             premiumCustomerPage(screenId);
         } else if (isPrimary) {
             main.append(buildHeader());
