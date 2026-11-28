@@ -1293,3 +1293,10 @@ body.fp-app .fp-me-bottom-loading{display:flex;align-items:center;justify-conten
 body.fp-app .fp-me-bottom-spinner{display:inline-block;width:19px;height:19px;border:2px solid #d6eae1;border-top-color:#00ad7b;border-radius:50%;animation:fp-me-spin .75s linear infinite;flex:none;}
 @keyframes fp-me-spin{to{transform:rotate(360deg)}}
 @media(prefers-reduced-motion:reduce){body.fp-app .fp-me-bottom-spinner{animation-duration:1.8s}}
+
+
+/* Keep the saving indicator centered inside the disabled Save button. */
+body.fp-app .fp-me-save{position:relative;display:flex;align-items:center;justify-content:center;gap:10px;}
+body.fp-app .fp-me-save.fp-me-saving{cursor:wait;opacity:.75;}
+body.fp-app .fp-me-button-spinner{display:none;width:20px;height:20px;border:2.5px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:fp-me-spin .75s linear infinite;flex:none;}
+body.fp-app .fp-me-save.fp-me-saving .fp-me-button-spinner{display:inline-block;}
