@@ -3,6 +3,7 @@
 
     const screens = [
         {group:'Money',title:'Wallet',id:'wallet'},
+        {group:'Cards',title:'My Cards',id:'my-cards'},
         {group:'Money',title:'Add Money',id:'add-money'},
         {group:'Money',title:'Withdraw',id:'withdraw'},
         {group:'Money',title:'Send Money',id:'send-money'},
@@ -73,6 +74,7 @@
     const iconPaths = {
         home: 'M3 10 12 3l9 7v11h-6v-7H9v7H3Z',
         wallet: 'M3 6h17v15H3V4h15v2M16 12h4v5h-4Z',
+        cards: 'M3 6h18v12H3zM3 11h18M7 15h4',
         services: 'M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z',
         orders: 'm3 7 9-4 9 4v11l-9 4-9-4ZM3 7l9 4 9-4M12 11v11',
         profile: 'M16 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0ZM4 21v-2a8 8 0 0 1 16 0v2',
@@ -125,7 +127,9 @@
     }
 
     function firstName() {
-        return String(window.Famina?.user?.name || '').trim().split(/\s+/)[0] || 'there';
+        const user = window.Famina?.user || {};
+        const name = [user.first_name, user.firstName, user.full_name, user.name, user.display_name, user.user_metadata?.full_name, user.user_metadata?.name].find(value => typeof value === 'string' && value.trim());
+        return name ? name.trim().split(/\s+/)[0] : 'there';
     }
 
     function greeting() {
@@ -242,13 +246,13 @@
     }
 
     const tabRoutes = {
-        customer: ['home', 'wallet', 'express-home', 'my-orders', 'my-profile'],
+        customer: ['home', 'my-cards', 'express-home', 'my-orders', 'my-profile'],
         merchant: ['home', 'merchant-dashboard', 'catalog-management', 'merchant-orders', 'my-profile'],
         agent: ['home', 'agent-float', 'find-agent', 'agent-dashboard', 'my-profile'],
         rider: ['home', 'rider-dashboard', 'delivery-details', 'delivery-proof', 'my-profile'],
         admin: ['home', 'payment-exceptions', 'service-configuration', 'admin-dashboard', 'my-profile'],
     }[role] || ['home', 'wallet', 'express-home', 'my-orders', 'my-profile'];
-    const tabNames = ['Home', 'Wallet', 'Services', 'Orders', 'Me'];
+    const tabNames = role === 'customer' ? ['Home', 'Cards', 'Services', 'Orders', 'Me'] : ['Home', 'Wallet', 'Services', 'Orders', 'Me'];
     const tabIcons = ['⌂', '◈', '▦', '▤', '●'];
 
     function getActiveTab(id) {
@@ -303,7 +307,7 @@
             link.href = `#${id}`;
             link.dataset.fpTab = String(index);
             const icon = element('span', null, 'fp-tab-icon');
-            icon.append(svgIcon(['home', 'wallet', 'services', 'orders', 'profile'][index]));
+            icon.append(svgIcon((role === 'customer' ? ['home', 'cards', 'services', 'orders', 'profile'] : ['home', 'wallet', 'services', 'orders', 'profile'])[index]));
             link.append(icon, element('span', tabNames[index], 'fp-tab-label'));
             bottom.append(link);
         });
@@ -627,9 +631,63 @@
         container.append(button);
     }
 
+    function renderCardsPage(page) {
+        premiumTitle(page, 'My Cards', 'Virtual and physical debit cards');
+        const switcher = element('div', null, 'fp-cards-switch');
+        const content = element('div', null, 'fp-cards-content');
+        let type = 'virtual';
+        const draw = () => {
+            switcher.replaceChildren();
+            [['virtual','Virtual Card'],['physical','Physical Card']].forEach(([value,label]) => {
+                const button = element('button', translateText(label), 'fp-cards-switch-button' + (type === value ? ' active' : ''));
+                button.type = 'button';
+                button.setAttribute('aria-pressed', String(type === value));
+                button.onclick = () => { type = value; draw(); };
+                switcher.append(button);
+            });
+            content.replaceChildren();
+            const card = element('div', null, 'fp-cards-face');
+            const top = element('div', null, 'fp-cards-face-top');
+            top.append(element('strong','FAMIPAY'),element('span',translateText('CARD PREVIEW')));
+            card.append(top,element('div','••••  ••••  ••••  ••••','fp-cards-digits'));
+            const footer = element('div',null,'fp-cards-face-footer');
+            footer.append(element('span',translateText(type === 'virtual' ? 'VIRTUAL CARD' : 'PHYSICAL CARD')),element('span',translateText('NOT ISSUED')));
+            card.append(footer);
+            content.append(card);
+            const disclaimer = element('p',translateText('Illustration only. No card has been issued.'),'fp-cards-disclaimer');
+            content.append(disclaimer);
+            const info = element('section',null,'fp-cards-info');
+            info.append(element('h2',translateText(type === 'virtual' ? 'Virtual Debit Card' : 'Physical ATM Card')));
+            info.append(element('p',translateText(type === 'virtual' ? 'For online payments when card issuing becomes available.' : 'For ATM withdrawals and in-store payments when card issuing becomes available.')));
+            const button = element('button',translateText('Request ' + (type === 'virtual' ? 'Virtual' : 'Physical') + ' Card'),'fp-cards-request');
+            button.type = 'button';
+            button.onclick = () => {
+                const existing = info.querySelector('.fp-cards-feedback');
+                if (existing) existing.remove();
+                info.append(element('p',translateText('Card issuing is not yet available. No request has been submitted.'),'fp-cards-feedback'));
+            };
+            info.append(button);
+            content.append(info);
+            const management = element('section',null,'fp-cards-management');
+            management.append(element('h2',translateText('Card Management')));
+            const disabled = [['Card Security','Freeze and manage issued cards'],['Card Transactions','Payments made with your cards']];
+            disabled.forEach(([label,description]) => {
+                const row = element('div',null,'fp-cards-management-row');
+                row.append(element('strong',translateText(label)),element('small',translateText(description + ' · Available after issuance')));
+                management.append(row);
+            });
+            premiumAction(management,'Card Support','help-center','help','Get assistance');
+            content.append(management);
+        };
+        page.append(switcher,content);
+        draw();
+    }
+
     function premiumCustomerPage(screenId) {
         const page = element('div', null, 'fp-premium-page');
-        if (screenId === 'wallet') {
+        if (screenId === 'my-cards') {
+            renderCardsPage(page);
+        } else if (screenId === 'wallet') {
             premiumTitle(page, 'My Wallet', 'Your money, in one place');
             const hero = element('section', null, 'fp-premium-wallet-hero');
             hero.append(element('p', translateText('Available Balance')));
@@ -926,7 +984,7 @@
             const heading = element('div');
             heading.append(
                 element('p', greeting() + ',', 'fp-classic-greeting'),
-                element('h1', 'FAMIPAY', 'fp-classic-name'),
+                element('h1', firstName(), 'fp-classic-name'),
             );
             const notifications = linkButton(notificationsPath, 'Notifications', 'bell');
             notifications.classList.add('fp-notification-action');
@@ -993,7 +1051,7 @@
                 main.append(grid);
             }
             main.append(element('div', translateText('Financial actions require an authorized provider or existing backend service.'), 'warning'));
-        } else if (isPrimary && role === 'customer' && ['wallet','express-home','my-orders','my-profile'].includes(screenId)) {
+        } else if (isPrimary && role === 'customer' && ['my-cards','express-home','my-orders','my-profile'].includes(screenId)) {
             premiumCustomerPage(screenId);
         } else if (isPrimary) {
             main.append(buildHeader());
