@@ -648,7 +648,11 @@
             content.replaceChildren();
             const card = element('div', null, 'fp-cards-face');
             const top = element('div', null, 'fp-cards-face-top');
-            top.append(element('strong','FAMIPAY'),element('span',translateText('CARD PREVIEW')));
+            const logo = document.createElement('img');
+            logo.src = 'assets/branding/famipay-logo.svg';
+            logo.alt = 'FAMIPAY';
+            logo.className = 'fp-cards-brand-logo';
+            top.append(logo,element('span',translateText('CARD PREVIEW')));
             card.append(top,element('div','••••  ••••  ••••  ••••','fp-cards-digits'));
             const footer = element('div',null,'fp-cards-face-footer');
             footer.append(element('span',translateText(type === 'virtual' ? 'VIRTUAL CARD' : 'PHYSICAL CARD')),element('span',translateText('NOT ISSUED')));
