@@ -102,7 +102,7 @@
     };
     const role = window.FAMIPAY_AUTH_ROLE || 'customer';
     const groups = role === 'customer'
-        ? ['Getting started', 'Money', 'Payments', 'FA-MINNA Express', 'Account']
+        ? ['Getting started', 'Money', 'Cards', 'Payments', 'FA-MINNA Express', 'Account']
         : [role[0].toUpperCase() + role.slice(1), 'Account'];
     const visible = screens.filter(screen => groups.includes(screen.group));
     const byId = Object.fromEntries(visible.map(screen => [screen.id, screen]));
