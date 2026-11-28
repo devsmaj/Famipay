@@ -1106,7 +1106,7 @@
                 try{
                     const {error}=await client.auth.verifyOtp({phone:'+235'+localChadPhone(number.value),token:code.value.trim(),type:'phone_change'});
                     if(error)throw error;
-                    close();navigate('profile-info');
+                    close();navigate('profile-details');
                 }catch(e){status.textContent=e?.message||'Phone verification failed.';}
                 finally{busy(confirm,false);}
             };
