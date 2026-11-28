@@ -15,8 +15,7 @@
     <div id="app" class="fp-bootstrap-shell">
         <div class="fp-bootstrap">
             <div class="fp-brand">FAMIPAY</div>
-            <p>Your private dashboard will appear here.</p>
-            <a href="login.html">Login / Sign up</a>
+            <p>Opening your account…</p>
         </div>
     </div>
     <script src="assets/js/loading.js"></script>
@@ -50,17 +49,13 @@
                     script.onload = resolve;
                     script.onerror = () => {
                         renderedRole = null;
-                        reject(new Error('Unable to load the preview.'));
+                        reject(new Error('Unable to load your account.'));
                     };
                     document.body.append(script);
                 });
             }
 
-            const cachedUser = window.FaminaSession.user();
-            const earlyRender = cachedUser?.onboarding_complete
-                ? renderApp(mapRole(cachedUser.role)).catch(error => error)
-                : Promise.resolve(null);
-
+            // Render private content only after the server verifies the restored session.
             try {
                 await window.Famina.ready;
                 if (!window.Famina.user) {
@@ -83,12 +78,11 @@
                 }
 
                 const role = mapRole(window.Famina.user.role);
-                const earlyError = await earlyRender;
-                if (earlyError || renderedRole !== role) await renderApp(role);
+                await renderApp(role);
             } catch (error) {
                 app.hidden = false;
                 const message = app.querySelector('.fp-bootstrap p');
-                if (message) message.textContent = error.message === 'Unable to load the preview.'
+                if (message) message.textContent = error.message === 'Unable to load your account.'
                     ? error.message
                     : 'Unable to verify your session. Please try again.';
             }
