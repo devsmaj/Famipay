@@ -1306,3 +1306,28 @@ body.fp-app .fp-me-save.fp-me-saving .fp-me-button-spinner{display:inline-block;
 .fp-me-account-actions>span{overflow-wrap:anywhere}
 .fp-me-copy-icon{display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;width:30px;height:34px;padding:4px;border:0!important;border-radius:0;background:transparent!important;box-shadow:none!important;color:#667b75;cursor:pointer}
 .fp-me-copy-icon:focus-visible{outline:2px solid #008c65;outline-offset:2px;border-radius:5px}
+
+/* Photo crop: full-width four-corner guide with movable, zoomable image. */
+.fp-me-photo-page .fp-photo-picker { padding: 18px 14px 28px; }
+.fp-photo-picker[hidden],.fp-me-photo-controls[hidden] { display:none!important; }
+.fp-photo-crop { position:relative; width:min(100%, 420px); aspect-ratio:1; margin:12px auto 0; overflow:hidden; background:#111; touch-action:none; user-select:none; cursor:grab; }
+.fp-photo-crop:active { cursor:grabbing; }
+.fp-photo-crop img { position:absolute; max-width:none!important; max-height:none!important; object-fit:fill!important; pointer-events:none; user-select:none; }
+.fp-photo-corner { position:absolute; width:30px; height:30px; z-index:2; pointer-events:none; border-color:#fff; border-style:solid; filter:drop-shadow(0 1px 2px #333); }
+.fp-photo-corner-tl { top:8px;left:8px;border-width:3px 0 0 3px; }
+.fp-photo-corner-tr { top:8px;right:8px;border-width:3px 3px 0 0; }
+.fp-photo-corner-bl { bottom:8px;left:8px;border-width:0 0 3px 3px; }
+.fp-photo-corner-br { bottom:8px;right:8px;border-width:0 3px 3px 0; }
+.fp-photo-instructions { text-align:center;color:#687b76;font-size:13px;margin:18px 0 12px; }
+.fp-photo-picker input[type=range] { display:block;width:90%;margin:0 auto 22px;accent-color:#00ad78; }
+.fp-photo-actions { display:grid;grid-template-columns:1fr 1fr;gap:12px; }
+.fp-photo-actions .fp-me-photo-button { min-width:0; }
+.fp-photo-actions .fp-photo-done { background:#00ae78;color:white; }
+.fp-me-photo-preview { overflow:hidden;border-radius:50%; }
+.fp-me-photo-preview img { display:block;width:100%;height:100%;object-fit:cover; }
+.fp-private-toast { position:fixed;z-index:9999;top:calc(16px + env(safe-area-inset-top,0px));left:50%;transform:translate(-50%,-140%);width:max-content;max-width:calc(100vw - 32px);padding:13px 18px;border-radius:12px;background:#e8f8f1;color:#076c4c;box-shadow:0 6px 24px #0002;font-size:14px;font-weight:600;opacity:0;pointer-events:none;transition:transform .2s ease,opacity .2s ease; }
+.fp-private-toast-visible { transform:translate(-50%,0);opacity:1; }
+.fp-private-toast-error { background:#fff0ee;color:#b33229; }
+.fp-button-busy { cursor:wait!important;opacity:.72; }
+.fp-button-spinner { display:inline-block;width:21px;height:21px;box-sizing:border-box;border:2.5px solid currentColor;border-right-color:transparent;border-radius:50%;animation:fp-button-spin .7s linear infinite;vertical-align:middle; }
+@keyframes fp-button-spin { to {transform:rotate(360deg);} }
