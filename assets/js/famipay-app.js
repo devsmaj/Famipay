@@ -135,6 +135,9 @@
         help: 'M3 13v-1a9 9 0 0 1 18 0v1M3 13h3v6H5a2 2 0 0 1-2-2v-4Zm18 0h-3v6h1a2 2 0 0 0 2-2v-4ZM18 19a6 6 0 0 1-6 3',
         scan: 'M4 8V5a1 1 0 0 1 1-1h3m8 0h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3m-8 0H5a1 1 0 0 1-1-1v-3M8 8h8v8H8z',
         bell: 'M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9m-8 12a2 2 0 0 0 4 0',
+        phone: 'M7 2h10a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2ZM9 6h6M10 18h4M9 11h2m3 0h2m-7 3h2m3 0h2',
+        store: 'M3 10V6l2-3h14l2 3v4l-2 2-3-2-4 2-4-2-3 2-2-2ZM5 12v9h14v-9M9 21v-6h6v6',
+        loan: 'M3 8h18v12H3zM5 8V5h14v3M8 13h8M12 11v6',
     };
     const screenSymbols = {
         wallet: '◈', 'add-money': '+', withdraw: '↓', 'send-money': '↗',
@@ -783,6 +786,10 @@
         settings.append(svgIcon('gear')); settings.onclick = () => navigate('settings');
         actions.append(help,settings);
         heading.append(hero,actions);
+        // Inline layout safeguards prevent legacy app styles from stacking the two actions.
+        heading.style.cssText='position:relative;display:block;width:100%;min-height:102px;padding:46px 0 8px;margin:0 0 12px;background:transparent;box-sizing:border-box;';
+        actions.style.cssText='position:absolute;right:0;top:0;display:flex;flex-direction:row;align-items:center;justify-content:flex-end;gap:8px;width:auto;';
+        hero.style.cssText='display:flex;flex-direction:row;align-items:center;width:100%;min-height:52px;margin:0;padding:0 4px;box-sizing:border-box;background:transparent;border:0;';
         page.append(heading);
         const balance = element('section',null,'fp-me-balance');
         const balanceLine = element('div',null,'fp-me-balance-line');
@@ -806,12 +813,21 @@
         });
         page.append(shortcuts);
         const menu=element('section',null,'fp-me-menu');
-        meRow(menu,'My Loan','loans','wallet');
+        meRow(menu,'My Loan','loans','loan');
         meRow(menu,'Bank Card / Account','my-cards','cards');
         meRow(menu,'Pay MF','merchant','store');
+        meRow(menu,'OJunior','help-center','profile');
         meRow(menu,'Notifications','notifications','bell');
         meRow(menu,'FAMIPAY USSD','famipay-ussd','phone');
         page.append(menu);
+        // Keep each section visually independent, even when older theme rules apply.
+        [balance,shortcuts,menu].forEach(card=>{
+            card.style.backgroundColor='#fff';
+            card.style.borderRadius='20px';
+            card.style.margin='0 0 14px';
+            card.style.boxShadow='none';
+            card.style.flexShrink='0';
+        });
         const assistant=element('section',null,'fp-me-assistant-card');
         const title=element('button',translateText('FAMIPAY Support Assistant')+' ›','fp-me-assistant');
         title.type='button';title.onclick=()=>navigate('help-center');assistant.append(title);
