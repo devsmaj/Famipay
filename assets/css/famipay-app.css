@@ -1147,3 +1147,13 @@ body.fp-app .app .main .fp-classic-grid .card {
 .fp-cards-brand .fp-cards-brand-logo{width:35px;height:38px;max-width:none;filter:none;object-fit:contain;flex:none;}
 .fp-cards-brand strong{color:#fff;font-size:18px;letter-spacing:-.3px;white-space:nowrap;}
 .fp-cards-face-top>span{white-space:nowrap;font-size:10px;}
+
+
+/* Official brand asset replaces the former letter-only startup tile. */
+body.fp-app .fp-redirect-mark{display:block;width:62px;height:66px;object-fit:contain;background:none;border-radius:0;letter-spacing:normal;}
+/* Keep profile photo editing inside the existing account card design. */
+body.fp-app .fp-profile-photo-controls{display:flex;align-items:flex-start;flex-direction:column;gap:7px;margin-top:12px;}
+body.fp-app .fp-profile-photo-button{border:1px solid #00835f;background:#fff;color:#007455;border-radius:12px;padding:9px 13px;font:inherit;font-size:13px;font-weight:700;cursor:pointer;}
+body.fp-app .fp-profile-photo-button:disabled{opacity:.55;cursor:wait;}
+body.fp-app .fp-profile-photo-feedback{color:#526c62;font-size:12px;line-height:1.4;}
+body.fp-app .fp-profile-photo-image{width:100%;height:100%;object-fit:cover;border-radius:inherit;}
