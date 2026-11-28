@@ -1,4 +1,4 @@
-const {chromium}=require('../../backend/node_modules/playwright');
+const {chromium}=require(process.env.FAMIPAY_PLAYWRIGHT_MODULE||'../../backend/node_modules/playwright');
 const http=require('node:http');
 const fs=require('node:fs');
 const path=require('node:path');
@@ -51,10 +51,12 @@ const server=http.createServer((request,response)=>{
 
   for(const role of ['customer','restaurant_owner','seller','rider','admin']){
    await page.goto(`${origin}/famipay-app.html?role=${role}`);
-   await page.locator('#app header').waitFor({state:'attached'});
-   assert(await page.locator('#app header').count(),`missing app header for ${role}`);
+   await page.locator('#app .app').waitFor({state:'attached'});
+   assert(await page.locator('#app .app').count(),`missing shared app shell for ${role}`);
+   if(role==='customer')assert(await page.locator('.fp-classic-dashboard').count(),'missing existing classic customer dashboard');
    assert(await page.locator('#app main').count(),`missing private content for ${role}`);
-   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+   const layout=await page.evaluate(()=>({width:innerWidth,scroll:document.documentElement.scrollWidth,overflow:[...document.querySelectorAll('body *')].filter(node=>node.getBoundingClientRect().right>innerWidth+1).slice(0,6).map(node=>({tag:node.tagName,cls:node.className,width:node.getBoundingClientRect().width}))}));
+   assert.equal(layout.scroll<=layout.width,true,`${role}: ${JSON.stringify(layout)}`);
   }
 
   for(const route of ['login.html','register.html','verify-email.html']){

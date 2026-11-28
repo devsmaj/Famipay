@@ -56,6 +56,7 @@ jobs:
         run: |
           npm run sync --prefix mobile
           npm test --prefix mobile
+          node --test backend/email-confirmation.test.js backend/supabase-auth-flow.test.js backend/auth-persistence.test.js
       - name: Browser-check the bundled role dashboards and authentication pages
         run: |
           npm ci --prefix backend
@@ -73,12 +74,13 @@ jobs:
             --pattern preview-signing.keystore \
             --dir "$RUNNER_TEMP"
           echo "FAMIPAY_PREVIEW_KEYSTORE=$RUNNER_TEMP/preview-signing.keystore" >> "$GITHUB_ENV"
-      - name: Download the currently distributed app
+      - name: Download the original FAMIPAY-preview-apk archive
         run: |
-          gh release download famipay-preview \
+          gh run download 46068187252 \
             --repo "$GITHUB_REPOSITORY" \
-            --pattern FAMIPAY-preview.apk \
-            --dir "$RUNNER_TEMP"
+            --name FAMIPAY-preview-apk \
+            --dir "$RUNNER_TEMP/original-famipay"
+          cp "$RUNNER_TEMP/original-famipay/FAMIPAY-preview.apk" "$RUNNER_TEMP/FAMIPAY-preview.apk"
       - name: Build and verify the original Android application
         working-directory: mobile/android
         run: |
@@ -97,6 +99,7 @@ jobs:
           OLD_CODE=$(sed -n "s/.*versionCode='\([0-9]*\)'.*/\1/p" ../dist/original-apk-info.txt | head -n 1)
           NEW_CODE=$(sed -n "s/.*versionCode='\([0-9]*\)'.*/\1/p" ../dist/apk-info.txt | head -n 1)
           test "$NEW_CODE" -gt "$OLD_CODE"
+          python3 ../scripts/check-apk-icons.py "$RUNNER_TEMP/FAMIPAY-preview.apk" ../dist/FAMIPAY.apk > ../dist/original-icon-verification.txt
           cd ../dist && sha256sum FAMIPAY.apk > SHA256SUMS.txt
       - name: Install existing APK and confirm the update on Android
         uses: reactivecircus/android-emulator-runner@v2
@@ -112,6 +115,14 @@ jobs:
             adb install -r mobile/dist/FAMIPAY.apk
             adb shell pm path com.famipay.app.preview
             adb shell dumpsys package com.famipay.app.preview | grep -q "versionCode=${ANDROID_VERSION_CODE}"
+            adb logcat -c
+            adb shell am start -W -n com.famipay.app.preview/com.famipay.app.MainActivity
+            sleep 15
+            adb shell pidof com.famipay.app.preview
+            adb shell screencap -p /sdcard/famipay-update.png
+            adb pull /sdcard/famipay-update.png mobile/dist/android-update.png
+            adb logcat -d -b crash > mobile/dist/android-crash-log.txt
+            test ! -s mobile/dist/android-crash-log.txt
       - uses: actions/upload-artifact@v7.0.2
         with:
           name: FAMIPAY.apk
@@ -133,5 +144,23 @@ jobs:
             --notes-file "$RUNNER_TEMP/android-notes.md" --prerelease
           gh release upload famipay-preview --repo "$GITHUB_REPOSITORY" \
             mobile/dist/FAMIPAY.apk mobile/dist/SHA256SUMS.txt mobile/dist/apk-info.txt --clobber
-          gh api --method DELETE "repos/$GITHUB_REPOSITORY/actions/artifacts/15230018820"
           echo "APK: https://github.com/$GITHUB_REPOSITORY/releases/download/famipay-preview/FAMIPAY.apk" >> "$GITHUB_STEP_SUMMARY"
+      - name: Remove superseded debug ZIPs after successful Android update
+        run: |
+          gh api --paginate "repos/$GITHUB_REPOSITORY/actions/artifacts?per_page=100" \
+            --jq '.artifacts[] | select(.name == "famipay-android-debug") | .id' | \
+          while read -r artifact_id; do
+            gh api --method DELETE "repos/$GITHUB_REPOSITORY/actions/artifacts/$artifact_id"
+          done
+      - name: Save Android update verification evidence
+        if: always()
+        uses: actions/upload-artifact@v7.0.2
+        with:
+          name: FAMIPAY-android-update-verification
+          path: |
+            mobile/dist/android-update.png
+            mobile/dist/android-crash-log.txt
+            mobile/dist/original-apk-info.txt
+            mobile/dist/apk-info.txt
+            mobile/dist/original-icon-verification.txt
+          if-no-files-found: ignore

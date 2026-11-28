@@ -21,19 +21,12 @@ function copyTree(source, destination) {
     fs.cpSync(source, destination, {recursive: true});
 }
 
-for (const file of [
-    'famipay-app.html',
-    'login.html',
-    'register.html',
-    'verify-email.html',
-    'famipay-onboarding.html',
-    'terms.html',
-    'privacy.html',
-    'contact.html',
-]) {
+for (const file of fs.readdirSync(root).filter(name =>
+    name.endsWith('.html') && name !== 'famipay-private-preview.html')) {
     fs.copyFileSync(path.join(root, file), path.join(out, file));
 }
 copyTree(path.join(root, 'assets'), path.join(out, 'assets'));
+copyTree(path.join(root, 'components'), path.join(out, 'components'));
 
 fs.writeFileSync(
     path.join(out, 'index.html'),

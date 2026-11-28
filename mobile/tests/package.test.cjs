@@ -3,6 +3,7 @@ const root=path.resolve(__dirname,'..'),out=path.join(root,'www');
 test('native package retains the original FAMIPAY identity and local Capacitor app',()=>{
  const config=JSON.parse(fs.readFileSync(path.join(root,'capacitor.config.json')));
  assert.equal(config.appName,'FAMIPAY');assert.equal(config.appId,'com.famipay.app');assert.equal(config.webDir,'www');assert.equal(config.server.url,undefined);
+ assert.equal(config.plugins.CapacitorHttp.enabled,true,'shared fetch calls must use the native HTTPS transport');
 });
 test('package contains the website login, signup, verification and unchanged onboarding pages',()=>{
  for(const file of ['famipay-app.html','login.html','register.html','verify-email.html','famipay-onboarding.html'])
