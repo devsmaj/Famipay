@@ -979,3 +979,64 @@ body.fp-app .app .main:has(.fp-premium-page) {
   .fp-premium-service { font-size: 10px; }
   .fp-premium-wallet-buttons { gap: 6px; }
 }
+
+
+/* Launch layout correction: natural document scrolling, no clipped dashboard. */
+html { overflow-x: hidden; overflow-y: auto; scroll-behavior: auto; }
+body.fp-app, body.fp-app:has(.fp-dashboard-home) {
+    overflow-x: hidden;
+    overflow-y: auto;
+    height: auto;
+    min-height: 100dvh;
+    overscroll-behavior-y: auto;
+}
+body.fp-app #app:has(.fp-dashboard-home) { min-height: 100dvh; }
+body.fp-app .app.fp-dashboard-home {
+    height: auto;
+    min-height: 100dvh;
+    overflow: visible;
+}
+body.fp-app .app.fp-dashboard-home .main {
+    height: auto;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    overflow: visible;
+    padding: 0 0 calc(72px + env(safe-area-inset-bottom));
+}
+body.fp-app .app.fp-dashboard-home .main .fp-classic-grid.cards {
+    grid-auto-rows: auto;
+    flex: none;
+    padding: 0 16px;
+    gap: 10px;
+}
+body.fp-app .app.fp-dashboard-home .main .fp-classic-grid .card {
+    min-height: 100px;
+    padding: 12px 6px;
+}
+.fp-dashboard-home .fp-classic-quick-title,
+.fp-dashboard-home .fp-classic-more-title { margin: 18px 16px 12px; }
+body.fp-app .app .main:has(.fp-premium-page) {
+    height: auto;
+    overflow: visible;
+    padding: 0 0 calc(70px + env(safe-area-inset-bottom));
+}
+.fp-premium-page { padding: 18px 16px 18px; }
+.fp-premium-heading { margin-bottom: 17px; }
+.fp-premium-section-title { margin-top: 19px; }
+@media (orientation: landscape) and (max-height: 500px) {
+    body.fp-app .app.fp-dashboard-home .main {
+        display: flex;
+        flex-direction: column;
+        height: auto;
+        overflow: visible;
+    }
+    .fp-dashboard-home .fp-classic-dashboard,
+    .fp-dashboard-home .fp-classic-quick-title,
+    .fp-dashboard-home .fp-classic-more-title,
+    body.fp-app .app.fp-dashboard-home .main .fp-classic-grid.cards {
+        grid-column: auto;
+        grid-row: auto;
+    }
+}
