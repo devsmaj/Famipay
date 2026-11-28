@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
     <meta name="robots" content="noindex,nofollow">
     <title>FAMIPAY</title>
-    <link rel="stylesheet" href="assets/css/famipay-app.css">
+    <link rel="stylesheet" href="assets/css/famipay-app.css?v=20261128-language">
     <link rel="stylesheet" href="assets/css/famipay-bottom-nav.css">
     <link rel="stylesheet" href="assets/css/famipay-language-settings.css">
     <link rel="stylesheet" href="assets/css/famipay-loading.css">
@@ -70,7 +70,7 @@
                 app.hidden = false;
                 return new Promise((resolve, reject) => {
                     const script = document.createElement('script');
-                    script.src = 'assets/js/famipay-app.js?v=20261128-card-icons';
+                    script.src = 'assets/js/famipay-app.js?v=20261128-language';
                     script.onload = resolve;
                     script.onerror = () => {
                         renderedRole = null;
