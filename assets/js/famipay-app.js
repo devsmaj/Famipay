@@ -1029,16 +1029,15 @@
         feedback.hidden=true;
         const save=element('button',translateText('Save changes'),'fp-me-save');
         save.type='button';
-        const loading=element('div',null,'fp-me-bottom-loading');
-        loading.setAttribute('role','status');
-        loading.setAttribute('aria-live','polite');
-        loading.innerHTML='<span class="fp-me-bottom-spinner" aria-hidden="true"></span><span></span>';
-        loading.lastElementChild.textContent=translateText('Saving…');
-        loading.hidden=true;
+        const buttonLabel=element('span',translateText('Save changes'),'fp-me-save-label');
+        const spinner=element('span',null,'fp-me-button-spinner');
+        spinner.setAttribute('aria-hidden','true');
+        save.replaceChildren(buttonLabel,spinner);
         const setBusy=busy=>{
             save.disabled=busy;
             save.setAttribute('aria-busy',String(busy));
-            loading.hidden=!busy;
+            save.classList.toggle('fp-me-saving',busy);
+            buttonLabel.textContent=busy?translateText('Saving…'):translateText('Save changes');
         };
         input.addEventListener('input',()=>showFeedback(''));
         save.onclick=async()=>{
@@ -1066,7 +1065,7 @@
             finally{setBusy(false);}
         };
         panel.prepend(feedback);
-        panel.append(save,loading);page.append(panel);
+        panel.append(save);page.append(panel);
     }
     const chadProvinces = ["Batha","Borkou","Chari-Baguirmi","Ennedi-Est","Ennedi-Ouest","Guéra","Hadjer-Lamis","Kanem","Lac","Logone Occidental","Logone Oriental","Mandoul","Mayo-Kebbi Est","Mayo-Kebbi Ouest","Moyen-Chari","N'Djamena","Ouaddaï","Salamat","Sila","Tandjilé","Tibesti","Wadi Fira","Barh El Gazel"];
     function renderAddressPage(page) {
