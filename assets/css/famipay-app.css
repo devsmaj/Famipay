@@ -1331,3 +1331,19 @@ body.fp-app .fp-me-save.fp-me-saving .fp-me-button-spinner{display:inline-block;
 .fp-button-busy { cursor:wait!important;opacity:.72; }
 .fp-button-spinner { display:inline-block;width:21px;height:21px;box-sizing:border-box;border:2.5px solid currentColor;border-right-color:transparent;border-radius:50%;animation:fp-button-spin .7s linear infinite;vertical-align:middle; }
 @keyframes fp-button-spin { to {transform:rotate(360deg);} }
+
+/* Uniform edge-to-edge white customer subpages: no grey canvas or empty footer block.
+   Keep the original dashboard and fixed five-tab navigation untouched. */
+body.fp-app:has(.app.fp-service-focused) { background:#fff!important; }
+body.fp-app .app.fp-service-focused { background:#fff!important; min-height:100dvh; }
+body.fp-app .app.fp-service-focused .main { background:#fff!important; padding-top:0!important; padding-bottom:0!important; margin-top:0!important; margin-bottom:0!important; min-height:0!important; }
+body.fp-app .app.fp-service-focused .main > .fp-premium-page { background:#fff!important; min-height:calc(100dvh - env(safe-area-inset-top,0px))!important; box-sizing:border-box; padding-bottom:env(safe-area-inset-bottom,0px)!important; }
+body.fp-app .app.fp-service-focused .fp-premium-page.fp-me-details,
+body.fp-app .app.fp-service-focused .fp-premium-page.fp-me-photo-page,
+body.fp-app .app.fp-service-focused .fp-premium-page.fp-me-edit-screen,
+body.fp-app .app.fp-service-focused .fp-premium-page.fp-settings-page { background:#fff!important; padding-top:0!important; margin-top:0!important; }
+body.fp-app .app.fp-service-focused .fp-premium-page.fp-settings-page { padding-inline:14px!important; }
+body.fp-app .app.fp-service-focused .fp-settings-page .fp-me-subheader { margin-top:0!important; }
+body.fp-app .app.fp-service-focused .fp-me-edit-screen .fp-me-editor { margin-top:0!important; padding-top:12px!important; }
+body.fp-app .app.fp-service-focused .fp-me-address-form { padding-bottom:16px!important; }
+body.fp-app .app.fp-service-focused .fp-me-photo-page .fp-me-photo-center { margin-top:0!important; }
