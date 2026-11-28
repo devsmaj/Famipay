@@ -8,11 +8,14 @@
     document.body?.classList.contains('fp-verification-page') ||
     document.body?.dataset.authPage
   );
+  // The private app has its own compact account-verification spinner.
+  // Never show the large global overlay on its pages.
+  const allowGlobalOverlay = !document.body?.classList.contains('fp-app');
   let active = 0;
   let showTimer = 0;
   let loader = null;
   function getLoader() {
-    if (loader || !eligible) return loader;
+    if (loader || !eligible || !allowGlobalOverlay) return loader;
     loader = document.createElement('div');
     loader.className = 'fp-global-loader';
     loader.hidden = true;
@@ -34,7 +37,7 @@
   }
   function show() {
     showTimer = 0;
-    if (active > 0) {
+    if (active > 0 && allowGlobalOverlay) {
       const current = getLoader();
       if (current) current.hidden = false;
     }
@@ -42,7 +45,7 @@
   function start() {
     if (!eligible) return () => {};
     active++;
-    if (!showTimer && loader?.hidden !== false)
+    if (allowGlobalOverlay && !showTimer && loader?.hidden !== false)
       showTimer = window.setTimeout(show, 100);
     let finished = false;
     return () => {
