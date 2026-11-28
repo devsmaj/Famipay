@@ -776,7 +776,7 @@
         hero.append(profileAvatar());
         const person = element('span',null,'fp-me-identity-copy');
         person.append(element('strong',user.nickname || user.name?.trim().split(/\\s+/)[0] || firstName()));
-        person.append(element('small', translateText('View my profile') + ' ›'));
+        const tier=element('small','Account','fp-me-tier');person.append(tier);
         hero.append(person,element('span','›','fp-me-arrow'));
         hero.onclick = () => navigate('profile-details');
         page.append(hero);
@@ -789,7 +789,7 @@
         let masked=true;
         eye.onclick=()=>{masked=!masked;hidden.textContent=masked?'****':translateText('Wallet not connected');eye.replaceChildren(svgIcon(masked?'eye-off':'eye'));};
         balanceLine.append(eye,hidden);
-        balance.append(balanceLine,element('p',translateText('Earned Today') + ' —'));
+        balance.append(balanceLine);
         page.append(balance);
         const shortcuts = element('section',null,'fp-me-shortcuts');
         [['Transactions','transaction-history','receipt'],['Account Limits','account-limits','gauge'],['Security Center','settings','shield']].forEach(([label,destination,icon])=>{
