@@ -119,8 +119,8 @@ jobs:
             adb shell am start -W -n com.famipay.app.preview/com.famipay.app.MainActivity
             sleep 15
             adb shell pidof com.famipay.app.preview
-            adb shell screencap -p /sdcard/famipay-update.png
-            adb pull /sdcard/famipay-update.png mobile/dist/android-update.png
+            adb exec-out screencap -p > mobile/dist/android-update.png
+            test -s mobile/dist/android-update.png
             adb logcat -d -b crash > mobile/dist/android-crash-log.txt
             test ! -s mobile/dist/android-crash-log.txt
       - uses: actions/upload-artifact@v7.0.2
