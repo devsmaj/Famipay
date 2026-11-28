@@ -1283,3 +1283,13 @@ body.fp-app .fp-premium-page.fp-me-page,body.fp-app .fp-premium-page.fp-me-detai
 .fp-settings-actions{display:flex;gap:12px}
 .fp-settings-actions button{flex:1;border:0;border-radius:30px;padding:14px;background:#dff7eb;color:#008e66;font:inherit;font-weight:700;cursor:pointer}
 .fp-settings-actions button:last-child{background:#00b981;color:white}
+
+
+/* Profile edit: prominent top feedback, small inline progress below Save. */
+body.fp-app .fp-me-form-feedback{margin:0 0 16px;padding:13px 15px;border-radius:11px;font-size:14px;line-height:1.5;background:#fff1f0;color:#a42b2b;border:1px solid #f1c4c0;}
+body.fp-app .fp-me-form-feedback[data-state="success"]{background:#e7f8f0;color:#006b4c;border-color:#b5e5cd;}
+body.fp-app .fp-me-form-feedback[hidden],body.fp-app .fp-me-bottom-loading[hidden]{display:none!important;}
+body.fp-app .fp-me-bottom-loading{display:flex;align-items:center;justify-content:center;gap:10px;padding:14px 4px 2px;color:#527064;font-size:13px;}
+body.fp-app .fp-me-bottom-spinner{display:inline-block;width:19px;height:19px;border:2px solid #d6eae1;border-top-color:#00ad7b;border-radius:50%;animation:fp-me-spin .75s linear infinite;flex:none;}
+@keyframes fp-me-spin{to{transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){body.fp-app .fp-me-bottom-spinner{animation-duration:1.8s}}
