@@ -1277,29 +1277,102 @@
         benefits.append(element('p',translateText('Limits are displayed only when supplied by your verified account provider.')));
         page.append(benefits);
     }
+    function privateToast(message, isError = false) {
+        let toast = document.querySelector('.fp-private-toast');
+        if (!toast) {
+            toast = element('div', null, 'fp-private-toast');
+            toast.setAttribute('role', 'status');
+            toast.setAttribute('aria-live', 'polite');
+            document.body.append(toast);
+        }
+        toast.textContent = translateText(message);
+        toast.classList.toggle('fp-private-toast-error', isError);
+        toast.classList.add('fp-private-toast-visible');
+        clearTimeout(privateToast.timer);
+        privateToast.timer = setTimeout(() => toast.classList.remove('fp-private-toast-visible'), 4200);
+    }
+
     function renderProfilePhoto(page) {
         page.classList.add('fp-me-photo-page');
-        profileBackHeader(page,'Photo');
-        const center=element('div',null,'fp-me-photo-center');
-        const avatar=profileAvatar('fp-me-photo-preview');
+        profileBackHeader(page, 'Photo');
+        const center = element('div', null, 'fp-me-photo-center');
+        const avatar = profileAvatar('fp-me-photo-preview');
         center.append(avatar);
         page.append(center);
-        const controls=element('div',null,'fp-me-photo-controls');
-        const feedback=element('p',null,'fp-me-photo-feedback');
-        const upload=async file=>{
-            if(!file)return;
-            if(!['image/jpeg','image/png','image/webp'].includes(file.type)||file.size>2*1024*1024){
-                feedback.textContent=translateText('Choose a JPG, PNG or WebP image under 2 MB.');return;
+        const controls = element('div', null, 'fp-me-photo-controls');
+        const picker = element('div', null, 'fp-photo-picker');
+        picker.hidden = true;
+        const crop = element('div', null, 'fp-photo-crop');
+        const photo = document.createElement('img');
+        photo.alt = 'Move and zoom your selected profile picture';
+        photo.draggable = false;
+        crop.append(photo);
+        ['tl','tr','bl','br'].forEach(corner => crop.append(element('span', null, 'fp-photo-corner fp-photo-corner-' + corner)));
+        const instructions = element('p', 'Drag to position · Pinch or use the slider to zoom', 'fp-photo-instructions');
+        const zoom = document.createElement('input');
+        zoom.type = 'range'; zoom.min = '1'; zoom.max = '4'; zoom.step = '0.01'; zoom.value = '1';
+        zoom.setAttribute('aria-label', 'Zoom profile picture');
+        const actions = element('div', null, 'fp-photo-actions');
+        const cancel = element('button', 'Cancel', 'fp-me-photo-button');
+        const done = element('button', 'Done', 'fp-me-photo-button fp-photo-done');
+        cancel.type = done.type = 'button';
+        actions.append(cancel, done);
+        picker.append(crop, instructions, zoom, actions);
+        page.append(picker);
+        let source = null, sourceUrl = '', scale = 1, offsetX = 0, offsetY = 0, active = new Map(), lastPinch = 0;
+        const apply = () => {
+            const width = crop.clientWidth || 300;
+            const height = crop.clientHeight || width;
+            if (!photo.naturalWidth) return;
+            const fit = Math.max(width / photo.naturalWidth, height / photo.naturalHeight);
+            const drawnW = photo.naturalWidth * fit * scale;
+            const drawnH = photo.naturalHeight * fit * scale;
+            offsetX = Math.max((width - drawnW)/2, Math.min((drawnW-width)/2, offsetX));
+            offsetY = Math.max((height - drawnH)/2, Math.min((drawnH-height)/2, offsetY));
+            photo.style.width = drawnW + 'px';
+            photo.style.height = drawnH + 'px';
+            photo.style.left = (width - drawnW)/2 + offsetX + 'px';
+            photo.style.top = (height - drawnH)/2 + offsetY + 'px';
+        };
+        zoom.oninput = () => { scale = Number(zoom.value); apply(); };
+        crop.addEventListener('pointerdown', event => { crop.setPointerCapture(event.pointerId); active.set(event.pointerId, {x:event.clientX,y:event.clientY}); lastPinch=0; });
+        crop.addEventListener('pointermove', event => {
+            if (!active.has(event.pointerId)) return;
+            const old = active.get(event.pointerId);
+            active.set(event.pointerId, {x:event.clientX,y:event.clientY});
+            if (active.size === 1) { offsetX += event.clientX-old.x; offsetY += event.clientY-old.y; }
+            else if (active.size === 2) {
+                const [p,q] = [...active.values()];
+                const distance = Math.hypot(p.x-q.x,p.y-q.y);
+                if (lastPinch) scale = Math.max(1,Math.min(4,scale * distance / lastPinch));
+                lastPinch=distance; zoom.value=String(scale);
             }
-            const client=window.Famina?.client;
-            if(!client?.auth||!client?.storage){feedback.textContent=translateText('Photo uploads are unavailable.');return;}
-            feedback.textContent=translateText('Uploading photo…');
-            try{
+            apply();
+        });
+        const release = event => { active.delete(event.pointerId); lastPinch=0; };
+        crop.addEventListener('pointerup',release);crop.addEventListener('pointercancel',release);
+        const closePicker = () => { picker.hidden=true; controls.hidden=false; if(sourceUrl)URL.revokeObjectURL(sourceUrl);sourceUrl='';source=null;active.clear(); };
+        cancel.onclick = closePicker;
+        const upload = async () => {
+            if (!source || done.disabled) return;
+            const client = window.Famina?.client;
+            if (!client?.auth || !client?.storage) { privateToast('Photo uploads are unavailable.',true);return; }
+            done.disabled = true;
+            done.classList.add('fp-button-busy');
+            const label = done.textContent; done.textContent = '';
+            const spinner = element('span',null,'fp-button-spinner');done.append(spinner);
+            try {
+                const canvas=document.createElement('canvas');canvas.width=512;canvas.height=512;
+                const context=canvas.getContext('2d');
+                const side=crop.clientWidth;
+                const ratio=512/side;
+                context.drawImage(photo,(parseFloat(photo.style.left)||0)*ratio,(parseFloat(photo.style.top)||0)*ratio,parseFloat(photo.style.width)*ratio,parseFloat(photo.style.height)*ratio);
+                const blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/jpeg',0.9));
+                if(!blob)throw new Error('Could not prepare your photo.');
                 const {data,error}=await client.auth.getSession();if(error)throw error;
                 const id=data?.session?.user?.id;if(!id)throw new Error('Please sign in again.');
-                const ext=file.type==='image/png'?'png':file.type==='image/webp'?'webp':'jpg';
-                const key=id+'/profile.'+ext;
-                const {error:uploadError}=await client.storage.from('avatars').upload(key,file,{upsert:true,contentType:file.type});
+                const key=id+'/profile.jpg';
+                const {error:uploadError}=await client.storage.from('avatars').upload(key,blob,{upsert:true,contentType:'image/jpeg'});
                 if(uploadError)throw uploadError;
                 const {data:publicData}=client.storage.from('avatars').getPublicUrl(key);
                 const url=safePhoto(publicData?.publicUrl);
@@ -1310,17 +1383,32 @@
                 if(window.Famina?.user)window.Famina.user.avatar_url=avatarUrl;
                 avatar.replaceChildren();
                 const image=document.createElement('img');image.src=avatarUrl;image.alt='Profile photo';avatar.append(image);
-                feedback.textContent=translateText('Profile photo updated.');
-            }catch(error){feedback.textContent=error?.message||translateText('Upload failed.');}
+                closePicker();
+                privateToast('Profile photo updated.');
+            } catch(error) { privateToast(error?.message||'Upload failed.',true); }
+            finally { done.disabled=false;done.classList.remove('fp-button-busy');done.textContent=label; }
         };
+        done.onclick=upload;
         [['Select from album',false],['Take a Photo',true]].forEach(([label,camera])=>{
             const input=document.createElement('input');input.type='file';input.accept='image/jpeg,image/png,image/webp';
             if(camera)input.setAttribute('capture','user');
-            input.hidden=true;input.onchange=()=>{const file=input.files?.[0];upload(file);input.value='';};
+            input.hidden=true;
+            input.onchange=()=>{
+                const file=input.files?.[0];input.value='';
+                if(!file)return;
+                if(!['image/jpeg','image/png','image/webp'].includes(file.type)||file.size>2*1024*1024) {
+                    privateToast('Choose a JPG, PNG or WebP image under 2 MB.',true);return;
+                }
+                if(sourceUrl)URL.revokeObjectURL(sourceUrl);
+                source=file;sourceUrl=URL.createObjectURL(file);
+                photo.onload=()=>{scale=1;offsetX=0;offsetY=0;zoom.value='1';apply();};
+                photo.src=sourceUrl;
+                controls.hidden=true;picker.hidden=false;
+            };
             const button=element('button',translateText(label),'fp-me-photo-button');button.type='button';
             button.onclick=()=>input.click();controls.append(input,button);
         });
-        controls.append(feedback);page.append(controls);
+        page.append(controls);
     }
 
     function premiumCustomerPage(screenId) {
