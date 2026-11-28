@@ -1047,3 +1047,12 @@ body.fp-app .app .main:has(.fp-premium-page) {
 .fp-premium-account-details p { margin: 4px 0; font-size: 12px; color: #647d6f; overflow-wrap: anywhere; }
 body.fp-app button, body.fp-app a { -webkit-tap-highlight-color: transparent; }
 body.fp-app button:focus-visible, body.fp-app a:focus-visible, body.fp-app input:focus-visible { outline: 2px solid #00996c; outline-offset: 2px; }
+
+
+.fp-premium-account-details { padding: 16px 0; color: #234335; }
+.fp-premium-account-details strong { font-size: 13px; font-weight: 750; }
+.fp-premium-account-details p { margin: 5px 0 0; color: #718579; font-size: 12px; overflow-wrap: anywhere; }
+body.fp-app .fp-premium-page button { cursor: pointer; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+body.fp-app .fp-premium-page button:focus-visible,
+body.fp-app .bottom a:focus-visible { outline: 3px solid #1da879; outline-offset: 2px; }
+body.fp-app .fp-premium-page button:disabled { opacity: .55; cursor: not-allowed; }
