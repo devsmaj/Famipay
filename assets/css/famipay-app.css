@@ -1056,3 +1056,32 @@ body.fp-app .fp-premium-page button { cursor: pointer; -webkit-tap-highlight-col
 body.fp-app .fp-premium-page button:focus-visible,
 body.fp-app .bottom a:focus-visible { outline: 3px solid #1da879; outline-offset: 2px; }
 body.fp-app .fp-premium-page button:disabled { opacity: .55; cursor: not-allowed; }
+
+
+/* Single compact refresh / redirect screen. No placeholder card or skeleton. */
+body.fp-app #app.fp-bootstrap-shell:has(.fp-redirect) {
+    width:100%;min-height:100dvh;margin:0;padding:0;background:#fff;
+}
+.fp-redirect {
+    min-height:100dvh;display:flex;align-items:center;justify-content:center;
+    flex-direction:column;text-align:center;padding:24px;background:#fff;
+    font-family:system-ui,Arial,sans-serif;color:#163b2d;
+}
+.fp-redirect-mark {
+    display:grid;place-items:center;width:62px;height:62px;
+    background:linear-gradient(145deg,#008963,#005d43);border-radius:18px;
+    color:#fff;font-size:29px;font-weight:850;letter-spacing:-2px;
+}
+.fp-redirect-spinner {
+    display:block;width:23px;height:23px;margin:25px 0 15px;
+    border:2.5px solid #d5eae0;border-top-color:#00865c;
+    border-radius:50%;animation:fp-redirect-spin .9s linear infinite;
+}
+.fp-redirect-spinner[hidden],.fp-redirect-retry[hidden]{display:none!important}
+@keyframes fp-redirect-spin {to{transform:rotate(360deg)}}
+.fp-redirect-title {font-size:17px;font-weight:800}
+.fp-redirect-message {font-size:12px;color:#82948a;margin:7px 0 0;line-height:1.6}
+.fp-redirect-retry {
+    margin-top:20px;background:#007b56;color:white;border:0;
+    border-radius:12px;padding:12px 18px;font-weight:750;cursor:pointer;
+}
