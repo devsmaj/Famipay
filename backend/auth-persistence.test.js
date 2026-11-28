@@ -73,7 +73,7 @@ test('API requests normalize a trailing slash in the configured base URL',async(
 test('shared loader avoids quick flashes and remains visible until overlapping requests finish',()=>{
   const timers=new Map();let nextTimer=0;
   class Element {
-    constructor(){this.children=[];this.attributes={};this.hidden=false;this.classList={contains:name=>name==='fp-app',add(){},remove(){}};}
+    constructor(){this.children=[];this.attributes={};this.hidden=false;this.classList={contains:name=>name==='fp-verification-page',add(){},remove(){}};}
     append(...children){this.children.push(...children);}
     setAttribute(name,value){this.attributes[name]=value;}
   }
@@ -91,6 +91,24 @@ test('shared loader avoids quick flashes and remains visible until overlapping r
   finishA();finishA();assert.equal(loader.hidden,false);
   finishB();assert.equal(loader.hidden,true);
 });
+test('private app requests never create the oversized global loader',()=>{
+  const timers=new Map();let nextTimer=0;
+  class Element {
+    constructor(){this.children=[];this.hidden=false;this.classList={contains:name=>name==='fp-app',remove(){}};}
+    append(...children){this.children.push(...children);}
+    setAttribute(){}
+  }
+  const body=new Element();body.dataset={};
+  const document={body,baseURI:'https://devsmaj.github.io/Famipay/',documentElement:{classList:{remove(){}}},createElement:()=>new Element(),addEventListener(){}};
+  const window={setTimeout(fn){const id=++nextTimer;timers.set(id,fn);return id;},clearTimeout(id){timers.delete(id);},addEventListener(){}};
+  vm.runInNewContext(loadingSource,{window,document,URL});
+  const finishA=window.FaminaLoading.request(),finishB=window.FaminaLoading.request();
+  assert.equal(timers.size,0);
+  assert.equal(body.children.length,0);
+  finishA();finishB();
+  assert.equal(body.children.length,0);
+});
+
 test('public catalog does not wait for a stalled authentication SDK',async()=>{
   const a=boot({hangSession:true});await tick();assert.deepEqual(await a.F.api('/menu'),[]);
   const deadline=[...a.timers].find(([,t])=>t.ms===15000);assert(deadline);a.timers.delete(deadline[0]);deadline[1].fn();
