@@ -1255,3 +1255,31 @@ body.fp-app .fp-premium-page.fp-me-page,body.fp-app .fp-premium-page.fp-me-detai
 .fp-me-logout-actions button:last-child{background:#00b77b;color:white}
 .fp-me-logout-actions button:disabled{opacity:.6}
 .fp-me-logout-dialog .fp-me-editor-feedback:empty{display:none}
+
+
+/* Dedicated customer Settings screens — consistent full-width mobile layout. */
+.fp-settings-page{background:#f7f7fa!important;min-height:100%;padding:0 16px 110px!important;box-sizing:border-box}
+.fp-settings-page .fp-me-subheader{margin:0 -16px 22px;background:#fff;padding:17px 18px;min-height:66px;display:flex;align-items:center}
+.fp-settings-card{background:#fff;border-radius:17px;margin:0 0 18px;overflow:hidden;box-shadow:none;border:0}
+.fp-settings-row{width:100%;min-height:69px;display:flex;align-items:center;gap:17px;padding:17px 20px;background:transparent;border:0;text-align:start;color:#26322d;font:inherit;cursor:pointer}
+.fp-settings-row+.fp-settings-row{border-top:1px solid #f5f5f5}
+.fp-settings-row .fp-icon{width:24px;height:24px;stroke:#00ae7b;fill:none;stroke-width:1.8;flex-shrink:0}
+.fp-settings-row>span:nth-last-child(2){flex:1}
+.fp-settings-chevron{margin-inline-start:auto;color:#a3aaa6;font-size:25px}
+.fp-settings-heading{font-size:17px;font-weight:600;margin:22px 0 13px;color:#252b29}
+.fp-settings-signout{display:block;width:100%;min-height:65px;border:0;border-radius:16px;background:white;color:#222;font:inherit;cursor:pointer;margin-top:16px}
+.fp-settings-theme{width:100%;min-height:76px;border:2px solid transparent;border-radius:16px;background:#fff;margin-bottom:16px;padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;font:inherit;color:#222;text-align:start;cursor:pointer}
+.fp-settings-theme.selected{border-color:#00b981}
+.fp-settings-theme.selected>span:last-child{color:#00b981;font-size:23px}
+.fp-settings-note{color:#71807a;font-size:14px;line-height:1.55;margin:12px 0 18px}
+.fp-settings-question{padding:20px}
+.fp-settings-question h3{margin:0 0 15px;font-size:17px}
+.fp-settings-question select,.fp-settings-question input:not([type=radio]),.fp-settings-question textarea{width:100%;box-sizing:border-box;padding:14px;border:1px solid #e7e9e9;background:#f7f7fa;border-radius:10px;margin:7px 0;color:#26322d;font:inherit}
+.fp-settings-brand{text-align:center;color:#00865f;font-weight:800;margin:48px 0}
+.fp-settings-document{display:block;padding:22px;background:white;border-radius:16px;color:#00865f;text-decoration:none}
+.fp-settings-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;padding:24px;z-index:9999}
+.fp-settings-dialog{width:min(100%,350px);background:white;border-radius:18px;padding:24px 20px;text-align:center;box-sizing:border-box;color:#222}
+.fp-settings-dialog p{margin:8px 0 25px;line-height:1.5}
+.fp-settings-actions{display:flex;gap:12px}
+.fp-settings-actions button{flex:1;border:0;border-radius:30px;padding:14px;background:#dff7eb;color:#008e66;font:inherit;font-weight:700;cursor:pointer}
+.fp-settings-actions button:last-child{background:#00b981;color:white}
