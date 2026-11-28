@@ -840,10 +840,8 @@
         });
         page.append(shortcuts);
         const menu=element('section',null,'fp-me-menu');
-        meRow(menu,'My Loan','loans','loan');
         meRow(menu,'Bank Card / Account','my-cards','cards');
         meRow(menu,'Pay MF','merchant','store');
-        meRow(menu,'OJunior','help-center','profile');
         meRow(menu,'Notifications','notifications','bell');
         meRow(menu,'FAMIPAY USSD','famipay-ussd','phone');
         page.append(menu);
